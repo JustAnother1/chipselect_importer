@@ -1,2 +1,5 @@
 /bin/
 prototypes/
+/lib/
+/target/
+/dependency-reduced-pom.xml

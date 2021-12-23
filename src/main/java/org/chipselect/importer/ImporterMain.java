@@ -13,12 +13,27 @@
  *
  */
 
+package org.chipselect.importer;
+
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.nio.charset.StandardCharsets;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.joran.JoranConfigurator;
+import ch.qos.logback.core.joran.spi.JoranException;
+import ch.qos.logback.core.util.StatusPrinter;
 
 public class ImporterMain
 {
     private final Logger log = LoggerFactory.getLogger(this.getClass().getName());
+    private boolean import_svd = false;
+    private String svd_FileName;
 
     public ImporterMain()
     {
@@ -80,28 +95,78 @@ public class ImporterMain
         StatusPrinter.printInCaseOfErrorsOrWarnings(context);
     }
 
+    public void printHelp()
+    {
+        System.out.println("Importer [Parameters]");
+        System.out.println("Parameters:");
+        System.out.println("-h / --help                : print this message.");
+        System.out.println("-v                         : verbose output for even more messages use -v -v");
+        System.out.println("-svd <file name>           : import a svd file.");
+    }
+
     public boolean parseCommandLineParameters(String[] args)
     {
-        CommandLineParser p = new CommandLineParser();
-        if(true == p.parse(args))
-        {
-            cfg = p.getConfiguration();
-            return true;
-        }
-        else
+        if(null == args)
         {
             return false;
         }
+        for(int i = 0; i < args.length; i++)
+        {
+            if(true == args[i].startsWith("-"))
+            {
+                if(true == "-h".equals(args[i]))
+                {
+                    return false;
+                }
+                else if(true == "-v".equals(args[i]))
+                {
+                    // already handled -> ignore
+                }
+                else if(true == "-svd".equals(args[i]))
+                {
+                    // already handled -> ignore
+                    i++;
+                    if(i == args.length)
+                    {
+                        System.err.println("ERROR: missing parameter for " + args[i-1]);
+                        return false;
+                    }
+                    svd_FileName = args[i];
+                    import_svd = true;
+                }
+                else
+                {
+                    System.err.println("Invalid Parameter : " + args[i]);
+                    return false;
+                }
+            }
+            else
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public boolean execute()
+    {
+        boolean done_something = false;
+        // import a svd file?
+        if(true == import_svd)
+        {
+
+            done_something = true;
+        }
+        return done_something;
     }
 
     public static void main(String[] args)
     {
-        PuzzlerMain m = new PuzzlerMain();
+        ImporterMain m = new ImporterMain();
         m.startLogging(args);
         if(true == m.parseCommandLineParameters(args))
         {
-            m.execute();
-            if(true == m.successful)
+            if(true == m.execute())
             {
                 // OK
                 System.exit(0);
@@ -115,6 +180,7 @@ public class ImporterMain
         }
         else
         {
+            m.printHelp();
             System.exit(1);
         }
     }

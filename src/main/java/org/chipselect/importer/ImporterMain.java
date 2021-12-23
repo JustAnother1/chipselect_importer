@@ -19,8 +19,13 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
+import org.chipselect.importer.parser.SystemViewDescription;
+import org.jdom2.Document;
+import org.jdom2.JDOMException;
+import org.jdom2.input.SAXBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -154,8 +159,44 @@ public class ImporterMain
         // import a svd file?
         if(true == import_svd)
         {
-
-            done_something = true;
+            // SVD Files are XML
+            Document jdomDocument = null;
+            File xf = new File(svd_FileName);
+            if(true == xf.exists())
+            {
+                SAXBuilder jdomBuilder = new SAXBuilder();
+                log.trace("trying to open {}", svd_FileName);
+                try
+                {
+                    jdomDocument = jdomBuilder.build(svd_FileName);
+                    SystemViewDescription parser = new SystemViewDescription();
+                    if(false == parser.parse(jdomDocument))
+                    {
+                        return false;
+                    }
+                    done_something = true;
+                }
+                catch(FileNotFoundException e)
+                {
+                    log.error("File not found: {}", svd_FileName);
+                    jdomDocument = null;
+                }
+                catch(JDOMException e)
+                {
+                    log.error(Tool.fromExceptionToString(e));
+                    jdomDocument = null;
+                }
+                catch (IOException e)
+                {
+                    log.error(Tool.fromExceptionToString(e));
+                    jdomDocument = null;
+                }
+            }
+            else
+            {
+                log.error("the file {} does not exist.", svd_FileName);
+                return false;
+            }
         }
         return done_something;
     }

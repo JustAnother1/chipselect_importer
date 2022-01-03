@@ -17,12 +17,14 @@ package org.chipselect.importer;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 import org.chipselect.importer.parser.SystemViewDescription;
+import org.chipselect.importer.server.HttpRestServer;
+import org.chipselect.importer.server.RestServer;
+import org.chipselect.importer.server.Server;
 import org.jdom2.Document;
 import org.jdom2.JDOMException;
 import org.jdom2.input.SAXBuilder;
@@ -38,7 +40,11 @@ public class ImporterMain
 {
     private final Logger log = LoggerFactory.getLogger(this.getClass().getName());
     private boolean import_svd = false;
-    private String svd_FileName;
+    private String svd_FileName = null;
+    private String vendor_name = null;
+    private String restUrl = null;
+    private String restUser = null;
+    private String restPassword = null;
 
     public ImporterMain()
     {
@@ -107,6 +113,10 @@ public class ImporterMain
         System.out.println("-h / --help                : print this message.");
         System.out.println("-v                         : verbose output for even more messages use -v -v");
         System.out.println("-svd <file name>           : import a svd file.");
+        System.out.println("-vendor <vendor name>      : set chip venor name. This is necessary if the vendor name is not contained in the imported file.");
+        System.out.println("-REST_URL <URL>            : URL of REST server with chip database.");
+        System.out.println("-user <name>               : user name for REST server.");
+        System.out.println("-password <password>       : password for REST server.");
     }
 
     public boolean parseCommandLineParameters(String[] args)
@@ -129,7 +139,6 @@ public class ImporterMain
                 }
                 else if(true == "-svd".equals(args[i]))
                 {
-                    // already handled -> ignore
                     i++;
                     if(i == args.length)
                     {
@@ -138,6 +147,51 @@ public class ImporterMain
                     }
                     svd_FileName = args[i];
                     import_svd = true;
+                }
+                else if(true == "-vendor".equals(args[i]))
+                {
+                    i++;
+                    if(i == args.length)
+                    {
+                        System.err.println("ERROR: missing parameter for " + args[i-1]);
+                        return false;
+                    }
+                    vendor_name = args[i];
+                    import_svd = true;
+                }
+                else if(true == "-REST_URL".equals(args[i]))
+                {
+                    i++;
+                    if(i == args.length)
+                    {
+                        System.err.println("ERROR: missing parameter for " + args[i-1]);
+                        return false;
+                    }
+                    restUrl = args[i];
+                    if(false == restUrl.endsWith("/"))
+                    {
+                        restUrl = restUrl + "/";
+                    }
+                }
+                else if(true == "-user".equals(args[i]))
+                {
+                    i++;
+                    if(i == args.length)
+                    {
+                        System.err.println("ERROR: missing parameter for " + args[i-1]);
+                        return false;
+                    }
+                    restUser = args[i];
+                }
+                else if(true == "-password".equals(args[i]))
+                {
+                    i++;
+                    if(i == args.length)
+                    {
+                        System.err.println("ERROR: missing parameter for " + args[i-1]);
+                        return false;
+                    }
+                    restPassword = args[i];
                 }
                 else
                 {
@@ -155,6 +209,17 @@ public class ImporterMain
 
     public boolean execute()
     {
+        Server chipselect = null;
+        if(null != restUrl)
+        {
+            chipselect = new HttpRestServer(restUrl, restUser, restPassword);
+        }
+        if(null == chipselect)
+        {
+            log.error("No Server Specified! Nothing to send imported data to!");
+            printHelp();
+            return false;
+        }
         boolean done_something = false;
         // import a svd file?
         if(true == import_svd)
@@ -169,7 +234,11 @@ public class ImporterMain
                 try
                 {
                     jdomDocument = jdomBuilder.build(svd_FileName);
-                    SystemViewDescription parser = new SystemViewDescription();
+                    SystemViewDescription parser = new SystemViewDescription(chipselect);
+                    if(null != vendor_name)
+                    {
+                        parser.setVendorName(vendor_name);
+                    }
                     if(false == parser.parse(jdomDocument))
                     {
                         return false;
@@ -183,12 +252,12 @@ public class ImporterMain
                 }
                 catch(JDOMException e)
                 {
-                    log.error(Tool.fromExceptionToString(e));
+                    log.error(e.getLocalizedMessage());
                     jdomDocument = null;
                 }
                 catch (IOException e)
                 {
-                    log.error(Tool.fromExceptionToString(e));
+                    log.error(e.getLocalizedMessage());
                     jdomDocument = null;
                 }
             }
@@ -198,6 +267,7 @@ public class ImporterMain
                 return false;
             }
         }
+        // import something else ?
         return done_something;
     }
 

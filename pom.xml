@@ -60,6 +60,12 @@
         <artifactId>ws-commons-util</artifactId>
         <version>1.0.2</version>
     </dependency>
+    <dependency>
+        <groupId>org.json</groupId>
+        <artifactId>json</artifactId>
+        <version>20211205</version>
+    </dependency>
+
 
     <dependency>
       <groupId>junit</groupId>

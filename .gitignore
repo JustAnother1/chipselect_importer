@@ -3,3 +3,5 @@ prototypes/
 /lib/
 /target/
 /dependency-reduced-pom.xml
+/*.svd
+/*.sh

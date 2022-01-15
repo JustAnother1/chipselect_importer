@@ -55,6 +55,7 @@ public class SystemViewDescription
             int new_id = post_res.getInt("id");
             if(0 == new_id)
             {
+                log.error("Failed to create new vendor!");
                 return false;
             }
             else
@@ -94,8 +95,8 @@ public class SystemViewDescription
         else
         {
             device_id = id;
-            return true;
         }
+        // TODO
     }
 
     public boolean parse(Document doc)

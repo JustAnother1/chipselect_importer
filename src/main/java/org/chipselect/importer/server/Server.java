@@ -2,10 +2,10 @@ package org.chipselect.importer.server;
 
 public interface Server {
 
-    Response get(String ressource, String field, String filter);
+    Response get(String ressource, String urlGet);
 
-    Response get(String ressource, String filter);
+    Response post(String ressource, String urlGet);
 
-    Response post(String ressource, String value);
+    Response put(String ressource, String urlGet);
 
 }

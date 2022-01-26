@@ -2,6 +2,7 @@ package org.chipselect.importer.parser;
 
 import java.net.URISyntaxException;
 import java.util.List;
+import java.util.Vector;
 
 import org.chipselect.importer.server.Response;
 import org.chipselect.importer.server.Server;
@@ -374,7 +375,14 @@ public class SystemViewDescription
         int default_size_int = 0;
         if(null != default_size)
         {
-            default_size_int = Integer.valueOf(default_size);
+            if(default_size.startsWith("0x"))
+            {
+                default_size_int = Integer.valueOf(default_size.substring(2), 16);
+            }
+            else
+            {
+                default_size_int = Integer.valueOf(default_size);
+            }
         }
         log.trace("default_size(int): {}", default_size_int);
         log.trace("default_access: {}", default_access);
@@ -388,14 +396,35 @@ public class SystemViewDescription
         handler.setDefaultProtection(default_protection);
 
         List<Element> children = peripherals.getChildren();
+        Vector<Element> derivedPeripherals = new Vector<Element>();
         for(Element peripheral : children)
+        {
+            // check if derived
+            String derived = peripheral.getAttributeValue("derivedFrom");
+            if(null != derived)
+            {
+                String name = peripheral.getChildText("name");
+                log.trace("Peripheral: {} is derived from {}", name, derived);
+                derivedPeripherals.add(peripheral);
+            }
+            else
+            {
+                // not a derived peripheral
+                if(false == handler.handle(peripheral))
+                {
+                    return false;
+                }
+            }
+        }
+        log.trace("now handling derived peripherals....");
+        for(Element peripheral : derivedPeripherals)
         {
             if(false == handler.handle(peripheral))
             {
                 return false;
             }
         }
-        return false;
+        return true;
     }
 
     public void setVendorName(String vendor_name)

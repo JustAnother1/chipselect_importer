@@ -1,6 +1,5 @@
 package org.chipselect.importer.parser;
 
-import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Vector;
 
@@ -55,7 +54,16 @@ public class SystemViewDescription
         {
             return false;
         }
-        int id = res.getInt("id");
+        int id = 0;
+        int alt = res.getInt("alternative");
+        if(alt != 0)
+        {
+            id = alt;
+        }
+        else
+        {
+            id = res.getInt("id");
+        }
         if(0 == id)
         {
             // this vendor is not on the server
@@ -400,6 +408,9 @@ public class SystemViewDescription
         for(Element peripheral : children)
         {
             // check if derived
+            // strictly speaking it is probably not necessary to handle the non derived before the derived peripherals.
+            // It just feels better and might avoid issues in corner cases, also not much overhead.
+            // With a good argument this can be removed.
             String derived = peripheral.getAttributeValue("derivedFrom");
             if(null != derived)
             {

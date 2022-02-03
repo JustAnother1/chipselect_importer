@@ -37,7 +37,7 @@ public class HttpRestServer extends RestServer implements Server
     {
         // Create a neat value object to hold the URL
         URL url = new URL(restUrl + req.url());
-        log.info(url.toString());
+        log.info("{} : {}",req.getMethod(), url.toString());
 
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 

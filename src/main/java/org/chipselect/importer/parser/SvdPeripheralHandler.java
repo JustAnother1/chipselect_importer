@@ -130,14 +130,15 @@ public class SvdPeripheralHandler
         }
     }
 
+
     private String checkIfUpdateNeeded(int idx, int origIdx, Element peripheral, String svdName, String serverName)
     {
         String svdValue = peripheral.getChildText(svdName);
-        if( null == svdValue)
+        if(null == svdValue)
         {
             svdValue = allPeripherals.getString(origIdx, serverName);
         }
-        if( null == svdValue)
+        if(null == svdValue)
         {
             // value not present
             return null;
@@ -146,7 +147,7 @@ public class SvdPeripheralHandler
         String srvValue = allPeripherals.getString(idx, serverName);
         if(false == svdValue.equals(srvValue))
         {
-            log.info("updating {} from {} to {}!", svdName, srvValue, svdValue);
+            log.info("update needed for {} from {} to {}!", svdName, srvValue, svdValue);
             return svdValue;
         }
         // else value is the same so no update needed
@@ -224,26 +225,72 @@ public class SvdPeripheralHandler
         // appendToName
         // headerStructName
 
+        if(null !=  peripheral.getChildText("dim"))
+        {
+            log.error("dim not implemented!");
+            return false;
+        }
+        if(null !=  peripheral.getChildText("dimIncrement"))
+        {
+            log.error("dimIncrement not implemented!");
+            return false;
+        }
+        if(null !=  peripheral.getChildText("dimIndex"))
+        {
+            log.error("dimIndex not implemented!");
+            return false;
+        }
+        if(null !=  peripheral.getChildText("dimName"))
+        {
+            log.error("dimName not implemented!");
+            return false;
+        }
+        if(null !=  peripheral.getChildText("dimArrayIndex"))
+        {
+            log.error("dimArrayIndex not implemented!");
+            return false;
+        }
+        if(null !=  peripheral.getChildText("alternatePeripheral"))
+        {
+            log.error("alternatePeripheral not implemented!");
+            return false;
+        }
+        if(null !=  peripheral.getChildText("prependToName"))
+        {
+            log.error("prependToName not implemented!");
+            return false;
+        }
+        if(null !=  peripheral.getChildText("appendToName"))
+        {
+            log.error("appendToName not implemented!");
+            return false;
+        }
+        if(null !=  peripheral.getChildText("headerStructName"))
+        {
+            log.error("headerStructName not implemented!");
+            return false;
+        }
+
 
         // description
         String upd = checkIfUpdateNeeded(idx, origIdx, peripheral, "description", "description");
         if(null != upd)
         {
-            log.error("not implemented!");
+            log.error("description not implemented!");
             return false;
         }
         // disableCondition
         upd = checkIfUpdateNeeded(idx, origIdx, peripheral, "disableCondition", "disable_Condition");
         if(null != upd)
         {
-            log.error("not implemented!");
+            log.error("disableCondition not implemented!");
             return false;
         }
         // baseAddress
         upd = checkIfUpdateNeeded(idx, origIdx, peripheral, "baseAddress", "base_address");
         if(null != upd)
         {
-            log.error("not implemented!");
+            log.error("baseAddress not implemented!");
             return false;
         }
 
@@ -262,17 +309,70 @@ public class SvdPeripheralHandler
             return false;
         }
         // groupName
-        // TODO
+        String svdGroupName = peripheral.getChildText("groupName");
+        if(null != svdGroupName)
+        {
+            if(0 < svdGroupName.length())
+            {
+                String srvGroupName = srvPeripheral.getString(idx, "group_name");
+                if(false == svdGroupName.equals(srvGroupName))
+                {
+                    log.info("group name changed from {} to {} !", srvGroupName, svdGroupName);
+                    log.error("update group name - not implemented!");
+                    return false;
+                }
+            }
+        }
 
         // size
+        String svdSize = peripheral.getChildText("size");
+        if(null != svdSize)
+        {
+            default_size = Integer.parseInt(svdSize);
+        }
         // access
+        String svdAccess = peripheral.getChildText("access");
+        if(null != svdAccess)
+        {
+            default_access = svdAccess;
+        }
         // protection
+        String svdProtection = peripheral.getChildText("protection");
+        if(null != svdProtection)
+        {
+            default_protection = svdProtection;
+        }
         // resetValue
+        String svdResetValue = peripheral.getChildText("resetValue");
+        if(null != svdResetValue)
+        {
+            default_resetValue = svdResetValue;
+        }
         // resetMask
+        String svdResetMask = peripheral.getChildText("resetMask");
+        if(null != svdResetMask)
+        {
+            default_resetMask = svdResetMask;
+        }
 
         // addressBlock
+        if(null !=  peripheral.getChildText("addressBlock"))
+        {
+            log.error("addressBlock not implemented!");
+            return false;
+        }
         // interrupt
+        if(null !=  peripheral.getChildText("interrupt"))
+        {
+            log.error("interrupt not implemented!");
+            return false;
+        }
         // registers
+        if(null !=  peripheral.getChildText("registers"))
+        {
+            log.error("registers not implemented!");
+            return false;
+        }
 
 
 
@@ -282,7 +382,7 @@ public class SvdPeripheralHandler
 
     private boolean createPeripheralInstanceFrom(Element peripheral)
     {
-        log.error("not implemented!");
+        log.error("createPeripheralInstanceFrom not implemented!");
         return false;
     }
 

@@ -356,10 +356,13 @@ public class SvdPeripheralHandler
         }
 
         // addressBlock
-        if(null !=  peripheral.getChildText("addressBlock"))
+        Element addressBlock = peripheral.getChild("addressBlock");
+        if(null !=  addressBlock)
         {
-            log.error("addressBlock not implemented!");
-            return false;
+            if(false == updateAddressBlock(peripheralId, addressBlock))
+            {
+                return false;
+            }
         }
         // interrupt
         if(null !=  peripheral.getChildText("interrupt"))
@@ -374,10 +377,74 @@ public class SvdPeripheralHandler
             return false;
         }
 
+        return true;
+    }
+
+    private boolean updateAddressBlock(int srvPerIdx, Element svdAaddressBlock)
+    {
+        Response res = srv.get("address_block", "per_id=" + srvPerIdx);
+        if(false == res.wasSuccessfull())
+        {
+            return false;
+        }
+        // else -> go on
+
+        int offset = -1;
+        int size = -1;
+        String usage = null;
+        String protection = null;
 
 
-        log.error("missing - not implemented!");
-        return false;
+        // check for unknown children
+        List<Element> children = svdAaddressBlock.getChildren();
+        for(Element child : children)
+        {
+            String name = child.getName();
+            switch(name)
+            {
+            // all defined child types from SVD standard
+            // compare to: https://arm-software.github.io/CMSIS_5/develop/SVD/html/elem_device.html
+            case "offset":
+                offset = Integer.decode(child.getText());
+                break;
+            case "size":
+                size = Integer.decode(child.getText());
+                break;
+            case "usage":
+                usage = child.getText();
+                break;
+            case "protection":
+                protection = child.getText();
+                break;
+
+            default:
+                // undefined child found. This is not a valid SVD file !
+                log.error("Unknown addressblock child tag: {}", name);
+                return false;
+            }
+        }
+
+        int srvOffset = res.getInt("address_offset");
+        int srvSize = res.getInt("size");
+        String srvUsage = res.getString("mem_usage");
+        String srvProtection = res.getString("protection");
+        // check for changes
+        if(    (offset != srvOffset)
+            || (size != srvSize)
+            || ((null != usage) && (false == usage.equals(srvUsage)))
+            || ((null != protection) && (false == protection.equals(srvProtection)))
+            )
+        {
+            log.trace("offset : new: {} old : {}", offset, srvOffset);
+            log.trace("size : new: {} old : {}", size, srvSize);
+            log.trace("usage : new: {} old : {}", usage, srvUsage);
+            log.trace("protection : new: {} old : {}", protection, srvProtection);
+            log.error("update addressblock not implemented!");
+            return false;
+        }
+        // else  no changes
+
+        return true;
     }
 
     private boolean createPeripheralInstanceFrom(Element peripheral)

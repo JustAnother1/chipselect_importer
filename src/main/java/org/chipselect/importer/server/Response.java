@@ -63,14 +63,34 @@ public class Response
         }
         else
         {
+            JSONObject obj = dataArr.getJSONObject(index);
+            if(false == obj.has(key))
+            {
+                return 0;
+            }
             try
             {
-                JSONObject obj = dataArr.getJSONObject(index);
-                return obj.getInt(key);
+                return obj.getInt(key); // does not work with hex numbers like "0x400"
             }
             catch(JSONException e)
             {
-                return 0;
+                // might just be a hex number
+                try
+                {
+                    String hlp = obj.getString(key);
+                    int res = Integer.decode(hlp);
+                    return res;
+                }
+                catch(JSONException e2)
+                {
+                    log.warn("Int convert Exception !");
+                    return 0;
+                }
+                catch(NumberFormatException e1)
+                {
+                    log.warn("Int convert Exception !");
+                    return 0;
+                }
             }
         }
     }

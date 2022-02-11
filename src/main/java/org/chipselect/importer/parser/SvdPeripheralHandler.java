@@ -365,17 +365,113 @@ public class SvdPeripheralHandler
             }
         }
         // interrupt
-        if(null !=  peripheral.getChildText("interrupt"))
+        Element interrupt = peripheral.getChild("interrupt");
+        if(null !=  interrupt)
         {
-            log.error("interrupt not implemented!");
-            return false;
+            if(false == updateInterrupt(peripheralId, interrupt))
+            {
+                return false;
+            }
         }
         // registers
-        if(null !=  peripheral.getChildText("registers"))
+        Element registers = peripheral.getChild("registers");
+        if(null !=  registers)
         {
-            log.error("registers not implemented!");
+            List<Element> children = registers.getChildren();
+            for(Element child : children)
+            {
+                String name = child.getName();
+                switch(name)
+                {
+                // all defined child types from SVD standard
+                // compare to: https://arm-software.github.io/CMSIS_5/develop/SVD/html/elem_device.html
+                case "cluster":
+                    log.error("cluster not implemented!");
+                    break;
+
+                case "register":
+                    if(false == updateRegisters(peripheralId, registers))
+                    {
+                        return false;
+                    }
+                    break;
+
+                default:
+                    // undefined child found. This is not a valid SVD file !
+                    log.error("Unknown interrupt child tag: {}", name);
+                    return false;
+                }
+            }
+        }
+
+        // all done
+        return true;
+    }
+
+    private boolean updateRegisters(int srvPerIdx, Element svdRegisters)
+    {
+        log.error("registers not implemented!");
+        return false;
+    }
+
+    private boolean updateInterrupt(int srvPerIdx, Element svdInterrupt)
+    {
+        Response res = srv.get("interrupt", "per_in_id=" + srvPerIdx);
+        if(false == res.wasSuccessfull())
+        {
             return false;
         }
+        // else -> go on
+
+        String irqName = null;
+        String description = null;
+        int number = -1;
+
+        // check for unknown children
+        List<Element> children = svdInterrupt.getChildren();
+        for(Element child : children)
+        {
+            String name = child.getName();
+            switch(name)
+            {
+            // all defined child types from SVD standard
+            // compare to: https://arm-software.github.io/CMSIS_5/develop/SVD/html/elem_device.html
+            case "name":
+                irqName = child.getText();
+                break;
+
+            case "description":
+                description = child.getText();
+                break;
+
+            case "value":
+                number = Integer.decode(child.getText());
+                break;
+
+            default:
+                // undefined child found. This is not a valid SVD file !
+                log.error("Unknown interrupt child tag: {}", name);
+                return false;
+            }
+        }
+
+        String srvName = res.getString("name");
+        String srvDescription = res.getString("description");
+        int srvNumber = res.getInt("number");
+
+        // check for changes
+        if(    ((null != irqName) && (false == irqName.equals(srvName)))
+            || ((null != description) && (false == description.equals(srvDescription)))
+            || (number != srvNumber)
+            )
+        {
+            log.trace("name : new: {} old : {}", irqName, srvName);
+            log.trace("description : new: {} old : {}", description, srvDescription);
+            log.trace("number : new: {} old : {}", number, srvNumber);
+            log.error("update interrupt not implemented!");
+            return false;
+        }
+        // else  no changes
 
         return true;
     }

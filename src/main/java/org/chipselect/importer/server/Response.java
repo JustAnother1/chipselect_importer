@@ -68,6 +68,10 @@ public class Response
             {
                 return 0;
             }
+            if(true == obj.isNull(key))
+            {
+                return 0;
+            }
             try
             {
                 return obj.getInt(key); // does not work with hex numbers like "0x400"
@@ -83,12 +87,12 @@ public class Response
                 }
                 catch(JSONException e2)
                 {
-                    log.warn("Int convert Exception !");
+                    log.warn("JSON: Int convert Exception !(key: {} - {})", key, obj);
                     return 0;
                 }
                 catch(NumberFormatException e1)
                 {
-                    log.warn("Int convert Exception !");
+                    log.warn("Int convert Exception !(key: {} - {})", key, obj);
                     return 0;
                 }
             }

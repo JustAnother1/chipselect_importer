@@ -29,6 +29,26 @@ public abstract class RestServer implements Server
         }
         catch (IOException e)
         {
+            switch(type)
+            {
+            case Request.GET :
+                log.error("GET Request failed!");
+                break;
+
+            case Request.POST :
+                log.error("POST Request failed!");
+                break;
+
+            case Request.PUT :
+                log.error("PUT Request failed!");
+                break;
+
+            default:
+                log.error("Request of type {} failed!", type);
+                break;
+            }
+            log.error("ressource : {}", ressource);
+            log.error("urlGet : {}", urlGet);
             log.error(e.toString());
             res = new Response();
             res.setError(e.toString());

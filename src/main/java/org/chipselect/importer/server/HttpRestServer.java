@@ -40,15 +40,13 @@ public class HttpRestServer extends RestServer implements Server
         log.info("{} : {}",req.getMethod(), url.toString());
 
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-
+        connection.setRequestMethod(req.getMethod());
         connection.setRequestProperty("accept", "application/json");
         if(true == hasUser)
         {
             Base64.Encoder enc = Base64.getUrlEncoder();
             connection.addRequestProperty("Authorization", "Basic " + enc.encodeToString((restUser + ":" + restPassword).getBytes()));
         }
-        connection.setRequestMethod(req.getMethod());
-
         connection.connect();
         InputStream responseStream = connection.getInputStream();
 

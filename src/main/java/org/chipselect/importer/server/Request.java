@@ -29,6 +29,13 @@ public class Request
         urlGet.add(filter);
     }
 
+    private String makeTransportReady(String param)
+    {
+        param = param.trim();
+        param = param.replaceAll(" ", "%20");
+        return param;
+    }
+
     public String url()
     {
         StringBuilder sb = new StringBuilder();
@@ -36,10 +43,10 @@ public class Request
         if(0 < urlGet.size())
         {
             sb.append("?");
-            sb.append(urlGet.elementAt(0));
+            sb.append(makeTransportReady(urlGet.elementAt(0)));
             for(int i = 1; i < urlGet.size(); i++)
             {
-                sb.append("&" + urlGet.elementAt(i));
+                sb.append("&" + makeTransportReady(urlGet.elementAt(i)));
             }
         }
         // else no GET variables

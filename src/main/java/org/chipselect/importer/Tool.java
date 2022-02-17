@@ -207,6 +207,21 @@ public final class Tool
         return dst.toString();
     }
 
+    public static String cleanupString(final String dirty)
+    {
+        String wet = dirty.trim();
+        wet = wet.replaceAll("\n", " ");
+        wet = wet.replaceAll("\t", " ");
+        wet = wet.replaceAll("\r", " ");
+        wet = wet.replaceAll("&", " and ");
+        while(true == wet.contains("  "))
+        {
+            wet = wet.replaceAll("  ", " ");
+        }
+        String clean = wet.trim();
+        return clean;
+    }
+
     public static String getStacTrace()
     {
         // Thread.dumpStack();

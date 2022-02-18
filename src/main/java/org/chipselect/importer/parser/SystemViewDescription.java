@@ -363,8 +363,6 @@ public class SystemViewDescription
             return false;
         }
 
-        SvdPeripheralHandler handler = new SvdPeripheralHandler(srv);
-
         int dev_id = device_id;
         // svd_id
         int svd_id = res.getInt("svd_id");
@@ -372,8 +370,16 @@ public class SystemViewDescription
         {
             dev_id = svd_id;
         }
-        handler.setId(dev_id);
 
+        // prepare peripheral handler
+        SvdPeripheralHandler handler = new SvdPeripheralHandler(srv);
+        if(false == handler.getAllPeripheralInstancesFromServer(dev_id))
+        {
+            log.error("Could not read device peripherals from sever");
+            return false;
+        }
+
+        // default values
         String default_size = device.getChildText("size");
         String default_access = device.getChildText("access");
         String default_resetValue = device.getChildText("resetValue");

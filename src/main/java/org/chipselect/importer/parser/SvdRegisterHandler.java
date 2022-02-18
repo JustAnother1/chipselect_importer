@@ -202,7 +202,7 @@ public class SvdRegisterHandler
                 String srvAccess = res.getString(i, "access");
                 String srvReset_value = res.getString(i, "reset_value");
                 String srvAlternate_register = res.getString(i, "alternate_register");
-                String srvReset_Mask = res.getString(i, "reset_Mask");
+                String srvReset_Mask = res.getString(i, "reset_mask");
                 String srvRead_action = res.getString(i, "read_action");
                 String srvModified_write_values = res.getString(i, "modified_write_values");
                 String srvData_type = res.getString(i, "data_type");
@@ -264,10 +264,17 @@ public class SvdRegisterHandler
                     changed = true;
                 }
                 // else no change
-                if((null != reset_Mask) && (false == "".equals(reset_Mask)) && (false == reset_Mask.equals(srvReset_Mask)))
+
+                if(   (null != reset_Mask)
+                   && (false == "".equals(reset_Mask))
+                   && (false == reset_Mask.equals(srvReset_Mask)))
                 {
                     long val = Long.decode(reset_Mask);
-                    long srvVal = Long.decode(srvReset_Mask);
+                    long srvVal = 0;
+                    if((null != srvReset_Mask) && (false == "".equals(srvReset_Mask)))
+                    {
+                        srvVal = Long.decode(srvReset_Mask);
+                    }
                     if(val != srvVal)
                     {
                         log.trace("reset mask changed from {} to {}", srvReset_Mask, reset_Mask);

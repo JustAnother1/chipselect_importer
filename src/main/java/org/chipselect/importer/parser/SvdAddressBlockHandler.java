@@ -49,6 +49,33 @@ public class SvdAddressBlockHandler
         return true;
     }
 
+    public boolean updateDerivedAddressBlock(Element svdDerivedPeripheral, Element svdOriginalPeripheral,
+            int srvPeripheralId)
+    {
+        Response AddrBlockRes = srv.get("address_block", "per_id=" + srvPeripheralId);
+        if(false == AddrBlockRes.wasSuccessfull())
+        {
+            return false;
+        }
+        // else -> go on
+        List<Element> AddrBlockchildren = svdDerivedPeripheral.getChildren("addressBlock");
+        if(true == AddrBlockchildren.isEmpty())
+        {
+            // no address block element in the derived peripheral
+            // -> use the address blocks from the original peripheral
+             AddrBlockchildren = svdOriginalPeripheral.getChildren("addressBlock");
+        }
+        // else the derived block overwrites the original block!
+        for(Element addressBlock : AddrBlockchildren)
+        {
+            if(false == checkAddressBlock(AddrBlockRes, addressBlock))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
     private boolean checkAddressBlock(Response res, Element svdAaddressBlock)
     {
         int offset = -1;
@@ -126,6 +153,5 @@ public class SvdAddressBlockHandler
             return true;
         }
     }
-
 
 }

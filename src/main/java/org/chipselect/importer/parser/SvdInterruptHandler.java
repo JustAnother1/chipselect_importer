@@ -2,6 +2,7 @@ package org.chipselect.importer.parser;
 
 import java.util.List;
 
+import org.chipselect.importer.Tool;
 import org.chipselect.importer.server.Response;
 import org.chipselect.importer.server.Server;
 import org.jdom2.Element;
@@ -18,9 +19,9 @@ public class SvdInterruptHandler
         this.srv = srv;
     }
 
-    public boolean updateInterrupt(Element svdPeripheral, int srvPeripheralId)
+    public boolean updateInterrupt(Element svdPeripheral, int srvPeripheralInstanceId)
     {
-        Response interruptRes = srv.get("interrupt", "per_in_id=" + srvPeripheralId);
+        Response interruptRes = srv.get("interrupt", "per_in_id=" + srvPeripheralInstanceId);
         if(false == interruptRes.wasSuccessfull())
         {
             return false;
@@ -29,7 +30,7 @@ public class SvdInterruptHandler
         List<Element>  interruptChildren = svdPeripheral.getChildren("interrupt");
         for(Element interrupt : interruptChildren)
         {
-            if(false == checkInterrupt(interruptRes, interrupt, srvPeripheralId))
+            if(false == checkInterrupt(interruptRes, interrupt, srvPeripheralInstanceId))
             {
                 return false;
             }
@@ -37,7 +38,34 @@ public class SvdInterruptHandler
         return true;
     }
 
-    private boolean checkInterrupt(Response res, Element svdInterrupt, int peripheralId)
+    public boolean updateDerivedInterrupt(Element svdDerivedPeripheral, Element svdOriginalPeripheral,
+            int srvPeripheralInstanceId)
+    {
+        log.trace("Derived peripheral");
+        Response interruptRes = srv.get("interrupt", "per_in_id=" + srvPeripheralInstanceId);
+        if(false == interruptRes.wasSuccessfull())
+        {
+            return false;
+        }
+        // else -> go on
+        List<Element>  interruptChildren = svdDerivedPeripheral.getChildren("interrupt");
+        if(true == interruptChildren.isEmpty())
+        {
+            log.trace("derived peripheral does not have an interrupt child eleemnt.");
+            interruptChildren = svdOriginalPeripheral.getChildren("interrupt");
+        }
+        // else the derive interrupt block overwrites the original block!
+        for(Element interrupt : interruptChildren)
+        {
+            if(false == checkInterrupt(interruptRes, interrupt, srvPeripheralInstanceId))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean checkInterrupt(Response res, Element svdInterrupt, int peripheralInstanceId)
     {
         String irqName = null;
         String description = null;
@@ -53,11 +81,11 @@ public class SvdInterruptHandler
             // all defined child types from SVD standard
             // compare to: https://arm-software.github.io/CMSIS_5/develop/SVD/html/elem_device.html
             case "name":
-                irqName = child.getText();
+                irqName = Tool.cleanupString(child.getText());
                 break;
 
             case "description":
-                description = child.getText();
+                description = Tool.cleanupString(child.getText());
                 break;
 
             case "value":
@@ -113,7 +141,7 @@ public class SvdInterruptHandler
         if(false == found)
         {
             log.trace("created new interrupt on server: name = {}, description = {}", irqName, description);
-            String param = "per_id=" + peripheralId + "&name=" + irqName + "&description=" + description + "&number=" + number;
+            String param = "per_in_id=" + peripheralInstanceId + "&name=" + irqName + "&description=" + description + "&number=" + number;
             Response postRes = srv.post("interrupt", param);
             if(false == postRes.wasSuccessfull())
             {
@@ -130,11 +158,18 @@ public class SvdInterruptHandler
         }
     }
 
-    private boolean updateSrvInterrupt(int int1, String irqName, String description, int number)
+    private boolean updateSrvInterrupt(int id, String irqName, String description, int number)
     {
-        log.error("update interrupt not implemented!");
-        return false;
+        String param = "id=" + id + "&name=" + irqName + "&description=" + description + "&number=" + number;
+        Response res = srv.put("interrupt", param);
+        if(false == res.wasSuccessfull())
+        {
+            return false;
+        }
+        else
+        {
+            return true;
+        }
     }
-
 
 }

@@ -1,5 +1,6 @@
 package org.chipselect.importer.parser;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Vector;
 
@@ -411,8 +412,14 @@ public class SystemViewDescription
 
         List<Element> children = peripherals.getChildren();
         Vector<Element> derivedPeripherals = new Vector<Element>();
+        HashMap<String, Element> namedPeripherals = new HashMap<String, Element>();
         for(Element peripheral : children)
         {
+            String name = peripheral.getChildText("name");
+            if(null != name)
+            {
+                namedPeripherals.put(name, peripheral);
+            }
             // check if derived
             // strictly speaking it is probably not necessary to handle the non derived before the derived peripherals.
             // It just feels better and might avoid issues in corner cases, also not much overhead.
@@ -420,7 +427,6 @@ public class SystemViewDescription
             String derived = peripheral.getAttributeValue("derivedFrom");
             if(null != derived)
             {
-                String name = peripheral.getChildText("name");
                 log.trace("Peripheral: {} is derived from {}", name, derived);
                 derivedPeripherals.add(peripheral);
             }
@@ -436,7 +442,8 @@ public class SystemViewDescription
         log.trace("now handling derived peripherals....");
         for(Element peripheral : derivedPeripherals)
         {
-            if(false == handler.handle(peripheral))
+            String derived = peripheral.getAttributeValue("derivedFrom");
+            if(false == handler.handleDerived(peripheral, namedPeripherals.get(derived)))
             {
                 return false;
             }

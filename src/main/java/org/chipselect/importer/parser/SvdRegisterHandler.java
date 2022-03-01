@@ -85,6 +85,51 @@ public class SvdRegisterHandler
         return true;
     }
 
+    public boolean updateDerivedRegister(Element svdDerivedPeripheral, Element svdOriginalPeripheral,
+            int peripheralId)
+    {
+        Element registers = svdDerivedPeripheral.getChild("registers");
+        if(null ==  registers)
+        {
+            registers = svdOriginalPeripheral.getChild("registers");
+        }
+        if(null !=  registers)
+        {
+            Response res = srv.get("register", "per_id=" + peripheralId);
+            if(false == res.wasSuccessfull())
+            {
+                return false;
+            }
+            // else -> go on
+            List<Element> children = registers.getChildren();
+            for(Element child : children)
+            {
+                String name = child.getName();
+                switch(name)
+                {
+                // all defined child types from SVD standard
+                // compare to: https://arm-software.github.io/CMSIS_5/develop/SVD/html/elem_device.html
+                case "cluster":
+                    log.error("cluster not implemented!");
+                    break;
+
+                case "register":
+                    if(false == checkRegister(res, child))
+                    {
+                        return false;
+                    }
+                    break;
+
+                default:
+                    // undefined child found. This is not a valid SVD file !
+                    log.error("Unknown registers child tag: {}", name);
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
     private boolean checkRegister(Response res, Element svdRegisters)
     {
         String name = null;
@@ -330,6 +375,5 @@ public class SvdRegisterHandler
             return true;
         }
     }
-
 
 }

@@ -115,7 +115,9 @@ public class Response
             try
             {
                 JSONObject obj = dataArr.getJSONObject(index);
-                return obj.getString(key);
+                String res = obj.getString(key);
+                res = res.trim();
+                return res;
             }
             catch(JSONException e)
             {

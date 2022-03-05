@@ -16,6 +16,7 @@ public class Response
     private JSONArray dataArr = null;
     private boolean success = true;
     private String ErrorMessage = null;
+    private String JsonString = null;
 
     public Response()
     {
@@ -28,7 +29,7 @@ public class Response
 
     public String getFailureDescription()
     {
-        return ErrorMessage;
+        return ErrorMessage + "(Response: " + JsonString + ")\n";
     }
 
     public int numResults()
@@ -45,7 +46,7 @@ public class Response
 
     public void readFrom(InputStream responseStream) throws IOException
     {
-        String JsonString = new String(responseStream.readAllBytes(), StandardCharsets.UTF_8);
+        JsonString = new String(responseStream.readAllBytes(), StandardCharsets.UTF_8);
         dataArr = new JSONArray(JsonString);
         log.trace("{}", dataArr.toString());
     }

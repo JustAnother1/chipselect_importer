@@ -349,8 +349,21 @@ public class SvdRegisterHandler
 
                 if(true == changed)
                 {
-                    log.error("update register not implemented!");
-                    return false;
+                    return updateServerRegister(
+                            srvId, // int id,
+                            name, // String name,
+                            displayName, // String display_name,
+                            description, // String description,
+                            addressOffset, // long address_offset,
+                            size, // int size,
+                            access, // String access,
+                            reset_value, // String reset_value,
+                            alternate_register, // String alternative_register,
+                            reset_Mask, // String reset_mask,
+                            read_action, // String read_action,
+                            modified_write_values, // String modified_write_values,
+                            data_type // String data_taype
+                            );
                 }
                 // else no change -> no update needed
                 break;
@@ -359,7 +372,7 @@ public class SvdRegisterHandler
 
         if(false == found)
         {
-            log.error("update register not implemented!");
+            log.error("create new register not implemented!");
             return false;
         }
         else
@@ -372,6 +385,85 @@ public class SvdRegisterHandler
                 }
             }
             // else no fields in this register :-(
+            return true;
+        }
+    }
+
+
+    private boolean updateServerRegister(
+            int id,
+            String name,
+            String display_name,
+            String description,
+            String address_offset,
+            int size,
+            String access,
+            String reset_value,
+            String alternative_register,
+            String reset_mask,
+            String read_action,
+            String modified_write_values,
+            String data_taype )
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.append("id=" + id);
+        if(null != name)
+        {
+            sb.append("&name=" + name);
+        }
+        if(null != display_name)
+        {
+            sb.append("&display_name=" + display_name);
+        }
+        if(null != description)
+        {
+            sb.append("&description=" + description);
+        }
+        if(null != address_offset)
+        {
+            long val = Long.decode(address_offset);
+            sb.append("&address_offset=" + val);
+        }
+
+        sb.append("&size=" + size);
+
+        if(null != access)
+        {
+            sb.append("&access=" + access);
+        }
+        if(null != reset_value)
+        {
+            sb.append("&reset_value=" + reset_value);
+        }
+        if(null != alternative_register)
+        {
+            sb.append("&alternative_register=" + alternative_register);
+        }
+        if(null != reset_mask)
+        {
+            sb.append("&reset_mask=" + reset_mask);
+        }
+        if(null != read_action)
+        {
+            sb.append("&read_action=" + read_action);
+        }
+        if(null != modified_write_values)
+        {
+            sb.append("&modified_write_values=" + modified_write_values);
+        }
+        if(null != data_taype)
+        {
+            sb.append("&data_taype=" + data_taype);
+        }
+        String param = sb.toString();
+        Response res = srv.put("register", param);
+
+        if(false == res.wasSuccessfull())
+        {
+            return false;
+        }
+        else
+        {
             return true;
         }
     }

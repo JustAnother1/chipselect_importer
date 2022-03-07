@@ -39,13 +39,14 @@ public class HttpRestServer extends RestServer implements Server
     protected Response getResponse(Request req)
     {
         Response res = new Response();
+        HttpURLConnection connection = null;
         // Create a neat value object to hold the URL
         try
         {
             URL url = new URL(restUrl + req.url());
             log.info("{} : {}",req.getMethod(), url.toString());
 
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod(req.getMethod());
             connection.setRequestProperty("accept", "application/json");
             if(true == hasUser)
@@ -85,6 +86,9 @@ public class HttpRestServer extends RestServer implements Server
             log.error("{} Request failed! IOException!", req.getMethod());
             log.error("url : {}", req.url());
             log.error(e.toString());
+            log.error("X-debug header: {}", connection.getHeaderField("X-debug"));
+            log.error("X-EXCEPTION header: {}", connection.getHeaderField("X-EXCEPTION"));
+            log.error("X-SQL header: {}", connection.getHeaderField("X-SQL"));
             res.setError(e.toString());
         }
         return res;

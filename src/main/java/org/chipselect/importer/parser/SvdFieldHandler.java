@@ -49,7 +49,6 @@ public class SvdFieldHandler
         String access = null;
         String modifiedWriteValues = null;
         String readAction = null;
-        String resetValue = null;
         Element enumeration = null;
 
         // check for unknown children
@@ -165,7 +164,6 @@ public class SvdFieldHandler
                 String srvAccess = res.getString(i, "access");
                 String srvModifiedWriteValues = res.getString(i, "modified_write_values");
                 String srvReadAction = res.getString(i, "read_action");
-                String srvResetValue = res.getString(i, "reset_value");
                 // check for Change
                 boolean changed = false;
                 if((null != description) && (false == "".equals(description)) && (false == description.equals(srvDescription)))
@@ -204,17 +202,17 @@ public class SvdFieldHandler
                     changed = true;
                 }
                 // else no change
-                if((null != resetValue) && (false == "".equals(resetValue)) && (false == resetValue.equals(srvResetValue)))
-                {
-                    log.trace("reset value changed from {} to {}", srvResetValue, resetValue);
-                    changed = true;
-                }
-                // else no change
 
                 if(true == changed)
                 {
-                    log.error("update field not implemented!");
-                    return false;
+                    return updateServerField(srvId,
+                            svdName,
+                            description,
+                            bitOffset,
+                            sizeBit,
+                            access,
+                            modifiedWriteValues,
+                            readAction );
                 }
                 // else no change -> no update needed
                 break;
@@ -223,7 +221,7 @@ public class SvdFieldHandler
         if(false == found)
         {
             // this field is missing on the server -> add it
-            log.error("update field not implemented!");
+            log.error("create new field not implemented!");
             return false;
         }
         else
@@ -236,6 +234,56 @@ public class SvdFieldHandler
                     return false;
                 }
             }
+            return true;
+        }
+    }
+
+    private boolean updateServerField(
+            int id,
+            String name,
+            String description,
+            int bit_offset,
+            int size_bit,
+            String access,
+            String modified_write_values,
+            String read_action )
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.append("id=" + id);
+        if(null != name)
+        {
+            sb.append("&name=" + name);
+        }
+        if(null != description)
+        {
+            sb.append("&description=" + description);
+        }
+
+        sb.append("&bit_offset=" + bit_offset);
+        sb.append("&size_bit=" + size_bit);
+
+        if(null != access)
+        {
+            sb.append("&access=" + access);
+        }
+        if(null != modified_write_values)
+        {
+            sb.append("&modified_write_values=" + modified_write_values);
+        }
+        if(null != read_action)
+        {
+            sb.append("&read_action=" + read_action);
+        }
+
+        String param = sb.toString();
+        Response res = srv.put("register", param);
+
+        if(false == res.wasSuccessfull())
+        {
+            return false;
+        }
+        else
+        {
             return true;
         }
     }

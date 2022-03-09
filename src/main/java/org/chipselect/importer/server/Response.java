@@ -64,6 +64,10 @@ public class Response
         }
         else
         {
+            if(0 ==  dataArr.length())
+            {
+                return 0;
+            }
             JSONObject obj = dataArr.getJSONObject(index);
             if(false == obj.has(key))
             {

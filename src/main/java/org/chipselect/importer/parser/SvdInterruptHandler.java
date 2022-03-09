@@ -117,13 +117,13 @@ public class SvdInterruptHandler
 
                 if((null != description) && (false == description.equals(srvDescription)))
                 {
-                    log.trace("description changed from {} to {}", srvDescription, description);
+                    log.trace("description changed from :{}: to :{}:", srvDescription, description);
                     changed = true;
                 }
                 // else no change
                 if((number != -1) && (srvNumber != number))
                 {
-                    log.trace("number changed from {} to {}", srvNumber, number);
+                    log.trace("number changed from :{}: to :{}:", srvNumber, number);
                     changed = true;
                 }
                 // else no change

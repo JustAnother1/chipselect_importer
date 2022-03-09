@@ -286,7 +286,7 @@ public class SvdPeripheralHandler
             String srvValue = srvAllPeripherals.getString(idx, "description");
             if(false == svdDescriptionValue.equals(srvValue))
             {
-                log.info("update needed for {} from {} to {}!", "description", srvValue, svdDescriptionValue);
+                log.info("update needed for {} from :{}: to :{}:!", "description", srvValue, svdDescriptionValue);
                 log.error("description not implemented!");
                 return false;
             }
@@ -306,7 +306,7 @@ public class SvdPeripheralHandler
             String srvValue = srvAllPeripherals.getString(idx, "disable_Condition");
             if(false == svdValue.equals(srvValue))
             {
-                log.info("update needed for {} from {} to {}!", "disableCondition", srvValue, svdValue);
+                log.info("update needed for {} from :{}: to :{}:!", "disableCondition", srvValue, svdValue);
                 log.error("disableCondition not implemented!");
                 return false;
             }
@@ -351,7 +351,7 @@ public class SvdPeripheralHandler
                 String srvGroupName = srvPeripheral.getString("group_name");
                 if(false == svdGroupName.equals(srvGroupName))
                 {
-                    log.info("group name changed from {} to {} !", srvGroupName, svdGroupName);
+                    log.info("group name changed from :{}: to :{}: !", srvGroupName, svdGroupName);
                     log.error("update group name - not implemented!");
                     return false;
                 }
@@ -489,7 +489,7 @@ public class SvdPeripheralHandler
             String srvValue = srvAllPeripherals.getString(srvIdx, "description");
             if(false == svdDescriptionValue.equals(srvValue))
             {
-                log.info("update needed for {} from {} to {}!", "description", srvValue, svdDescriptionValue);
+                log.info("update needed for {} from :{}: to :{}:!", "description", srvValue, svdDescriptionValue);
                 log.error("update description not implemented!");
                 return false;
             }
@@ -513,7 +513,7 @@ public class SvdPeripheralHandler
             String srvValue = srvAllPeripherals.getString(srvIdx, "disable_Condition");
             if(false == svdValue.equals(srvValue))
             {
-                log.info("update needed for {} from {} to {}!", "disableCondition", srvValue, svdValue);
+                log.info("update needed for {} from :{}: to :{}:!", "disableCondition", srvValue, svdValue);
                 log.error("update disableCondition not implemented!");
                 return false;
             }
@@ -567,7 +567,7 @@ public class SvdPeripheralHandler
                 String srvGroupName = srvPeripheral.getString("group_name");
                 if(false == svdGroupName.equals(srvGroupName))
                 {
-                    log.info("group name changed from {} to {} !", srvGroupName, svdGroupName);
+                    log.info("group name changed from :{}: to :{}: !", srvGroupName, svdGroupName);
                     log.error("update group name - not implemented!");
                     return false;
                 }

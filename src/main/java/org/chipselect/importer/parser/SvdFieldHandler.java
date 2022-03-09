@@ -168,37 +168,37 @@ public class SvdFieldHandler
                 boolean changed = false;
                 if((null != description) && (false == "".equals(description)) && (false == description.equals(srvDescription)))
                 {
-                    log.trace("description changed from {} to {}", srvDescription, description);
+                    log.trace("description changed from :{}: to :{}:", srvDescription, description);
                     changed = true;
                 }
                 // else no change
                 if((bitOffset != -1) && (bitOffset != srvBitOffset))
                 {
-                    log.trace("bit Offset changed from {} to {}", srvBitOffset, bitOffset);
+                    log.trace("bit Offset changed from :{}: to :{}:", srvBitOffset, bitOffset);
                     changed = true;
                 }
                 // else no change
                 if((sizeBit != -1) && (sizeBit != srvSizeBit))
                 {
-                    log.trace("size_bit changed from {} to {}", srvSizeBit, sizeBit);
+                    log.trace("size_bit changed from :{}: to :{}:", srvSizeBit, sizeBit);
                     changed = true;
                 }
                 // else no change
                 if((null != access) && (false == "".equals(access)) && (false == access.equals(srvAccess)))
                 {
-                    log.trace("access changed from {} to {}", srvAccess, access);
+                    log.trace("access changed from :{}: to :{}:", srvAccess, access);
                     changed = true;
                 }
                 // else no change
                 if((null != modifiedWriteValues) && (false == "".equals(modifiedWriteValues)) && (false == modifiedWriteValues.equals(srvModifiedWriteValues)))
                 {
-                    log.trace("modified write values changed from {} to {}", srvModifiedWriteValues, modifiedWriteValues);
+                    log.trace("modified write values changed from :{}: to :{}:", srvModifiedWriteValues, modifiedWriteValues);
                     changed = true;
                 }
                 // else no change
                 if((null != readAction) && (false == "".equals(readAction)) && (false == readAction.equals(srvReadAction)))
                 {
-                    log.trace("read action changed from {} to {}", srvReadAction, readAction);
+                    log.trace("read action changed from :{}: to :{}:", srvReadAction, readAction);
                     changed = true;
                 }
                 // else no change

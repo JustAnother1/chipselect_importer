@@ -256,13 +256,13 @@ public class SvdRegisterHandler
                 boolean changed = false;
                 if((null != displayName) && (false == "".equals(displayName)) && (false == displayName.equals(srvDisplayName)))
                 {
-                    log.trace("display name changed from {} to {}", srvDisplayName, displayName);
+                    log.trace("display name changed from :{}: to :{}:", srvDisplayName, displayName);
                     changed = true;
                 }
                 // else no change
                 if((null != description) && (false == "".equals(description)) && (false == description.equals(srvDescription)))
                 {
-                    log.trace("description changed from {} to {}", srvDescription, description);
+                    log.trace("description changed from :{}: to :{}:", srvDescription, description);
                     changed = true;
                 }
                 // else no change
@@ -272,7 +272,7 @@ public class SvdRegisterHandler
                     long srvVal = Long.decode(srvAddressOffset);
                     if(val != srvVal)
                     {
-                        log.trace("address offset changed from {} to {}", srvAddressOffset, addressOffset);
+                        log.trace("address offset changed from :{}: to :{}:", srvAddressOffset, addressOffset);
                         changed = true;
                     }
                     // else "0" is not different to "0x00"
@@ -280,13 +280,13 @@ public class SvdRegisterHandler
                 // else no change
                 if((size != -1) && (size != srvSize))
                 {
-                    log.trace("size changed from {} to {}", srvSize, size);
+                    log.trace("size changed from :{}: to :{}:", srvSize, size);
                     changed = true;
                 }
                 // else no change
                 if((null != access) && (false == "".equals(access)) && (false == access.equals(srvAccess)))
                 {
-                    log.trace("access changed from {} to {}", srvAccess, access);
+                    log.trace("access changed from :{}: to :{}:", srvAccess, access);
                     changed = true;
                 }
                 // else no change
@@ -296,8 +296,8 @@ public class SvdRegisterHandler
                     long srvVal = Long.decode(srvReset_value);
                     if(val != srvVal)
                     {
-                        log.trace("reset value changed from {} to {}", srvReset_value, reset_value);
-                        log.trace("reset value changed from {} to {}", srvVal, val);
+                        log.trace("reset value changed from :{}: to :{}:", srvReset_value, reset_value);
+                        log.trace("reset value changed from :{}: to :{}:", srvVal, val);
                         changed = true;
                     }
                     // else "0" is not different to "0x00"
@@ -305,7 +305,7 @@ public class SvdRegisterHandler
                 // else no change
                 if((null != alternate_register) && (false == "".equals(alternate_register)) && (false == alternate_register.equals(srvAlternate_register)))
                 {
-                    log.trace("alternate register changed from {} to {}", srvAlternate_register, alternate_register);
+                    log.trace("alternate register changed from :{}: to :{}:", srvAlternate_register, alternate_register);
                     changed = true;
                 }
                 // else no change
@@ -322,7 +322,7 @@ public class SvdRegisterHandler
                     }
                     if(val != srvVal)
                     {
-                        log.trace("reset mask changed from {} to {}", srvReset_Mask, reset_Mask);
+                        log.trace("reset mask changed from :{}: to :{}:", srvReset_Mask, reset_Mask);
                         changed = true;
                     }
                     // else "0" is not different to "0x00"
@@ -330,19 +330,19 @@ public class SvdRegisterHandler
                 // else no change
                 if((null != read_action) && (false == "".equals(read_action)) && (false == read_action.equals(srvRead_action)))
                 {
-                    log.trace("read action changed from {} to {}", srvRead_action, read_action);
+                    log.trace("read action changed from :{}: to :{}:", srvRead_action, read_action);
                     changed = true;
                 }
                 // else no change
                 if((null != modified_write_values) && (false == "".equals(modified_write_values)) && (false == modified_write_values.equals(srvModified_write_values)))
                 {
-                    log.trace("modified write values changed from {} to {}", srvModified_write_values, modified_write_values);
+                    log.trace("modified write values changed from :{}: to :{}:", srvModified_write_values, modified_write_values);
                     changed = true;
                 }
                 // else no change
                 if((null != data_type) && (false == "".equals(data_type)) && (false == data_type.equals(srvData_type)))
                 {
-                    log.trace("data type changed from {} to {}", srvData_type, data_type);
+                    log.trace("data type changed from :{}: to :{}:", srvData_type, data_type);
                     changed = true;
                 }
                 // else no change

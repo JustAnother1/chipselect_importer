@@ -102,8 +102,15 @@ public class SvdFieldHandler
                 // bitRange value is [17:8] or [1:1]
                 String range = child.getText();
                 range = range.trim();
-                range = range.substring(1, range.length() -2); // remove // []
+                range = range.substring(1, range.length()); // remove // [
+                range = range.substring(0, range.length() -1); // remove // ]
                 String[] parts = range.split(":");
+                if(parts.length != 2)
+                {
+                    log.error("Invalid Bit range definition of {} !", child.getText());
+                    log.error("range: {}, parts: {} !", range, parts);
+                    return false;
+                }
                 bitOffset = Integer.decode(parts[1]);
                 sizeBit = Integer.decode(parts[0]) + 1;
                 break;

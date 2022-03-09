@@ -23,7 +23,6 @@ import java.nio.charset.StandardCharsets;
 
 import org.chipselect.importer.parser.SystemViewDescription;
 import org.chipselect.importer.server.HttpRestServer;
-import org.chipselect.importer.server.RestServer;
 import org.chipselect.importer.server.Server;
 import org.jdom2.Document;
 import org.jdom2.JDOMException;
@@ -252,11 +251,13 @@ public class ImporterMain
                 }
                 catch(JDOMException e)
                 {
+                    log.error("JDOMException occured !");
                     log.error(e.getLocalizedMessage());
                     jdomDocument = null;
                 }
                 catch (IOException e)
                 {
+                    log.error("IOException occured !");
                     log.error(e.getLocalizedMessage());
                     jdomDocument = null;
                 }

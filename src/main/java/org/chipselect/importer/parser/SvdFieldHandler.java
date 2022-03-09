@@ -276,7 +276,7 @@ public class SvdFieldHandler
         }
 
         String param = sb.toString();
-        Response res = srv.put("register", param);
+        Response res = srv.put("field", param);
 
         if(false == res.wasSuccessfull())
         {

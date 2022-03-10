@@ -1,6 +1,7 @@
 package org.chipselect.importer.server;
 
 import java.util.Vector;
+import java.util.regex.Pattern;
 
 public class Request
 {
@@ -32,7 +33,10 @@ public class Request
     private String makeTransportReady(String param)
     {
         param = param.trim();
-        param = param.replaceAll(" ", "%20");
+        // that does not work as we already have several parameters in the string and it therefore converts the = sign,...
+        // param = URLEncoder.encode(param, StandardCharsets.UTF_8);
+        param = param.replaceAll(Pattern.quote("+"), "%2B");
+        param = param.replaceAll(" ", "+");
         return param;
     }
 

@@ -151,7 +151,7 @@ public class SystemViewDescription
         return true;
     }
 
-    private boolean handleCpuElement(Element cpuElement, int svdArchitectureId)
+    private boolean handleCpuElement(Element cpuElement, int srvArchitectureId)
     {
         if(null == cpuElement)
         {
@@ -163,6 +163,47 @@ public class SystemViewDescription
         String svdEndian = cpuElement.getChildText("endian");
         String svdNvicPrioBits = cpuElement.getChildText("nvicPrioBits");
         String svdVendorSystickConfig = cpuElement.getChildText("vendorSystickConfig");
+        String svdMpuPresent = cpuElement.getChildText("mpuPresent");
+        // from svd standard:  This tag is either set to true or false, 1 or 0.
+        int svdMpuPresentInt = 0;
+        if("true".equals(svdMpuPresent))
+        {
+            svdMpuPresentInt = 1;
+        }
+        else if("false".equals(svdMpuPresent))
+        {
+            svdMpuPresentInt = 0;
+        }
+        else
+        {
+            svdMpuPresentInt = Integer.valueOf(svdMpuPresent);
+        }
+        // from svd standard:  This tag is either set to true or false, 1 or 0.
+        String svdFpuPresent = cpuElement.getChildText("fpuPresent");
+        int svdFpuPresentInt = 0;
+        if("true".equals(svdFpuPresent))
+        {
+            svdFpuPresentInt = 1;
+        }
+        else if("false".equals(svdFpuPresent))
+        {
+            svdFpuPresentInt = 0;
+        }
+        else
+        {
+            svdFpuPresentInt = Integer.valueOf(svdFpuPresent);
+        }
+        // ignoring optional tags:
+        // fpuDP
+        // dspPresent
+        // icachePresent
+        // dcachePresent
+        // itcmPresent
+        // dtcmPresent
+        // vtorPresent
+        // deviceNumInterrupts
+        // sauNumRegions
+        // sauRegionsConfig
         if((null == svdName) || (null == svdRevision) || (null == svdEndian) || (null == svdNvicPrioBits) || (null == svdVendorSystickConfig))
         {
             return false;
@@ -178,8 +219,20 @@ public class SystemViewDescription
         int svdNvicPrioBitsInt = Integer.valueOf(svdNvicPrioBits);
         log.trace("NVIC Priority Bits(int): {}", svdNvicPrioBitsInt);
         log.trace("Vendor Systick Configuration: {}", svdVendorSystickConfig);
-        boolean svdVendorSystickConfigBool = Boolean.valueOf(svdVendorSystickConfig);
-        log.trace("Vendor Systick Configuration(Boolean): {}", svdVendorSystickConfigBool);
+        int svdVendorSystickConfigInt = 0;
+        if("true".equals(svdVendorSystickConfig))
+        {
+            svdVendorSystickConfigInt = 1;
+        }
+        else if("false".equals(svdVendorSystickConfig))
+        {
+            svdVendorSystickConfigInt = 0;
+        }
+        else
+        {
+            svdVendorSystickConfigInt = Integer.valueOf(svdVendorSystickConfig);
+        }
+        log.trace("Vendor Systick Configuration(int): {}", svdVendorSystickConfigInt);
 
         Response res = srv.get("architecture", "svd_name=" + svdName);
         if(false == res.wasSuccessfull())
@@ -218,22 +271,22 @@ public class SystemViewDescription
                     continue;
                 }
                 // <vendorSystickConfig>false</vendorSystickConfig>
-                boolean vendorSystickConfig = res.getBoolean(i, "ARM_Vendor_systick");
-                if(vendorSystickConfig != svdVendorSystickConfigBool)
+                int vendorSystickConfig = res.getInt(i, "ARM_Vendor_systick");
+                if(vendorSystickConfig != svdVendorSystickConfigInt)
                 {
-                    log.trace("Vendor Systick mismatch: {} - {}", svdVendorSystickConfigBool, vendorSystickConfig);
+                    log.trace("Vendor Systick mismatch: {} - {}", svdVendorSystickConfigInt, vendorSystickConfig);
                     continue;
                 }
                 // we found the right architecture
                 int archId = res.getInt(i, "id");
-                if(svdArchitectureId == archId)
+                if(srvArchitectureId == archId)
                 {
                     // architecture ID in this microcontroller is already set to the correct value
                     return true;
                 }
                 else
                 {
-                    log.trace("Architecture ID mismatch: {} - {}", svdArchitectureId, archId);
+                    log.trace("Architecture ID mismatch: {} - {}", srvArchitectureId, archId);
                     Response put_res = srv.put("microcontroller", "name=" + device_name + "&architecture_id=" + archId);
                     if(false == put_res.wasSuccessfull())
                     {
@@ -246,17 +299,87 @@ public class SystemViewDescription
                     }
                 }
             }
+            if(0 != srvArchitectureId)
+            {
+                // this architecture should be on the server, but is not !
+                log.error("Could not match architecture from SVD with server architecture id = {}", srvArchitectureId);
+                return false;
+            }
             // architecture not in database -> create new architecture in database
-            log.error("Not Implemented");
-            return false;
+            log.info("architecture not found -> create new architecture");
+            return createArchitectureOnServer(
+                    svdName,
+                    svdRevision,
+                    svdEndian,
+                    svdMpuPresentInt,
+                    svdFpuPresentInt,
+                    svdNvicPrioBitsInt,
+                    svdVendorSystickConfigInt );
         }
         else
         {
             // architecture not in database -> create new architecture in database
-            log.error("Not Implemented");
-            return false;
+            log.info("no architectures found -> create new architecture");
+            return createArchitectureOnServer(
+                    svdName,
+                    svdRevision,
+                    svdEndian,
+                    svdMpuPresentInt,
+                    svdFpuPresentInt,
+                    svdNvicPrioBitsInt,
+                    svdVendorSystickConfigInt );
         }
     }
+
+    private boolean createArchitectureOnServer(
+            String svd_name,
+            String revision,
+            String endian,
+            int hasMPU,
+            int hasFPU,
+            int interrupt_prio_bits,
+            int ARM_Vendor_systick )
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.append("name=" + svd_name);
+        sb.append("&svd_name=" + svd_name);
+
+        if(null != revision)
+        {
+            sb.append("&revision=" + revision);
+        }
+
+        if(null != endian)
+        {
+            sb.append("&endian=" + endian);
+        }
+
+        sb.append("&hasMPU=" + hasMPU);
+        sb.append("&hasFPU=" + hasFPU);
+        sb.append("&interrupt_prio_bits=" + interrupt_prio_bits);
+        sb.append("&ARM_Vendor_systick=" + ARM_Vendor_systick);
+
+        String param = sb.toString();
+        Response res = srv.post("architecture", param);
+
+        if(false == res.wasSuccessfull())
+        {
+            return false;
+        }
+        else
+        {
+            // update microcontroller
+            int architectureId = res.getInt("id");
+            if(0 != device_id)
+            {
+                String link_param = "id=" + device_id + "&architecture_id=" + architectureId;
+                Response link_res = srv.put("microcontroller", link_param);
+                return link_res.wasSuccessfull();
+            }
+            return true;
+        }
+    }
+
 
     private boolean handleDescription(Element device, Response res)
     {
@@ -282,7 +405,7 @@ public class SystemViewDescription
         }
         if(false == svdDescription.equals(srvDescription))
         {
-            log.error("Description on server : {}, in SVD: {}", srvDescription, svdDescription);
+            log.info("Description on server : {}, in SVD: {}", srvDescription, svdDescription);
             Response post_res = srv.put("microcontroller", "name=" + device_name + "&description=" + svdDescription);
             if(false == post_res.wasSuccessfull())
             {
@@ -313,7 +436,7 @@ public class SystemViewDescription
 
         if(srvAddrUnit != svdAddrUnit)
         {
-            log.error("Address Unit on server : {}, in SVD: {}", srvAddrUnit, svdAddrUnit);
+            log.info("Address Unit on server : {}, in SVD: {}", srvAddrUnit, svdAddrUnit);
             Response post_res = srv.put("microcontroller", "name=" + device_name + "&Addressable_unit_bit=" + svdAddrUnit);
             if(false == post_res.wasSuccessfull())
             {
@@ -344,7 +467,7 @@ public class SystemViewDescription
 
         if(srvBusWidth != svdBusWidth)
         {
-            log.error("Bus Width on server : {}, in SVD: {}", srvBusWidth, svdBusWidth);
+            log.info("Bus Width on server : {}, in SVD: {}", srvBusWidth, svdBusWidth);
             Response put_res = srv.put("microcontroller", "name=" + device_name + "&bus_width_bit=" + svdBusWidth);
             if(false == put_res.wasSuccessfull())
             {

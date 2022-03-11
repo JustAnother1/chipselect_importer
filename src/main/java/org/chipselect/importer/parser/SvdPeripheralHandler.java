@@ -22,6 +22,7 @@ public class SvdPeripheralHandler
     private String default_resetMask = null;
     private String default_protection = null;
     private Response srvAllPeripherals = null;
+    private int srvDeviceId = 0;
 
     public SvdPeripheralHandler(Server srv)
     {
@@ -70,6 +71,11 @@ public class SvdPeripheralHandler
     {
         String name = peripheral.getChildText("name");
         log.trace("Peripheral: {}", name);
+        // check if format is valid
+        if(false == checkIfValidPeripheral(peripheral))
+        {
+            return false;
+        }
         int srvIdx = getPeripheralSrvIndexFor(name);
         if(0 > srvIdx)
         {
@@ -79,11 +85,6 @@ public class SvdPeripheralHandler
         }
         else
         {
-            // check if format is valid
-            if(false == checkIfValidPeripheral(peripheral))
-            {
-                return false;
-            }
             // this peripheral is by definition not derived !
             return updateIndependentPeripheral(srvIdx, peripheral);
         }
@@ -125,6 +126,7 @@ public class SvdPeripheralHandler
             srvAllPeripherals = null;
             return false;
         }
+        this.srvDeviceId = srvDeviceId;
         Response res = srv.get("peripheral_instance", "dev_id=" + srvDeviceId);
         if(false == res.wasSuccessfull())
         {
@@ -216,17 +218,6 @@ public class SvdPeripheralHandler
     {
         // name - already handled
         // ignoring  <version></version>
-
-        // TODO:
-        // dim
-        // dimIncrement
-        // dimIndex
-        // dimName
-        // dimArrayIndex
-        // alternatePeripheral
-        // prependToName
-        // appendToName
-        // headerStructName
 
         if(null !=  peripheral.getChildText("dim"))
         {
@@ -329,12 +320,12 @@ public class SvdPeripheralHandler
         }
 
         // peripheral
+        int peripheralInstanceId = srvAllPeripherals.getInt(idx, "id");
         int peripheralId = srvAllPeripherals.getInt(idx, "peripheral_id");
-        if(0 == peripheralId)
+        if(0 == peripheralInstanceId)
         {
             // peripheral not on server -> create new peripheral
-            log.error("no peripheral - not implemented!");
-            return false;
+            return createPeripheralInstanceFrom(peripheral);
         }
         Response srvPeripheral = getPeripheralFromServer(peripheralId);
         if(null == srvPeripheral)
@@ -396,7 +387,7 @@ public class SvdPeripheralHandler
         }
 
         // interrupt
-        if(false == interruptHandler.updateInterrupt(peripheral, peripheralId))
+        if(false == interruptHandler.updateInterrupt(peripheral, peripheralInstanceId))
         {
             return false;
         }
@@ -415,17 +406,6 @@ public class SvdPeripheralHandler
     {
         // name - already handled
         // ignoring  <version></version>
-
-        // TODO:
-        // dim
-        // dimIncrement
-        // dimIndex
-        // dimName
-        // dimArrayIndex
-        // alternatePeripheral
-        // prependToName
-        // appendToName
-        // headerStructName
 
         if(null !=  svdDerivedPeripheral.getChildText("dim"))
         {
@@ -617,13 +597,13 @@ public class SvdPeripheralHandler
         }
 
         // interrupt
-        if(false == interruptHandler.updateDerivedInterrupt(svdDerivedPeripheral, svdOriginalPeripheral, srvIdx))
+        if(false == interruptHandler.updateDerivedInterrupt(svdDerivedPeripheral, svdOriginalPeripheral, srvIdx))// peripheralInstance
         {
             return false;
         }
 
         // registers
-        if(false == registerHandler.updateDerivedRegister(svdDerivedPeripheral, svdOriginalPeripheral, peripheralId))
+        if(false == registerHandler.updateDerivedRegister(svdDerivedPeripheral, svdOriginalPeripheral, peripheralId))// peripheral
         {
             return false;
         }
@@ -634,8 +614,297 @@ public class SvdPeripheralHandler
 
     private boolean createPeripheralInstanceFrom(Element peripheral)
     {
-        log.error("createPeripheralInstanceFrom not implemented!");
-        return false;
+        // name
+        String svdName = peripheral.getChildText("name");
+        log.trace("creating new independend peripheral for {}", svdName);
+        // ignoring  <version></version>
+
+        if(null !=  peripheral.getChildText("dim"))
+        {
+            log.error("dim not implemented!");
+            return false;
+        }
+        if(null !=  peripheral.getChildText("dimIncrement"))
+        {
+            log.error("dimIncrement not implemented!");
+            return false;
+        }
+        if(null !=  peripheral.getChildText("dimIndex"))
+        {
+            log.error("dimIndex not implemented!");
+            return false;
+        }
+        if(null !=  peripheral.getChildText("dimName"))
+        {
+            log.error("dimName not implemented!");
+            return false;
+        }
+        if(null !=  peripheral.getChildText("dimArrayIndex"))
+        {
+            log.error("dimArrayIndex not implemented!");
+            return false;
+        }
+        if(null !=  peripheral.getChildText("alternatePeripheral"))
+        {
+            log.error("alternatePeripheral not implemented!");
+            return false;
+        }
+        if(null !=  peripheral.getChildText("prependToName"))
+        {
+            log.error("prependToName not implemented!");
+            return false;
+        }
+        if(null !=  peripheral.getChildText("appendToName"))
+        {
+            log.error("appendToName not implemented!");
+            return false;
+        }
+        if(null !=  peripheral.getChildText("headerStructName"))
+        {
+            log.error("headerStructName not implemented!");
+            return false;
+        }
+
+        // description
+        String svdDescriptionValue = peripheral.getChildText("description");
+        if(null == svdDescriptionValue)
+        {
+            // value not present -> OK
+        }
+        else
+        {
+            svdDescriptionValue = Tool.cleanupString(svdDescriptionValue);
+        }
+
+        // disableCondition
+        // String checkIfUpdateNeeded(int idx, int origIdx, Element peripheral, String svdName, String serverName)
+        String svdDisableCondition = peripheral.getChildText("disableCondition");
+        if(null == svdDisableCondition)
+        {
+            // value not present -> OK
+        }
+        else
+        {
+            svdDisableCondition = Tool.cleanupString(svdDisableCondition);
+        }
+
+        // baseAddress
+        String strBaseAddress = peripheral.getChildText("baseAddress");
+        long baseAddress = Long.decode(strBaseAddress);  // TODO change data type in database
+
+        // groupName
+        String svdGroupName = peripheral.getChildText("groupName");
+
+        // size
+        String svdSize = peripheral.getChildText("size");
+        if(null != svdSize)
+        {
+            default_size = Integer.parseInt(svdSize);
+        }
+        // access
+        String svdAccess = peripheral.getChildText("access");
+        if(null != svdAccess)
+        {
+            default_access = svdAccess;
+        }
+        // protection
+        String svdProtection = peripheral.getChildText("protection");
+        if(null != svdProtection)
+        {
+            default_protection = svdProtection;
+        }
+        // resetValue
+        String svdResetValue = peripheral.getChildText("resetValue");
+        if(null != svdResetValue)
+        {
+            default_resetValue = svdResetValue;
+        }
+        // resetMask
+        String svdResetMask = peripheral.getChildText("resetMask");
+        if(null != svdResetMask)
+        {
+            default_resetMask = svdResetMask;
+        }
+
+        // now all data is available so generate the peripheral Instance.
+        int peripheralInstanceId =  postNewPeripheralInstanceToServer(
+                svdName,// name,
+                svdDescriptionValue, // description,
+                strBaseAddress, // base_address,
+                0, // peripheral_id,
+                svdDisableCondition// disable_condition
+                );
+        if(0 == peripheralInstanceId)
+        {
+            // post failed :-(
+            log.error("could not create new peripheral Instance on the server!");
+            return false;
+        }
+        // as this is independent also create a new peripheral
+        if(null == svdGroupName)
+        {
+            svdGroupName = svdName; // a group of one ;-)
+        }
+        int peripheralId =  postNewPeripheralToServer(svdGroupName);
+        if(0 == peripheralId)
+        {
+            // post failed :-(
+            log.error("could not create new peripheral on the server!");
+            return false;
+        }
+        if(false == updateServerPeripheralInstance(
+                peripheralInstanceId, // id
+                null,  // name
+                null, // description
+                null, //base_address
+                peripheralId,
+                null // disable_condition
+                ))
+        {
+            log.error("could not add the peripherl_id to the newly created peripheral_instance!");
+            return false;
+        }
+
+
+        // addressBlock
+        if(false == addressBlockHandler.updateAddressBlock(peripheral, peripheralId))
+        {
+            return false;
+        }
+
+        // interrupt
+        if(false == interruptHandler.updateInterrupt(peripheral, peripheralInstanceId))
+        {
+            return false;
+        }
+
+        // registers
+        if(false == registerHandler.updateRegister(peripheral, peripheralId))
+        {
+            return false;
+        }
+
+        // all done
+        return true;
+
+    }
+
+    private int postNewPeripheralToServer(String group_name)
+    {
+        if(null == group_name)
+        {
+            log.warn("group name is NULL !");
+            return 0;
+        }
+        if(1 > group_name.length())
+        {
+            log.warn("group name is empty !");
+            return 0;
+        }
+
+        String param = "group_name=" + group_name;
+        Response res = srv.post("peripheral", param);
+
+        if(false == res.wasSuccessfull())
+        {
+            return 0;
+        }
+        else
+        {
+            return res.getInt("id");
+        }
+    }
+
+    private int postNewPeripheralInstanceToServer(
+            String name,
+            String description,
+            String base_address,
+            int peripheral_id,
+            String disable_condition )
+    {
+        StringBuilder sb = new StringBuilder();
+        if(null != name)
+        {
+            sb.append("name=" + name);
+        }
+        else
+        {
+            // a new peripheral _must_ have a name !
+            return 0;
+        }
+        if(null != description)
+        {
+            sb.append("&description=" + description);
+        }
+        if(null != base_address)
+        {
+            sb.append("&base_address=" + base_address);
+        }
+
+        sb.append("&peripheral_id=" + peripheral_id);
+
+        if(null != disable_condition)
+        {
+            sb.append("&disable_condition=" + disable_condition);
+        }
+        //link the new device to the microcontroller
+        sb.append("&dev_id=" + srvDeviceId);
+
+        String param = sb.toString();
+        Response res = srv.post("peripheral_instance", param);
+
+        if(false == res.wasSuccessfull())
+        {
+            return 0;
+        }
+        else
+        {
+            return res.getInt("id");
+        }
+    }
+
+    private boolean updateServerPeripheralInstance(
+            int id,
+            String name,
+            String description,
+            String base_address,
+            int peripheral_id,
+            String disable_Condition )
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.append("id=" + id);
+        if(null != name)
+        {
+            sb.append("&name=" + name);
+        }
+        if(null != description)
+        {
+            sb.append("&description=" + description);
+        }
+        if(null != base_address)
+        {
+            sb.append("&base_address=" + base_address);
+        }
+        if(0 != peripheral_id)
+        {
+            sb.append("&peripheral_id=" + peripheral_id);
+        }
+        if(null != disable_Condition)
+        {
+            sb.append("&disable_Condition=" + disable_Condition);
+        }
+
+        String param = sb.toString();
+        Response res = srv.put("peripheral_instance", param);
+
+        if(false == res.wasSuccessfull())
+        {
+            return false;
+        }
+        else
+        {
+            return true;
+        }
     }
 
     private boolean createPeripheralInstanceFromDerived(Element svdDerivedPeripheral, Element svdOriginalPeripheral)

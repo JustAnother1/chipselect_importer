@@ -41,7 +41,7 @@ public class SvdAddressBlockHandler
         List<Element> AddrBlockchildren = svdReripheral.getChildren("addressBlock");
         for(Element addressBlock : AddrBlockchildren)
         {
-            if(false == checkAddressBlock(AddrBlockRes, addressBlock))
+            if(false == checkAddressBlock(AddrBlockRes, addressBlock, srvPeripheralId))
             {
                 return false;
             }
@@ -68,7 +68,7 @@ public class SvdAddressBlockHandler
         // else the derived block overwrites the original block!
         for(Element addressBlock : AddrBlockchildren)
         {
-            if(false == checkAddressBlock(AddrBlockRes, addressBlock))
+            if(false == checkAddressBlock(AddrBlockRes, addressBlock, srvPeripheralId))
             {
                 return false;
             }
@@ -76,7 +76,7 @@ public class SvdAddressBlockHandler
         return true;
     }
 
-    private boolean checkAddressBlock(Response res, Element svdAaddressBlock)
+    private boolean checkAddressBlock(Response res, Element svdAaddressBlock, int srvPeripheralId)
     {
         int offset = -1;
         int size = default_size;
@@ -123,29 +123,125 @@ public class SvdAddressBlockHandler
             int srvSize = res.getInt(i, "size");
             String srvUsage = res.getString(i, "mem_usage");
             String srvProtection = res.getString(i, "protection");
-            // check for changes
-            if(    (offset != srvOffset)
-                || (size != srvSize)
-                || ((null != usage) && (false == usage.equals(srvUsage)))
-                || ((null != protection) && (false == protection.equals(srvProtection)))
-                )
+            if (offset == srvOffset)
             {
-                /* This is not the Address Block we found in the SVD
-                log.trace("offset : new: {} old : {}", offset, srvOffset);
-                log.trace("size : new: {} old : {}", size, srvSize);
-                log.trace("usage : new: {} old : {}", usage, srvUsage);
-                log.trace("protection : new: {} old : {}", protection, srvProtection);
-                */
+                // check for changes
+                if(    (offset != srvOffset)
+                    || (size != srvSize)
+                    || ((null != usage) && (false == usage.equals(srvUsage)))
+                    || ((null != protection) && (false == protection.equals(srvProtection)))
+                    )
+                {
+                    /* This is not the Address Block we found in the SVD
+                    log.trace("offset : new: {} old : {}", offset, srvOffset);
+                    log.trace("size : new: {} old : {}", size, srvSize);
+                    log.trace("usage : new: {} old : {}", usage, srvUsage);
+                    log.trace("protection : new: {} old : {}", protection, srvProtection);
+                    */
+                    if(null == srvProtection)
+                    {
+                        srvProtection = "";
+                    }
+                    if((null == protection) && (false == srvProtection.equals(default_protection)))
+                    {
+                        protection = default_protection;
+                    }
+                    if(false == updateAddressBlockToServer(
+                            offset, //address_offset,
+                            size, // size,
+                            usage, // mem_usage,
+                            protection // protection,
+                            ))
+                    {
+                        log.error("can not update the address block");
+                        return false;
+                    }
+                }
+                else
+                {
+                    found = true;
+                    break;
+                }
             }
-            else
-            {
-                found = true;
-                break;
-            }
+            // else this is not the address block we are looking for -> keep looking
         }
         if(false == found)
         {
-            log.error("update addressblock not implemented!");
+            if(null == protection)
+            {
+                protection = default_protection;
+            }
+            return postNewAddressBlockToServer(
+                    offset, //address_offset,
+                    size, // size,
+                    usage, // mem_usage,
+                    protection, // protection,
+                    srvPeripheralId// peripheral_id
+                    );
+        }
+        else
+        {
+            return true;
+        }
+    }
+
+    private boolean updateAddressBlockToServer(
+            int address_offset,
+            long size,
+            String mem_usage,
+            String protection)
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.append("address_offset=" + address_offset);
+        sb.append("&size=" + size);
+        if(null != mem_usage)
+        {
+            sb.append("&mem_usage=" + mem_usage);
+        }
+        if(null != protection)
+        {
+            sb.append("&protection=" + protection);
+        }
+
+        String param = sb.toString();
+        Response res = srv.put("address_block", param);
+
+        if(false == res.wasSuccessfull())
+        {
+            return false;
+        }
+        else
+        {
+            return true;
+        }
+    }
+
+    private boolean postNewAddressBlockToServer(
+            int address_offset,
+            long size,
+            String mem_usage,
+            String protection,
+            int peripheral_id)
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.append("address_offset=" + address_offset);
+        sb.append("&size=" + size);
+        if(null != mem_usage)
+        {
+            sb.append("&mem_usage=" + mem_usage);
+        }
+        if(null != protection)
+        {
+            sb.append("&protection=" + protection);
+        }
+        //link the new address_block to the peripheral
+        sb.append("&per_id=" + peripheral_id);
+
+        String param = sb.toString();
+        Response res = srv.post("address_block", param);
+
+        if(false == res.wasSuccessfull())
+        {
             return false;
         }
         else

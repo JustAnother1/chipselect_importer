@@ -18,6 +18,19 @@ public class Response
     private String ErrorMessage = null;
     private String JsonString = null;
 
+    @Override
+    public String toString()
+    {
+        if(true == success)
+        {
+            return "successful Response: " + JsonString + " -> " + dataArr.toString() + ")\n";
+        }
+        else
+        {
+            return "failed Response: " + ErrorMessage + "(Response: " + JsonString + ")\n";
+        }
+    }
+
     public Response()
     {
     }
@@ -60,21 +73,25 @@ public class Response
     {
         if(null == dataArr)
         {
+            log.warn("No data array to read from");
             return 0;
         }
         else
         {
             if(0 ==  dataArr.length())
             {
+                log.warn("data array is empty");
                 return 0;
             }
             JSONObject obj = dataArr.getJSONObject(index);
             if(false == obj.has(key))
             {
+                log.warn("requested key not in data entry");
                 return 0;
             }
             if(true == obj.isNull(key))
             {
+                log.warn("requested key({}) is null", key);
                 return 0;
             }
             try

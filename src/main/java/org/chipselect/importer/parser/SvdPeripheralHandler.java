@@ -690,7 +690,7 @@ public class SvdPeripheralHandler
 
         // baseAddress
         String strBaseAddress = peripheral.getChildText("baseAddress");
-        long baseAddress = Long.decode(strBaseAddress);  // TODO change data type in database
+        long baseAddress = Long.decode(strBaseAddress);
 
         // groupName
         String svdGroupName = peripheral.getChildText("groupName");
@@ -730,7 +730,7 @@ public class SvdPeripheralHandler
         int peripheralInstanceId =  postNewPeripheralInstanceToServer(
                 svdName,// name,
                 svdDescriptionValue, // description,
-                strBaseAddress, // base_address,
+                baseAddress, // base_address,
                 0, // peripheral_id,
                 svdDisableCondition// disable_condition
                 );
@@ -756,7 +756,7 @@ public class SvdPeripheralHandler
                 peripheralInstanceId, // id
                 null,  // name
                 null, // description
-                null, //base_address
+                0, //base_address
                 peripheralId,
                 null // disable_condition
                 ))
@@ -818,7 +818,7 @@ public class SvdPeripheralHandler
     private int postNewPeripheralInstanceToServer(
             String name,
             String description,
-            String base_address,
+            long base_address,
             int peripheral_id,
             String disable_condition )
     {
@@ -836,7 +836,7 @@ public class SvdPeripheralHandler
         {
             sb.append("&description=" + description);
         }
-        if(null != base_address)
+        if(0 != base_address)
         {
             sb.append("&base_address=" + base_address);
         }
@@ -867,7 +867,7 @@ public class SvdPeripheralHandler
             int id,
             String name,
             String description,
-            String base_address,
+            long base_address,
             int peripheral_id,
             String disable_Condition )
     {
@@ -881,7 +881,7 @@ public class SvdPeripheralHandler
         {
             sb.append("&description=" + description);
         }
-        if(null != base_address)
+        if(0 != base_address)
         {
             sb.append("&base_address=" + base_address);
         }
@@ -996,7 +996,7 @@ public class SvdPeripheralHandler
         {
             strBaseAddress = svdOriginalPeripheral.getChildText("baseAddress");
         }
-        long baseAddress = Long.decode(strBaseAddress);  // TODO change data type in database
+        long baseAddress = Long.decode(strBaseAddress);
 
         // groupName
         String svdGroupName = svdDerivedPeripheral.getChildText("groupName");
@@ -1068,7 +1068,7 @@ public class SvdPeripheralHandler
         int peripheralInstanceId =  postNewPeripheralInstanceToServer(
                 svdName,// name,
                 svdDescriptionValue, // description,
-                strBaseAddress, // base_address,
+                baseAddress, // base_address,
                 peripheralId, // peripheral_id,
                 svdDisableCondition// disable_condition
                 );

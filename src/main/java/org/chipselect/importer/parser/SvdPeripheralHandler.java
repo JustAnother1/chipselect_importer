@@ -909,8 +909,198 @@ public class SvdPeripheralHandler
 
     private boolean createPeripheralInstanceFromDerived(Element svdDerivedPeripheral, Element svdOriginalPeripheral)
     {
-        log.error("createPeripheralInstanceFromDerived not implemented!");
-        return false;
+        // name
+        String svdName = svdDerivedPeripheral.getChildText("name");
+        log.trace("creating new derived peripheral for {}", svdName);
+        // ignoring  <version></version>
+
+        if(null !=  svdDerivedPeripheral.getChildText("dim"))
+        {
+            log.error("dim not implemented!");
+            return false;
+        }
+        if(null !=  svdDerivedPeripheral.getChildText("dimIncrement"))
+        {
+            log.error("dimIncrement not implemented!");
+            return false;
+        }
+        if(null !=  svdDerivedPeripheral.getChildText("dimIndex"))
+        {
+            log.error("dimIndex not implemented!");
+            return false;
+        }
+        if(null !=  svdDerivedPeripheral.getChildText("dimName"))
+        {
+            log.error("dimName not implemented!");
+            return false;
+        }
+        if(null !=  svdDerivedPeripheral.getChildText("dimArrayIndex"))
+        {
+            log.error("dimArrayIndex not implemented!");
+            return false;
+        }
+        if(null !=  svdDerivedPeripheral.getChildText("alternatePeripheral"))
+        {
+            log.error("alternatePeripheral not implemented!");
+            return false;
+        }
+        if(null !=  svdDerivedPeripheral.getChildText("prependToName"))
+        {
+            log.error("prependToName not implemented!");
+            return false;
+        }
+        if(null !=  svdDerivedPeripheral.getChildText("appendToName"))
+        {
+            log.error("appendToName not implemented!");
+            return false;
+        }
+        if(null !=  svdDerivedPeripheral.getChildText("headerStructName"))
+        {
+            log.error("headerStructName not implemented!");
+            return false;
+        }
+
+        // description
+        String svdDescriptionValue = svdDerivedPeripheral.getChildText("description");
+        if(null == svdDescriptionValue)
+        {
+            svdDescriptionValue = svdOriginalPeripheral.getChildText("description");
+        }
+        if(null == svdDescriptionValue)
+        {
+            // value not present -> OK
+        }
+        else
+        {
+            svdDescriptionValue = Tool.cleanupString(svdDescriptionValue);
+        }
+
+        // disableCondition
+        String svdDisableCondition = svdDerivedPeripheral.getChildText("disableCondition");
+        if(null == svdDisableCondition)
+        {
+            svdDisableCondition = svdOriginalPeripheral.getChildText("disableCondition");
+        }
+        if(null == svdDisableCondition)
+        {
+            // value not present -> OK
+        }
+        else
+        {
+            svdDisableCondition = Tool.cleanupString(svdDisableCondition);
+        }
+
+        // baseAddress
+        String strBaseAddress = svdDerivedPeripheral.getChildText("baseAddress");
+        if(null == strBaseAddress)
+        {
+            strBaseAddress = svdOriginalPeripheral.getChildText("baseAddress");
+        }
+        long baseAddress = Long.decode(strBaseAddress);  // TODO change data type in database
+
+        // groupName
+        String svdGroupName = svdDerivedPeripheral.getChildText("groupName");
+        if(null == svdGroupName)
+        {
+            svdGroupName = svdOriginalPeripheral.getChildText("groupName");
+        }
+
+        // size
+        String svdSize = svdDerivedPeripheral.getChildText("size");
+        if(null != svdSize)
+        {
+            svdSize = svdOriginalPeripheral.getChildText("size");
+        }
+        if(null != svdSize)
+        {
+            default_size = Integer.parseInt(svdSize);
+        }
+
+        // access
+        String svdAccess = svdDerivedPeripheral.getChildText("access");
+        if(null != svdAccess)
+        {
+            svdAccess = svdOriginalPeripheral.getChildText("access");
+        }
+        if(null != svdAccess)
+        {
+            default_access = svdAccess;
+        }
+
+        // protection
+        String svdProtection = svdDerivedPeripheral.getChildText("protection");
+        if(null != svdProtection)
+        {
+            svdProtection = svdOriginalPeripheral.getChildText("protection");
+        }
+        if(null != svdProtection)
+        {
+            default_protection = svdProtection;
+        }
+
+        // resetValue
+        String svdResetValue = svdDerivedPeripheral.getChildText("resetValue");
+        if(null != svdResetValue)
+        {
+            svdResetValue = svdOriginalPeripheral.getChildText("resetValue");
+        }
+        if(null != svdResetValue)
+        {
+            default_resetValue = svdResetValue;
+        }
+
+        // resetMask
+        String svdResetMask = svdDerivedPeripheral.getChildText("resetMask");
+        if(null != svdResetMask)
+        {
+            svdResetMask = svdOriginalPeripheral.getChildText("resetMask");
+        }
+        if(null != svdResetMask)
+        {
+            default_resetMask = svdResetMask;
+        }
+
+        int peripheralId = 0;
+        int srvOrigIdx = getPeripheralSrvIndexFor(svdOriginalPeripheral.getChildText("name"));
+        peripheralId = srvAllPeripherals.getInt(srvOrigIdx, "peripheral_id");
+
+        // now all data is available so generate the peripheral Instance.
+        int peripheralInstanceId =  postNewPeripheralInstanceToServer(
+                svdName,// name,
+                svdDescriptionValue, // description,
+                strBaseAddress, // base_address,
+                peripheralId, // peripheral_id,
+                svdDisableCondition// disable_condition
+                );
+        if(0 == peripheralInstanceId)
+        {
+            // post failed :-(
+            log.error("could not create new derived peripheral Instance on the server!");
+            return false;
+        }
+
+
+        // addressBlock
+        if(false == addressBlockHandler.updateDerivedAddressBlock(svdDerivedPeripheral, svdOriginalPeripheral, peripheralId))
+        {
+            return false;
+        }
+
+        // interrupt
+        if(false == interruptHandler.updateDerivedInterrupt(svdDerivedPeripheral, svdOriginalPeripheral, peripheralInstanceId))
+        {
+            return false;
+        }
+
+        // registers
+        if(false == registerHandler.updateDerivedRegister(svdDerivedPeripheral, svdOriginalPeripheral, peripheralId))
+        {
+            return false;
+        }
+
+        // all done
+        return true;
+
     }
 
 }

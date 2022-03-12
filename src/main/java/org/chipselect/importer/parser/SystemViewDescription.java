@@ -639,7 +639,7 @@ public class SystemViewDescription
 
             default:
                 // undefined child found. This is not a valid SVD file !
-                log.error("Unknown child tag: {}", name);
+                log.error("Unknown root child tag: {}", name);
                 return false;
             }
         }

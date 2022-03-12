@@ -207,7 +207,7 @@ public class SvdPeripheralHandler
 
             default:
                 // undefined child found. This is not a valid SVD file !
-                log.error("Unknown child tag: {}", name);
+                log.error("Unknown peripheral child tag: {}", name);
                 return false;
             }
         }
@@ -829,7 +829,7 @@ public class SvdPeripheralHandler
         }
         else
         {
-            // a new peripheral _must_ have a name !
+            log.error(" a new peripheral _must_ have a name !");
             return 0;
         }
         if(null != description)

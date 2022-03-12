@@ -32,7 +32,7 @@ public class SvdFieldHandler
         List<Element> fieldList = fields.getChildren();
         for(Element field : fieldList)
         {
-            if(false == checkField(fieldstRes, field))
+            if(false == checkField(fieldstRes, field, srvId))
             {
                 return false;
             }
@@ -40,7 +40,7 @@ public class SvdFieldHandler
         return true;
     }
 
-    private boolean checkField(Response res, Element field)
+    private boolean checkField(Response res, Element field, int reg_id)
     {
         String svdName = null;
         String description = null;
@@ -147,7 +147,7 @@ public class SvdFieldHandler
 
             default:
                 // undefined child found. This is not a valid SVD file !
-                log.error("Unknown interrupt child tag: {}", name);
+                log.error("Unknown field child tag: {}", name);
                 return false;
             }
         }
@@ -228,21 +228,25 @@ public class SvdFieldHandler
         if(false == found)
         {
             // this field is missing on the server -> add it
-            log.error("create new field not implemented!");
-            return false;
+            return createNewFieldOnServer(
+                    svdName,
+                    description,
+                    bitOffset,
+                    sizeBit,
+                    access,
+                    modifiedWriteValues,
+                    readAction,
+                    reg_id );
         }
-        else
+        // field handeled, -> enums?
+        if(null != enumeration)
         {
-            // field handeled, -> enums?
-            if(null != enumeration)
+            if(false == enumHandler.updateEnumeration(enumeration, srvId))
             {
-                if(false == enumHandler.updateEnumeration(enumeration, srvId))
-                {
-                    return false;
-                }
+                return false;
             }
-            return true;
         }
+        return true;
     }
 
     private boolean updateServerField(
@@ -284,6 +288,62 @@ public class SvdFieldHandler
 
         String param = sb.toString();
         Response res = srv.put("field", param);
+
+        if(false == res.wasSuccessfull())
+        {
+            return false;
+        }
+        else
+        {
+            return true;
+        }
+    }
+
+    private boolean createNewFieldOnServer(
+            String name,
+            String description,
+            int bit_offset,
+            int size_bit,
+            String access,
+            String modified_write_values,
+            String read_action,
+            int reg_id
+            )
+    {
+        StringBuilder sb = new StringBuilder();
+        if(null != name)
+        {
+            sb.append("&name=" + name);
+        }
+        else
+        {
+            log.error(" a new peripheral _must_ have a name !");
+            return false;
+        }
+        if(null != description)
+        {
+            sb.append("&description=" + description);
+        }
+
+        sb.append("&bit_offset=" + bit_offset);
+        sb.append("&size_bit=" + size_bit);
+
+        if(null != access)
+        {
+            sb.append("&access=" + access);
+        }
+        if(null != modified_write_values)
+        {
+            sb.append("&modified_write_values=" + modified_write_values);
+        }
+        if(null != read_action)
+        {
+            sb.append("&read_action=" + read_action);
+        }
+        sb.append("&reg_id=" + reg_id);
+
+        String param = sb.toString();
+        Response res = srv.post("field", param);
 
         if(false == res.wasSuccessfull())
         {

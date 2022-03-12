@@ -69,7 +69,7 @@ public class SvdRegisterHandler
                     break;
 
                 case "register":
-                    if(false == checkRegister(res, child))
+                    if(false == checkRegister(res, child, peripheralId))
                     {
                         return false;
                     }
@@ -114,7 +114,7 @@ public class SvdRegisterHandler
                     break;
 
                 case "register":
-                    if(false == checkRegister(res, child))
+                    if(false == checkRegister(res, child, peripheralId))
                     {
                         return false;
                     }
@@ -130,17 +130,20 @@ public class SvdRegisterHandler
         return true;
     }
 
-    private boolean checkRegister(Response res, Element svdRegisters)
+    private boolean checkRegister(Response res, Element svdRegisters, int peripheralId)
     {
         String name = null;
         String displayName = null;
         String description = null;
         String addressOffset = null;
+        long addressOffsetLong = 0;
         int size = default_size;
         String access = default_access;
         String reset_value = default_resetValue;
+        long reset_valueLong = Long.decode(default_resetValue);
         String alternate_register = null;
         String reset_Mask = default_resetMask;
+        long reset_MaskLong = Long.decode(default_resetMask);
         String read_action = null;
         String modified_write_values = null;
         String data_type = null;
@@ -268,9 +271,9 @@ public class SvdRegisterHandler
                 // else no change
                 if((null != addressOffset) && (false == "".equals(addressOffset)) && (false == addressOffset.equals(srvAddressOffset)))
                 {
-                    long val = Long.decode(addressOffset);
+                    addressOffsetLong = Long.decode(addressOffset);
                     long srvVal = Long.decode(srvAddressOffset);
-                    if(val != srvVal)
+                    if(addressOffsetLong != srvVal)
                     {
                         log.trace("address offset changed from :{}: to :{}:", srvAddressOffset, addressOffset);
                         changed = true;
@@ -292,12 +295,12 @@ public class SvdRegisterHandler
                 // else no change
                 if((null != reset_value) && (false == "".equals(reset_value)) && (false == reset_value.equals(srvReset_value)))
                 {
-                    long val = Long.decode(reset_value);
+                    reset_valueLong = Long.decode(reset_value);
                     long srvVal = Long.decode(srvReset_value);
-                    if(val != srvVal)
+                    if(reset_valueLong != srvVal)
                     {
                         log.trace("reset value changed from :{}: to :{}:", srvReset_value, reset_value);
-                        log.trace("reset value changed from :{}: to :{}:", srvVal, val);
+                        log.trace("reset value changed from :{}: to :{}:", srvVal, reset_valueLong);
                         changed = true;
                     }
                     // else "0" is not different to "0x00"
@@ -314,13 +317,13 @@ public class SvdRegisterHandler
                    && (false == "".equals(reset_Mask))
                    && (false == reset_Mask.equals(srvReset_Mask)))
                 {
-                    long val = Long.decode(reset_Mask);
+                    reset_MaskLong = Long.decode(reset_Mask);
                     long srvVal = 0;
                     if((null != srvReset_Mask) && (false == "".equals(srvReset_Mask)))
                     {
                         srvVal = Long.decode(srvReset_Mask);
                     }
-                    if(val != srvVal)
+                    if(reset_MaskLong != srvVal)
                     {
                         log.trace("reset mask changed from :{}: to :{}:", srvReset_Mask, reset_Mask);
                         changed = true;
@@ -350,19 +353,19 @@ public class SvdRegisterHandler
                 if(true == changed)
                 {
                     return updateServerRegister(
-                            srvId, // int id,
-                            name, // String name,
-                            displayName, // String display_name,
-                            description, // String description,
-                            addressOffset, // long address_offset,
-                            size, // int size,
-                            access, // String access,
-                            reset_value, // String reset_value,
-                            alternate_register, // String alternative_register,
-                            reset_Mask, // String reset_mask,
-                            read_action, // String read_action,
-                            modified_write_values, // String modified_write_values,
-                            data_type // String data_taype
+                            srvId, // id,
+                            name, // name,
+                            displayName, // display_name,
+                            description, // description,
+                            addressOffsetLong, // address_offset,
+                            size, // size,
+                            access, // access,
+                            reset_valueLong, // reset_value,
+                            alternate_register, // alternative_register,
+                            reset_MaskLong, // reset_mask,
+                            read_action, // read_action,
+                            modified_write_values, // modified_write_values,
+                            data_type // data_taype
                             );
                 }
                 // else no change -> no update needed
@@ -372,35 +375,43 @@ public class SvdRegisterHandler
 
         if(false == found)
         {
-            log.error("create new register not implemented!");
-            return false;
+            return createRegisterOnServer(
+                    name, // name,
+                    displayName, // display_name,
+                    description, // description,
+                    addressOffsetLong, // address_offset,
+                    size, // size,
+                    access, // access,
+                    reset_valueLong, // reset_value,
+                    alternate_register, // alternative_register,
+                    reset_MaskLong, // reset_mask,
+                    read_action, // read_action,
+                    modified_write_values, // modified_write_values,
+                    data_type, // data_taype
+                    peripheralId);
         }
-        else
+        if(null != fields)
         {
-            if(null != fields)
+            if(false == fieldHandler.updateField(fields, srvId))
             {
-                if(false == fieldHandler.updateField(fields, srvId))
-                {
-                    return false;
-                }
+                return false;
             }
-            // else no fields in this register :-(
-            return true;
         }
+        // else no fields in this register :-(
+        return true;
     }
-
 
     private boolean updateServerRegister(
             int id,
             String name,
             String display_name,
             String description,
-            String address_offset,
+            long address_offset,
             int size,
             String access,
-            String reset_value,
+            long reset_value,
             String alternative_register,
-            String reset_mask,
+            long reset_mask,
             String read_action,
             String modified_write_values,
             String data_taype )
@@ -419,30 +430,24 @@ public class SvdRegisterHandler
         {
             sb.append("&description=" + description);
         }
-        if(null != address_offset)
-        {
-            long val = Long.decode(address_offset);
-            sb.append("&address_offset=" + val);
-        }
 
+        sb.append("&address_offset=" + address_offset);
         sb.append("&size=" + size);
 
         if(null != access)
         {
             sb.append("&access=" + access);
         }
-        if(null != reset_value)
-        {
-            sb.append("&reset_value=" + reset_value);
-        }
+
+        sb.append("&reset_value=" + reset_value);
+
         if(null != alternative_register)
         {
             sb.append("&alternative_register=" + alternative_register);
         }
-        if(null != reset_mask)
-        {
-            sb.append("&reset_mask=" + reset_mask);
-        }
+
+        sb.append("&reset_mask=" + reset_mask);
+
         if(null != read_action)
         {
             sb.append("&read_action=" + read_action);
@@ -457,6 +462,85 @@ public class SvdRegisterHandler
         }
         String param = sb.toString();
         Response res = srv.put("register", param);
+
+        if(false == res.wasSuccessfull())
+        {
+            return false;
+        }
+        else
+        {
+            return true;
+        }
+    }
+
+    private boolean createRegisterOnServer(
+            String name,
+            String display_name,
+            String description,
+            long address_offset,
+            int size,
+            String access,
+            long reset_value,
+            String alternative_register,
+            long reset_mask,
+            String read_action,
+            String modified_write_values,
+            String data_taype,
+            int peripheralId)
+    {
+        StringBuilder sb = new StringBuilder();
+        if(null != name)
+        {
+            sb.append("name=" + name);
+        }
+        else
+        {
+            log.error(" a new register _must_ have a name !");
+            return false;
+        }
+        if(null != display_name)
+        {
+            sb.append("&display_name=" + display_name);
+        }
+        if(null != description)
+        {
+            sb.append("&description=" + description);
+        }
+
+        sb.append("&address_offset=" + address_offset);
+        sb.append("&size=" + size);
+
+        if(null != access)
+        {
+            sb.append("&access=" + access);
+        }
+
+        sb.append("&reset_value=" + reset_value);
+
+        if(null != alternative_register)
+        {
+            sb.append("&alternative_register=" + alternative_register);
+        }
+
+        sb.append("&reset_mask=" + reset_mask);
+
+        if(null != read_action)
+        {
+            sb.append("&read_action=" + read_action);
+        }
+        if(null != modified_write_values)
+        {
+            sb.append("&modified_write_values=" + modified_write_values);
+        }
+        if(null != data_taype)
+        {
+            sb.append("&data_taype=" + data_taype);
+        }
+
+        sb.append("&per_id=" + peripheralId);
+
+        String param = sb.toString();
+        Response res = srv.post("register", param);
 
         if(false == res.wasSuccessfull())
         {

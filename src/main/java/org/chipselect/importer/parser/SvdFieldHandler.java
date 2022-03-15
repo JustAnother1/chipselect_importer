@@ -1,6 +1,7 @@
 package org.chipselect.importer.parser;
 
 import java.util.List;
+import java.util.Vector;
 
 import org.chipselect.importer.Tool;
 import org.chipselect.importer.server.Response;
@@ -49,7 +50,7 @@ public class SvdFieldHandler
         String access = null;
         String modifiedWriteValues = null;
         String readAction = null;
-        Element enumeration = null;
+        Vector<Element> enumerations = new Vector<Element>();
 
         // check for unknown children
         List<Element> children = field.getChildren();
@@ -133,7 +134,7 @@ public class SvdFieldHandler
                 break;
 
             case "enumeratedValues":
-                enumeration = child;
+                enumerations.add(child);
                 break;
 
 
@@ -212,14 +213,18 @@ public class SvdFieldHandler
 
                 if(true == changed)
                 {
-                    return updateServerField(srvId,
+                    if(false == updateServerField(srvId,
                             svdName,
                             description,
                             bitOffset,
                             sizeBit,
                             access,
                             modifiedWriteValues,
-                            readAction );
+                            readAction ))
+                    {
+                        log.error("failed to update field on server!");
+                        return false;
+                    }
                 }
                 // else no change -> no update needed
                 break;
@@ -228,7 +233,7 @@ public class SvdFieldHandler
         if(false == found)
         {
             // this field is missing on the server -> add it
-            return createNewFieldOnServer(
+            srvId = createNewFieldOnServer(
                     svdName,
                     description,
                     bitOffset,
@@ -237,13 +242,22 @@ public class SvdFieldHandler
                     modifiedWriteValues,
                     readAction,
                     reg_id );
+            if(0 == srvId)
+            {
+                log.error("failed to create field on server!");
+                return false;
+            }
         }
         // field handeled, -> enums?
-        if(null != enumeration)
+        if(false == enumerations.isEmpty())
         {
-            if(false == enumHandler.updateEnumeration(enumeration, srvId))
+            for(int i = 0; i< enumerations.size(); i++)
             {
-                return false;
+                Element curE = enumerations.get(i);
+                if(false == enumHandler.updateEnumeration(curE, srvId))
+                {
+                    return false;
+                }
             }
         }
         return true;
@@ -299,7 +313,7 @@ public class SvdFieldHandler
         }
     }
 
-    private boolean createNewFieldOnServer(
+    private int createNewFieldOnServer(
             String name,
             String description,
             int bit_offset,
@@ -313,12 +327,12 @@ public class SvdFieldHandler
         StringBuilder sb = new StringBuilder();
         if(null != name)
         {
-            sb.append("&name=" + name);
+            sb.append("name=" + name);
         }
         else
         {
             log.error(" a new peripheral _must_ have a name !");
-            return false;
+            return 0;
         }
         if(null != description)
         {
@@ -347,11 +361,11 @@ public class SvdFieldHandler
 
         if(false == res.wasSuccessfull())
         {
-            return false;
+            return 0;
         }
         else
         {
-            return true;
+            return res.getInt("id");
         }
     }
 

@@ -352,7 +352,7 @@ public class SvdRegisterHandler
 
                 if(true == changed)
                 {
-                    return updateServerRegister(
+                    if(false == updateServerRegister(
                             srvId, // id,
                             name, // name,
                             displayName, // display_name,
@@ -366,7 +366,11 @@ public class SvdRegisterHandler
                             read_action, // read_action,
                             modified_write_values, // modified_write_values,
                             data_type // data_taype
-                            );
+                            ))
+                    {
+                        log.error("Failed to update register on server");
+                        return false;
+                    }
                 }
                 // else no change -> no update needed
                 break;
@@ -375,7 +379,7 @@ public class SvdRegisterHandler
 
         if(false == found)
         {
-            return createRegisterOnServer(
+            srvId = createRegisterOnServer(
                     name, // name,
                     displayName, // display_name,
                     description, // description,
@@ -389,6 +393,11 @@ public class SvdRegisterHandler
                     modified_write_values, // modified_write_values,
                     data_type, // data_taype
                     peripheralId);
+            if(0 == srvId)
+            {
+                log.error("Failed to create register on server !");
+                return false;
+            }
         }
         if(null != fields)
         {
@@ -473,7 +482,7 @@ public class SvdRegisterHandler
         }
     }
 
-    private boolean createRegisterOnServer(
+    private int createRegisterOnServer(
             String name,
             String display_name,
             String description,
@@ -496,7 +505,7 @@ public class SvdRegisterHandler
         else
         {
             log.error(" a new register _must_ have a name !");
-            return false;
+            return 0;
         }
         if(null != display_name)
         {
@@ -544,11 +553,11 @@ public class SvdRegisterHandler
 
         if(false == res.wasSuccessfull())
         {
-            return false;
+            return 0;
         }
         else
         {
-            return true;
+            return res.getInt("id");
         }
     }
 

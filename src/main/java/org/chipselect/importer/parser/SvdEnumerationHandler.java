@@ -81,52 +81,52 @@ public class SvdEnumerationHandler
             }
         }
 
-        boolean found = false;
-        boolean changed = false;
         int enumId = 0;
         int numEnumsOnServer = res.numResults();
-        for(int i = 0; i < numEnumsOnServer; i++)
+        // there are only two _valid_ cases here:
+        // 0 elements means this enum is new and we need to create it, or
+        // 1 elements means we already have this enum and only want to update it.
+        // everything else is just a big mistake!
+        if(0 == numEnumsOnServer)
         {
-            String srvName = res.getString(i, "name");
-            String srvUsage = res.getString(i, "usage_right");
+            // create new enumeration for this field
+            enumId = createEnumerationOnServer(fieldId, svdName, svdUsage);
+            log.error("could not create a enumeration !");
+            log.error(Tool.getXMLRepresentationFor(enumE));
+            return false;
+        }
+        else if(1 == numEnumsOnServer)
+        {
+            enumId = res.getInt("id");
+            String srvName = res.getString("name");
+            String srvUsage = res.getString("usage_right");
+            boolean changed = false;
 
             if(null != srvName)
             {
-                if(false == srvName.equals(svdName))
+                if(null != svdName)
                 {
-                    // this server enum has a name and it is different to the name in the SVD
-                    // -> this is not the same enum
-                    continue;
+                    if(false == srvName.equals(svdName))
+                    {
+                        // this server enumeration has a name and it is different to the name in the SVD
+                        changed = true;
+                    }
                 }
+                // updated to NULL -> ignore
             }
             else
             {
                 if(null != svdName)
                 {
                     // this server enum has no name, but the svd one has a name
-                    // -> this is not the same enum
-                    continue;
-                }
-            }
-            // if we are still here than we have found the enum!
-            found = true;
-
-            if(null != srvUsage)
-            {
-                // server does not have a usage
-                if(null != svdUsage)
-                {
                     changed = true;
                 }
             }
-            else
+
+            if(null != srvUsage)
             {
-                // server has a usage
-                if(null == svdUsage)
-                {
-                    // changed, but changed to nothing -> we ignore that
-                }
-                else
+                // server does have a usage
+                if(null != svdUsage)
                 {
                     if(false == svdUsage.equals(srvUsage))
                     {
@@ -134,10 +134,21 @@ public class SvdEnumerationHandler
                     }
                 }
             }
+            else
+            {
+                // server has no usage
+                if(null == svdUsage)
+                {
+                    // not changed
+                }
+                else
+                {
+                    changed = true;
+                }
+            }
             if(true == changed)
             {
                 // update the enumeration
-                enumId = res.getInt(i, "id");
                 if(false == updateEnumerationOnServer(enumId, svdName, svdUsage))
                 {
                     log.error("Could not update the enumeration on the server!");
@@ -145,17 +156,13 @@ public class SvdEnumerationHandler
                 }
             }
         }
-        if(false == found)
+        else
         {
-            // create new enumeration for this field
-            enumId = createEnumerationOnServer(fieldId, svdName, svdUsage);
-        }
-        if(0 == enumId)
-        {
-            log.error("could not create a enumeration !");
-            log.error(Tool.getXMLRepresentationFor(enumE));
+            // -> more than one enum? -> Server has invalid data!
+            log.error("server has more than one enumeration for a single field !");
             return false;
         }
+
         if(false == enum_values.isEmpty())
         {
             Response enumValRes = srv.get("enumeration_element", "enum_id=" + enumId);

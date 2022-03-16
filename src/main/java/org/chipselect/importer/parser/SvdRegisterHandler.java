@@ -140,14 +140,31 @@ public class SvdRegisterHandler
         int size = default_size;
         String access = default_access;
         String reset_value = default_resetValue;
-        long reset_valueLong = Long.decode(default_resetValue);
+        long reset_valueLong;
         String alternate_register = null;
         String reset_Mask = default_resetMask;
-        long reset_MaskLong = Long.decode(default_resetMask);
+        long reset_MaskLong;
         String read_action = null;
         String modified_write_values = null;
         String data_type = null;
         Element fields = null;
+
+        if(null != default_resetValue)
+        {
+            reset_valueLong = Long.decode(default_resetValue);
+        }
+        else
+        {
+            reset_valueLong = 0;
+        }
+        if(null != default_resetMask)
+        {
+            reset_MaskLong = Long.decode(default_resetMask);
+        }
+        else
+        {
+            reset_MaskLong = 0;
+        }
 
         // check for unknown children
         List<Element> children = svdRegisters.getChildren();
@@ -219,7 +236,7 @@ public class SvdRegisterHandler
             case "alternateGroup" :
             case "protection" :
             case "writeConstraint" :
-                log.error("Register child {} not implemented!", name);
+                log.error("Register child {} not implemented!", tagName);
                 return false;
 
             default:

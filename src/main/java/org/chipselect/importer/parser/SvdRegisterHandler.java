@@ -18,6 +18,23 @@ public class SvdRegisterHandler
     private String default_access = null;
     private String default_resetValue = null;
     private String default_resetMask = null;
+    // register values
+    private String name = null;
+    private String displayName = null;
+    private String description = null;
+    private String addressOffset = null;
+    private long addressOffsetLong = 0;
+    private int size = 0;
+    private String access = null;
+    private String reset_value = null;
+    private long reset_valueLong = 0;
+    private String alternate_register = null;
+    private String reset_Mask = null;
+    private long reset_MaskLong = 0;
+    private String read_action = null;
+    private String modified_write_values = null;
+    private String data_type = null;
+    private Element fields = null;
 
     public SvdRegisterHandler(Server srv)
     {
@@ -130,44 +147,9 @@ public class SvdRegisterHandler
         return true;
     }
 
-    private boolean checkRegister(Response res, Element svdRegisters, int peripheralId)
+    private boolean checkRegisterForUnknownChildren(Element svdRegister)
     {
-        String name = null;
-        String displayName = null;
-        String description = null;
-        String addressOffset = null;
-        long addressOffsetLong = 0;
-        int size = default_size;
-        String access = default_access;
-        String reset_value = default_resetValue;
-        long reset_valueLong;
-        String alternate_register = null;
-        String reset_Mask = default_resetMask;
-        long reset_MaskLong;
-        String read_action = null;
-        String modified_write_values = null;
-        String data_type = null;
-        Element fields = null;
-
-        if(null != default_resetValue)
-        {
-            reset_valueLong = Long.decode(default_resetValue);
-        }
-        else
-        {
-            reset_valueLong = 0;
-        }
-        if(null != default_resetMask)
-        {
-            reset_MaskLong = Long.decode(default_resetMask);
-        }
-        else
-        {
-            reset_MaskLong = 0;
-        }
-
-        // check for unknown children
-        List<Element> children = svdRegisters.getChildren();
+        List<Element> children = svdRegister.getChildren();
         for(Element child : children)
         {
             String tagName = child.getName();
@@ -237,6 +219,7 @@ public class SvdRegisterHandler
             case "protection" :
             case "writeConstraint" :
                 log.error("Register child {} not implemented!", tagName);
+                log.error(Tool.getXMLRepresentationFor(svdRegister));
                 return false;
 
             default:
@@ -245,6 +228,190 @@ public class SvdRegisterHandler
                 return false;
             }
         }
+        return true;
+    }
+
+    private void initRegisterValues()
+    {
+        name = null;
+        displayName = null;
+        description = null;
+        addressOffset = null;
+        addressOffsetLong = 0;
+        size = default_size;
+        access = default_access;
+        reset_value = default_resetValue;
+        alternate_register = null;
+        reset_Mask = default_resetMask;
+        read_action = null;
+        modified_write_values = null;
+        data_type = null;
+        fields = null;
+
+        if(null != default_resetValue)
+        {
+            reset_valueLong = Long.decode(default_resetValue);
+        }
+        else
+        {
+            reset_valueLong = 0;
+        }
+        if(null != default_resetMask)
+        {
+            reset_MaskLong = Long.decode(default_resetMask);
+        }
+        else
+        {
+            reset_MaskLong = 0;
+        }
+    }
+
+    private boolean checkIfUpdateOfRegisterIsNeeded(Response res, int i, int srvId)
+    {
+        String srvDisplayName = res.getString(i, "display_name");
+        String srvDescription = res.getString(i, "description");
+        String srvAddressOffset = res.getString(i, "address_offset");
+        int    srvSize = res.getInt(i,  "size");
+        String srvAccess = res.getString(i, "access");
+        String srvReset_value = res.getString(i, "reset_value");
+        String srvAlternate_register = res.getString(i, "alternate_register");
+        String srvReset_Mask = res.getString(i, "reset_mask");
+        String srvRead_action = res.getString(i, "read_action");
+        String srvModified_write_values = res.getString(i, "modified_write_values");
+        String srvData_type = res.getString(i, "data_type");
+
+        // check for Change
+        boolean changed = false;
+        if((null != displayName) && (false == "".equals(displayName)) && (false == displayName.equals(srvDisplayName)))
+        {
+            log.trace("display name changed from :{}: to :{}:", srvDisplayName, displayName);
+            changed = true;
+        }
+        // else no change
+        if((null != description) && (false == "".equals(description)) && (false == description.equals(srvDescription)))
+        {
+            log.trace("description changed from :{}: to :{}:", srvDescription, description);
+            changed = true;
+        }
+        // else no change
+        if((null != addressOffset) && (false == "".equals(addressOffset)) && (false == addressOffset.equals(srvAddressOffset)))
+        {
+            addressOffsetLong = Long.decode(addressOffset);
+            long srvVal = Long.decode(srvAddressOffset);
+            if(addressOffsetLong != srvVal)
+            {
+                log.trace("address offset changed from :{}: to :{}:", srvAddressOffset, addressOffset);
+                changed = true;
+            }
+            // else "0" is not different to "0x00"
+        }
+        // else no change
+        if((size != -1) && (size != srvSize))
+        {
+            log.trace("size changed from :{}: to :{}:", srvSize, size);
+            changed = true;
+        }
+        // else no change
+        if((null != access) && (false == "".equals(access)) && (false == access.equals(srvAccess)))
+        {
+            log.trace("access changed from :{}: to :{}:", srvAccess, access);
+            changed = true;
+        }
+        // else no change
+        if((null != reset_value) && (false == "".equals(reset_value)) && (false == reset_value.equals(srvReset_value)))
+        {
+            reset_valueLong = Long.decode(reset_value);
+            long srvVal = Long.decode(srvReset_value);
+            if(reset_valueLong != srvVal)
+            {
+                log.trace("reset value changed from :{}: to :{}:", srvReset_value, reset_value);
+                log.trace("reset value changed from :{}: to :{}:", srvVal, reset_valueLong);
+                changed = true;
+            }
+            // else "0" is not different to "0x00"
+        }
+        // else no change
+        if((null != alternate_register) && (false == "".equals(alternate_register)) && (false == alternate_register.equals(srvAlternate_register)))
+        {
+            log.trace("alternate register changed from :{}: to :{}:", srvAlternate_register, alternate_register);
+            changed = true;
+        }
+        // else no change
+
+        if(   (null != reset_Mask)
+           && (false == "".equals(reset_Mask))
+           && (false == reset_Mask.equals(srvReset_Mask)))
+        {
+            reset_MaskLong = Long.decode(reset_Mask);
+            long srvVal = 0;
+            if((null != srvReset_Mask) && (false == "".equals(srvReset_Mask)))
+            {
+                srvVal = Long.decode(srvReset_Mask);
+            }
+            if(reset_MaskLong != srvVal)
+            {
+                log.trace("reset mask changed from :{}: to :{}:", srvReset_Mask, reset_Mask);
+                changed = true;
+            }
+            // else "0" is not different to "0x00"
+        }
+        // else no change
+        if((null != read_action) && (false == "".equals(read_action)) && (false == read_action.equals(srvRead_action)))
+        {
+            log.trace("read action changed from :{}: to :{}:", srvRead_action, read_action);
+            changed = true;
+        }
+        // else no change
+        if((null != modified_write_values) && (false == "".equals(modified_write_values)) && (false == modified_write_values.equals(srvModified_write_values)))
+        {
+            log.trace("modified write values changed from :{}: to :{}:", srvModified_write_values, modified_write_values);
+            changed = true;
+        }
+        // else no change
+        if((null != data_type) && (false == "".equals(data_type)) && (false == data_type.equals(srvData_type)))
+        {
+            log.trace("data type changed from :{}: to :{}:", srvData_type, data_type);
+            changed = true;
+        }
+        // else no change
+
+        if(true == changed)
+        {
+            if(false == updateServerRegister(
+                    srvId, // id,
+                    name, // name,
+                    displayName, // display_name,
+                    description, // description,
+                    addressOffsetLong, // address_offset,
+                    size, // size,
+                    access, // access,
+                    reset_valueLong, // reset_value,
+                    alternate_register, // alternative_register,
+                    reset_MaskLong, // reset_mask,
+                    read_action, // read_action,
+                    modified_write_values, // modified_write_values,
+                    data_type // data_taype
+                    ))
+            {
+                log.error("Failed to update register on server");
+                return false;
+            }
+        }
+        // else no change -> no update needed
+        return true;
+    }
+
+
+    private boolean checkRegister(Response res, Element svdRegister, int peripheralId)
+    {
+        // make sure that all values are fresh and clean
+        initRegisterValues();
+        // check for unknown children
+        if(false == checkRegisterForUnknownChildren(svdRegister))
+        {
+            return false;
+        }
+        // that check also populated the values of the registers into the member variables.
 
         int srvId = -1;
         log.trace("checking register {}", name);
@@ -260,136 +427,10 @@ public class SvdRegisterHandler
                 found = true;
                 srvId = res.getInt(i,  "id");
                 log.trace("found register {} ({})", name, srvId);
-                String srvDisplayName = res.getString(i, "display_name");
-                String srvDescription = res.getString(i, "description");
-                String srvAddressOffset = res.getString(i, "address_offset");
-                int    srvSize = res.getInt(i,  "size");
-                String srvAccess = res.getString(i, "access");
-                String srvReset_value = res.getString(i, "reset_value");
-                String srvAlternate_register = res.getString(i, "alternate_register");
-                String srvReset_Mask = res.getString(i, "reset_mask");
-                String srvRead_action = res.getString(i, "read_action");
-                String srvModified_write_values = res.getString(i, "modified_write_values");
-                String srvData_type = res.getString(i, "data_type");
-
-                // check for Change
-                boolean changed = false;
-                if((null != displayName) && (false == "".equals(displayName)) && (false == displayName.equals(srvDisplayName)))
+                if(false == checkIfUpdateOfRegisterIsNeeded(res, i, srvId))
                 {
-                    log.trace("display name changed from :{}: to :{}:", srvDisplayName, displayName);
-                    changed = true;
+                    return false;
                 }
-                // else no change
-                if((null != description) && (false == "".equals(description)) && (false == description.equals(srvDescription)))
-                {
-                    log.trace("description changed from :{}: to :{}:", srvDescription, description);
-                    changed = true;
-                }
-                // else no change
-                if((null != addressOffset) && (false == "".equals(addressOffset)) && (false == addressOffset.equals(srvAddressOffset)))
-                {
-                    addressOffsetLong = Long.decode(addressOffset);
-                    long srvVal = Long.decode(srvAddressOffset);
-                    if(addressOffsetLong != srvVal)
-                    {
-                        log.trace("address offset changed from :{}: to :{}:", srvAddressOffset, addressOffset);
-                        changed = true;
-                    }
-                    // else "0" is not different to "0x00"
-                }
-                // else no change
-                if((size != -1) && (size != srvSize))
-                {
-                    log.trace("size changed from :{}: to :{}:", srvSize, size);
-                    changed = true;
-                }
-                // else no change
-                if((null != access) && (false == "".equals(access)) && (false == access.equals(srvAccess)))
-                {
-                    log.trace("access changed from :{}: to :{}:", srvAccess, access);
-                    changed = true;
-                }
-                // else no change
-                if((null != reset_value) && (false == "".equals(reset_value)) && (false == reset_value.equals(srvReset_value)))
-                {
-                    reset_valueLong = Long.decode(reset_value);
-                    long srvVal = Long.decode(srvReset_value);
-                    if(reset_valueLong != srvVal)
-                    {
-                        log.trace("reset value changed from :{}: to :{}:", srvReset_value, reset_value);
-                        log.trace("reset value changed from :{}: to :{}:", srvVal, reset_valueLong);
-                        changed = true;
-                    }
-                    // else "0" is not different to "0x00"
-                }
-                // else no change
-                if((null != alternate_register) && (false == "".equals(alternate_register)) && (false == alternate_register.equals(srvAlternate_register)))
-                {
-                    log.trace("alternate register changed from :{}: to :{}:", srvAlternate_register, alternate_register);
-                    changed = true;
-                }
-                // else no change
-
-                if(   (null != reset_Mask)
-                   && (false == "".equals(reset_Mask))
-                   && (false == reset_Mask.equals(srvReset_Mask)))
-                {
-                    reset_MaskLong = Long.decode(reset_Mask);
-                    long srvVal = 0;
-                    if((null != srvReset_Mask) && (false == "".equals(srvReset_Mask)))
-                    {
-                        srvVal = Long.decode(srvReset_Mask);
-                    }
-                    if(reset_MaskLong != srvVal)
-                    {
-                        log.trace("reset mask changed from :{}: to :{}:", srvReset_Mask, reset_Mask);
-                        changed = true;
-                    }
-                    // else "0" is not different to "0x00"
-                }
-                // else no change
-                if((null != read_action) && (false == "".equals(read_action)) && (false == read_action.equals(srvRead_action)))
-                {
-                    log.trace("read action changed from :{}: to :{}:", srvRead_action, read_action);
-                    changed = true;
-                }
-                // else no change
-                if((null != modified_write_values) && (false == "".equals(modified_write_values)) && (false == modified_write_values.equals(srvModified_write_values)))
-                {
-                    log.trace("modified write values changed from :{}: to :{}:", srvModified_write_values, modified_write_values);
-                    changed = true;
-                }
-                // else no change
-                if((null != data_type) && (false == "".equals(data_type)) && (false == data_type.equals(srvData_type)))
-                {
-                    log.trace("data type changed from :{}: to :{}:", srvData_type, data_type);
-                    changed = true;
-                }
-                // else no change
-
-                if(true == changed)
-                {
-                    if(false == updateServerRegister(
-                            srvId, // id,
-                            name, // name,
-                            displayName, // display_name,
-                            description, // description,
-                            addressOffsetLong, // address_offset,
-                            size, // size,
-                            access, // access,
-                            reset_valueLong, // reset_value,
-                            alternate_register, // alternative_register,
-                            reset_MaskLong, // reset_mask,
-                            read_action, // read_action,
-                            modified_write_values, // modified_write_values,
-                            data_type // data_taype
-                            ))
-                    {
-                        log.error("Failed to update register on server");
-                        return false;
-                    }
-                }
-                // else no change -> no update needed
                 break;
             }
         }

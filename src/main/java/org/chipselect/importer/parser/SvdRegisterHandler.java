@@ -67,6 +67,11 @@ public class SvdRegisterHandler
 
     public boolean updateRegister(Element peripheral, int peripheralId)
     {
+        if(0 == peripheralId)
+        {
+            log.error("Peripheral ID invalid !");
+            return false;
+        }
         Element registers = peripheral.getChild("registers");
         if(null !=  registers)
         {
@@ -108,6 +113,11 @@ public class SvdRegisterHandler
     public boolean updateDerivedRegister(Element svdDerivedPeripheral, Element svdOriginalPeripheral,
             int peripheralId)
     {
+        if(0 == peripheralId)
+        {
+            log.error("Peripheral ID invalid !");
+            return false;
+        }
         Element registers = svdDerivedPeripheral.getChild("registers");
         if(null ==  registers)
         {

@@ -22,6 +22,11 @@ public class SvdEnumerationHandler
 
     public boolean updateEnumeration(Element enumeration, int fieldId)
     {
+        if(0 == fieldId)
+        {
+            log.error("Field ID invalid !");
+            return false;
+        }
         Response enumRes = srv.get("enumeration", "field_id=" + fieldId);
         if(false == enumRes.wasSuccessfull())
         {
@@ -165,6 +170,11 @@ public class SvdEnumerationHandler
 
         if(false == enum_values.isEmpty())
         {
+            if(0 == enumId)
+            {
+                log.error("enumeration ID invalid !");
+                return false;
+            }
             Response enumValRes = srv.get("enumeration_element", "enum_id=" + enumId);
             if(false == enumValRes.wasSuccessfull())
             {

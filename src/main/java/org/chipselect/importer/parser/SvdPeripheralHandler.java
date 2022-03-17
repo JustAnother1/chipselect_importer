@@ -127,6 +127,11 @@ public class SvdPeripheralHandler
             return false;
         }
         this.srvDeviceId = srvDeviceId;
+        if(0 == srvDeviceId)
+        {
+            log.error("Device ID invalid !");
+            return false;
+        }
         Response res = srv.get("peripheral_instance", "dev_id=" + srvDeviceId);
         if(false == res.wasSuccessfull())
         {
@@ -139,6 +144,11 @@ public class SvdPeripheralHandler
 
     private Response getPeripheralFromServer(int peripheralId)
     {
+        if(0 == peripheralId)
+        {
+            log.error("Peripheral ID invalid !");
+            return null;
+        }
         Response res = srv.get("peripheral", "id=" + peripheralId);
         if(false == res.wasSuccessfull())
         {

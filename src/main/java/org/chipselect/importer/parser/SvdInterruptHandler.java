@@ -21,6 +21,11 @@ public class SvdInterruptHandler
 
     public boolean updateInterrupt(Element svdPeripheral, int srvPeripheralInstanceId)
     {
+        if(0 == srvPeripheralInstanceId)
+        {
+            log.error("Peripheral Instance ID invalid !");
+            return false;
+        }
         Response interruptRes = srv.get("interrupt", "per_in_id=" + srvPeripheralInstanceId);
         if(false == interruptRes.wasSuccessfull())
         {
@@ -42,6 +47,11 @@ public class SvdInterruptHandler
             int srvPeripheralInstanceId)
     {
         log.trace("Derived peripheral");
+        if(0 == srvPeripheralInstanceId)
+        {
+            log.error("Peripheral Instance ID invalid !");
+            return false;
+        }
         Response interruptRes = srv.get("interrupt", "per_in_id=" + srvPeripheralInstanceId);
         if(false == interruptRes.wasSuccessfull())
         {

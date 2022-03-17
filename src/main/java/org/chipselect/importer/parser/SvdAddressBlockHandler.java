@@ -32,6 +32,11 @@ public class SvdAddressBlockHandler
 
     public boolean updateAddressBlock(Element svdReripheral, int srvPeripheralId)
     {
+        if(0 == srvPeripheralId)
+        {
+            log.error("Peripheral ID invalid !");
+            return false;
+        }
         Response AddrBlockRes = srv.get("address_block", "per_id=" + srvPeripheralId);
         if(false == AddrBlockRes.wasSuccessfull())
         {
@@ -52,6 +57,11 @@ public class SvdAddressBlockHandler
     public boolean updateDerivedAddressBlock(Element svdDerivedPeripheral, Element svdOriginalPeripheral,
             int srvPeripheralId)
     {
+        if(0 == srvPeripheralId)
+        {
+            log.error("Peripheral ID invalid !");
+            return false;
+        }
         Response AddrBlockRes = srv.get("address_block", "per_id=" + srvPeripheralId);
         if(false == AddrBlockRes.wasSuccessfull())
         {

@@ -24,6 +24,11 @@ public class SvdFieldHandler
 
     public boolean updateField(Element fields, int srvId)
     {
+        if(0 == srvId)
+        {
+            log.error("Register ID invalid !");
+            return false;
+        }
         Response fieldstRes = srv.get("field", "reg_id=" + srvId);
         if(false == fieldstRes.wasSuccessfull())
         {

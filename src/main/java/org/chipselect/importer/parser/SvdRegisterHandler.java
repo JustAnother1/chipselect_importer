@@ -3,6 +3,7 @@ package org.chipselect.importer.parser;
 import java.util.List;
 
 import org.chipselect.importer.Tool;
+import org.chipselect.importer.parser.svd.DimElementGroup;
 import org.chipselect.importer.server.Response;
 import org.chipselect.importer.server.Server;
 import org.jdom2.Element;
@@ -22,7 +23,6 @@ public class SvdRegisterHandler
     private String name = null;
     private String displayName = null;
     private String description = null;
-    private String addressOffset = null;
     private long addressOffsetLong = 0;
     private int size = 0;
     private String access = null;
@@ -35,6 +35,9 @@ public class SvdRegisterHandler
     private String modified_write_values = null;
     private String data_type = null;
     private Element fields = null;
+    private int dim = 0;
+    private int dim_increment = 0;
+    private String dim_index = null;
 
     public SvdRegisterHandler(Server srv)
     {
@@ -175,7 +178,12 @@ public class SvdRegisterHandler
                 break;
 
             case "addressOffset" :
-                addressOffset = child.getText();
+                String addressOffset = child.getText();
+                if((null != addressOffset) && (false == "".equals(addressOffset)))
+                {
+                    addressOffsetLong = Long.decode(addressOffset);
+                }
+                // else let addressOffsetLong be the default
                 break;
 
             case "size" :
@@ -211,8 +219,17 @@ public class SvdRegisterHandler
                 break;
 
             case "dim" :
+                dim = Integer.decode(child.getText());
+                break;
+
             case "dimIncrement":
+                dim_increment = Integer.decode(child.getText());
+                break;
+
             case "dimIndex" :
+                dim_index = child.getText();
+                break;
+
             case "dimName" :
             case "dimArrayIndex" :
             case "alternateGroup" :
@@ -236,7 +253,6 @@ public class SvdRegisterHandler
         name = null;
         displayName = null;
         description = null;
-        addressOffset = null;
         addressOffsetLong = 0;
         size = default_size;
         access = default_access;
@@ -247,6 +263,9 @@ public class SvdRegisterHandler
         modified_write_values = null;
         data_type = null;
         fields = null;
+        dim = 0;
+        dim_increment = 0;
+        dim_index = null;
 
         if(null != default_resetValue)
         {
@@ -294,16 +313,11 @@ public class SvdRegisterHandler
             changed = true;
         }
         // else no change
-        if((null != addressOffset) && (false == "".equals(addressOffset)) && (false == addressOffset.equals(srvAddressOffset)))
+        long srvAddressOffsetVal = Long.decode(srvAddressOffset);
+        if(addressOffsetLong != srvAddressOffsetVal)
         {
-            addressOffsetLong = Long.decode(addressOffset);
-            long srvVal = Long.decode(srvAddressOffset);
-            if(addressOffsetLong != srvVal)
-            {
-                log.trace("address offset changed from :{}: to :{}:", srvAddressOffset, addressOffset);
-                changed = true;
-            }
-            // else "0" is not different to "0x00"
+            log.trace("address offset changed from :{}: to :{}:", srvAddressOffset, addressOffsetLong);
+            changed = true;
         }
         // else no change
         if((size != -1) && (size != srvSize))
@@ -402,17 +416,8 @@ public class SvdRegisterHandler
     }
 
 
-    private boolean checkRegister(Response res, Element svdRegister, int peripheralId)
+    private boolean checkIfUpdateOrNewRegister(Response res, int peripheralId)
     {
-        // make sure that all values are fresh and clean
-        initRegisterValues();
-        // check for unknown children
-        if(false == checkRegisterForUnknownChildren(svdRegister))
-        {
-            return false;
-        }
-        // that check also populated the values of the registers into the member variables.
-
         int srvId = -1;
         log.trace("checking register {}", name);
 
@@ -465,6 +470,55 @@ public class SvdRegisterHandler
             }
         }
         // else no fields in this register :-(
+        return true;
+    }
+
+
+    private boolean checkRegister(Response res, Element svdRegister, int peripheralId)
+    {
+        // make sure that all values are fresh and clean
+        initRegisterValues();
+        // check for unknown children
+        if(false == checkRegisterForUnknownChildren(svdRegister))
+        {
+            return false;
+        }
+        // that check also populated the values of the registers into the member variables.
+
+        // dim* ?
+        if((0 != dim) || (0 != dim_increment))
+        {
+            // this is not one register but many,...
+            DimElementGroup grp = new DimElementGroup(dim, dim_increment, dim_index);
+            if(false == grp.isValid())
+            {
+                return false;
+            }
+            String groupName = name;
+            String groupDisplayName = displayName;
+            Long groupAddressOffset = addressOffsetLong;
+            for(int i = 0; i< grp.getNumberElements(); i++)
+            {
+                // prepare values for this register
+                // name
+                name = grp.getElementNameFor(groupName, i);
+                // displayName
+                displayName = grp.getElementNameFor(groupDisplayName, i);
+                // addressOffset
+                addressOffsetLong = groupAddressOffset + (i * grp.getByteOffsetBytes());
+                if(false == checkIfUpdateOrNewRegister(res, peripheralId))
+                {
+                    return false;
+                }
+            }
+        }
+        else
+        {
+            if(false == checkIfUpdateOrNewRegister(res, peripheralId))
+            {
+                return false;
+            }
+        }
         return true;
     }
 

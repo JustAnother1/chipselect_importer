@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.chipselect.importer.Tool;
 import org.chipselect.importer.parser.svd.DimElementGroup;
+import org.chipselect.importer.server.Request;
 import org.chipselect.importer.server.Response;
 import org.chipselect.importer.server.Server;
 import org.jdom2.Element;
@@ -75,7 +76,9 @@ public class SvdRegisterHandler
         Element registers = peripheral.getChild("registers");
         if(null !=  registers)
         {
-            Response res = srv.get("register", "per_id=" + peripheralId);
+            Request req = new Request("register", Request.GET);
+            req.addGetParameter("per_id", peripheralId);
+            Response res = srv.execute(req);
             if(false == res.wasSuccessfull())
             {
                 return false;
@@ -125,7 +128,9 @@ public class SvdRegisterHandler
         }
         if(null !=  registers)
         {
-            Response res = srv.get("register", "per_id=" + peripheralId);
+            Request req = new Request("register", Request.GET);
+            req.addGetParameter("per_id", peripheralId);
+            Response res = srv.execute(req);
             if(false == res.wasSuccessfull())
             {
                 return false;
@@ -414,7 +419,7 @@ public class SvdRegisterHandler
                     reset_MaskLong, // reset_mask,
                     read_action, // read_action,
                     modified_write_values, // modified_write_values,
-                    data_type // data_taype
+                    data_type // data_type
                     ))
             {
                 log.error("Failed to update register on server");
@@ -545,55 +550,47 @@ public class SvdRegisterHandler
             long reset_mask,
             String read_action,
             String modified_write_values,
-            String data_taype )
+            String data_type )
     {
-        StringBuilder sb = new StringBuilder();
-        sb.append("id=" + id);
+        Request req = new Request("register", Request.PUT);
+        req.addGetParameter("id", id);
         if(null != name)
         {
-            sb.append("&name=" + name);
+            req.addGetParameter("name", name);
         }
         if(null != display_name)
         {
-            sb.append("&display_name=" + display_name);
+            req.addGetParameter("display_name", display_name);
         }
         if(null != description)
         {
-            sb.append("&description=" + description);
+            req.addGetParameter("description", description);
         }
-
-        sb.append("&address_offset=" + address_offset);
-        sb.append("&size=" + size);
-
+        req.addGetParameter("address_offset", address_offset);
+        req.addGetParameter("size", size);
         if(null != access)
         {
-            sb.append("&access=" + access);
+            req.addGetParameter("access", access);
         }
-
-        sb.append("&reset_value=" + reset_value);
-
+        req.addGetParameter("reset_value", reset_value);
         if(null != alternative_register)
         {
-            sb.append("&alternative_register=" + alternative_register);
+            req.addGetParameter("alternative_register", alternative_register);
         }
-
-        sb.append("&reset_mask=" + reset_mask);
-
+        req.addGetParameter("reset_mask", reset_mask);
         if(null != read_action)
         {
-            sb.append("&read_action=" + read_action);
+            req.addGetParameter("read_action", read_action);
         }
         if(null != modified_write_values)
         {
-            sb.append("&modified_write_values=" + modified_write_values);
+            req.addGetParameter("modified_write_values", modified_write_values);
         }
-        if(null != data_taype)
+        if(null != data_type)
         {
-            sb.append("&data_taype=" + data_taype);
+            req.addGetParameter("data_type", data_type);
         }
-        String param = sb.toString();
-        Response res = srv.put("register", param);
-
+        Response res = srv.execute(req);
         if(false == res.wasSuccessfull())
         {
             return false;
@@ -616,63 +613,45 @@ public class SvdRegisterHandler
             long reset_mask,
             String read_action,
             String modified_write_values,
-            String data_taype,
+            String data_type,
             int peripheralId)
     {
-        StringBuilder sb = new StringBuilder();
-        if(null != name)
-        {
-            sb.append("name=" + name);
-        }
-        else
-        {
-            log.error(" a new register _must_ have a name !");
-            return 0;
-        }
+        Request req = new Request("register", Request.POST);
+        req.addGetParameter("name", name);
         if(null != display_name)
         {
-            sb.append("&display_name=" + display_name);
+            req.addGetParameter("display_name", display_name);
         }
         if(null != description)
         {
-            sb.append("&description=" + description);
+            req.addGetParameter("description", description);
         }
-
-        sb.append("&address_offset=" + address_offset);
-        sb.append("&size=" + size);
-
+        req.addGetParameter("address_offset", address_offset);
+        req.addGetParameter("size", size);
         if(null != access)
         {
-            sb.append("&access=" + access);
+            req.addGetParameter("access", access);
         }
-
-        sb.append("&reset_value=" + reset_value);
-
+        req.addGetParameter("reset_value", reset_value);
         if(null != alternative_register)
         {
-            sb.append("&alternative_register=" + alternative_register);
+            req.addGetParameter("alternative_register", alternative_register);
         }
-
-        sb.append("&reset_mask=" + reset_mask);
-
+        req.addGetParameter("reset_mask", reset_mask);
         if(null != read_action)
         {
-            sb.append("&read_action=" + read_action);
+            req.addGetParameter("read_action", read_action);
         }
         if(null != modified_write_values)
         {
-            sb.append("&modified_write_values=" + modified_write_values);
+            req.addGetParameter("modified_write_values", modified_write_values);
         }
-        if(null != data_taype)
+        if(null != data_type)
         {
-            sb.append("&data_taype=" + data_taype);
+            req.addGetParameter("data_type", data_type);
         }
-
-        sb.append("&per_id=" + peripheralId);
-
-        String param = sb.toString();
-        Response res = srv.post("register", param);
-
+        req.addGetParameter("per_id", peripheralId);
+        Response res = srv.execute(req);
         if(false == res.wasSuccessfull())
         {
             return 0;

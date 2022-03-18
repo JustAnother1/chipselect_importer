@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Vector;
 
 import org.chipselect.importer.Tool;
+import org.chipselect.importer.server.Request;
 import org.chipselect.importer.server.Response;
 import org.chipselect.importer.server.Server;
 import org.jdom2.Element;
@@ -27,7 +28,9 @@ public class SvdEnumerationHandler
             log.error("Field ID invalid !");
             return false;
         }
-        Response enumRes = srv.get("enumeration", "field_id=" + fieldId);
+        Request req = new Request("enumeration", Request.GET);
+        req.addGetParameter("field_id", fieldId);
+        Response enumRes = srv.execute(req);
         if(false == enumRes.wasSuccessfull())
         {
             return false;
@@ -175,7 +178,9 @@ public class SvdEnumerationHandler
                 log.error("enumeration ID invalid !");
                 return false;
             }
-            Response enumValRes = srv.get("enumeration_element", "enum_id=" + enumId);
+            Request req = new Request("enumeration_element", Request.GET);
+            req.addGetParameter("enum_id", enumId);
+            Response enumValRes = srv.execute(req);
             if(false == enumValRes.wasSuccessfull())
             {
                 return false;
@@ -324,32 +329,29 @@ public class SvdEnumerationHandler
             String value,
             boolean isDefault)
     {
-        StringBuilder sb = new StringBuilder();
-        sb.append("enum_id=" + enumId);
+        Request req = new Request("enumeration_element", Request.POST);
+        req.addGetParameter("enum_id", enumId);
         if(null != name)
         {
-            sb.append("&name=" + name);
+            req.addGetParameter("name", name);
         }
         if(null != description)
         {
-            sb.append("&description=" + description);
+            req.addGetParameter("description", description);
         }
         if(null != value)
         {
-            sb.append("&value=" + value);
+            req.addGetParameter("value", value);
         }
         if(true == isDefault)
         {
-            sb.append("&isDefault=1");
+            req.addGetParameter("isDefault", 1);
         }
         else
         {
-            sb.append("&isDefault=0");
+            req.addGetParameter("isDefault", 0);
         }
-
-        String param = sb.toString();
-        Response res = srv.post("enumeration_element", param);
-
+        Response res = srv.execute(req);
         if(false == res.wasSuccessfull())
         {
             return 0;
@@ -367,32 +369,29 @@ public class SvdEnumerationHandler
             String value,
             boolean isDefault)
     {
-        StringBuilder sb = new StringBuilder();
-        sb.append("id=" + valId);
+        Request req = new Request("enumeration_element", Request.PUT);
+        req.addGetParameter("id", valId);
         if(null != name)
         {
-            sb.append("&name=" + name);
+            req.addGetParameter("name", name);
         }
         if(null != description)
         {
-            sb.append("&description=" + description);
+            req.addGetParameter("description", description);
         }
         if(null != value)
         {
-            sb.append("&value=" + value);
+            req.addGetParameter("value", value);
         }
         if(true == isDefault)
         {
-            sb.append("&isDefault=1");
+            req.addGetParameter("isDefault", 1);
         }
         else
         {
-            sb.append("&isDefault=0");
+            req.addGetParameter("isDefault", 0);
         }
-
-        String param = sb.toString();
-        Response res = srv.put("enumeration_element", param);
-
+        Response res = srv.execute(req);
         if(false == res.wasSuccessfull())
         {
             return false;
@@ -405,20 +404,17 @@ public class SvdEnumerationHandler
 
     private int createEnumerationOnServer(int fieldId, String name, String usage)
     {
-        StringBuilder sb = new StringBuilder();
-        sb.append("field_id=" + fieldId);
+        Request req = new Request("enumeration", Request.POST);
+        req.addGetParameter("field_id", fieldId);
         if(null != name)
         {
-            sb.append("&name=" + name);
+            req.addGetParameter("name", name);
         }
         if(null != usage)
         {
-            sb.append("&usage_right=" + usage);
+            req.addGetParameter("usage", usage);
         }
-
-        String param = sb.toString();
-        Response res = srv.post("enumeration", param);
-
+        Response res = srv.execute(req);
         if(false == res.wasSuccessfull())
         {
             return 0;
@@ -431,20 +427,17 @@ public class SvdEnumerationHandler
 
     private boolean updateEnumerationOnServer(int id, String name, String usage)
     {
-        StringBuilder sb = new StringBuilder();
-        sb.append("id=" + id);
+        Request req = new Request("enumeration", Request.PUT);
+        req.addGetParameter("id", id);
         if(null != name)
         {
-            sb.append("&name=" + name);
+            req.addGetParameter("name", name);
         }
         if(null != usage)
         {
-            sb.append("&usage_right=" + usage);
+            req.addGetParameter("usage", usage);
         }
-
-        String param = sb.toString();
-        Response res = srv.put("enumeration", param);
-
+        Response res = srv.execute(req);
         if(false == res.wasSuccessfull())
         {
             return false;

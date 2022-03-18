@@ -3,6 +3,7 @@ package org.chipselect.importer.parser;
 import java.util.List;
 
 import org.chipselect.importer.Tool;
+import org.chipselect.importer.server.Request;
 import org.chipselect.importer.server.Response;
 import org.chipselect.importer.server.Server;
 import org.jdom2.Element;
@@ -26,7 +27,9 @@ public class SvdInterruptHandler
             log.error("Peripheral Instance ID invalid !");
             return false;
         }
-        Response interruptRes = srv.get("interrupt", "per_in_id=" + srvPeripheralInstanceId);
+        Request req = new Request("interrupt", Request.GET);
+        req.addGetParameter("per_in_id", srvPeripheralInstanceId);
+        Response interruptRes = srv.execute(req);
         if(false == interruptRes.wasSuccessfull())
         {
             return false;
@@ -52,7 +55,9 @@ public class SvdInterruptHandler
             log.error("Peripheral Instance ID invalid !");
             return false;
         }
-        Response interruptRes = srv.get("interrupt", "per_in_id=" + srvPeripheralInstanceId);
+        Request req = new Request("interrupt", Request.GET);
+        req.addGetParameter("per_in_id", srvPeripheralInstanceId);
+        Response interruptRes = srv.execute(req);
         if(false == interruptRes.wasSuccessfull())
         {
             return false;
@@ -151,8 +156,12 @@ public class SvdInterruptHandler
         if(false == found)
         {
             log.trace("created new interrupt on server: name = {}, description = {}", irqName, description);
-            String param = "per_in_id=" + peripheralInstanceId + "&name=" + irqName + "&description=" + description + "&number=" + number;
-            Response postRes = srv.post("interrupt", param);
+            Request req = new Request("interrupt", Request.POST);
+            req.addGetParameter("per_in_id", peripheralInstanceId);
+            req.addGetParameter("name", irqName);
+            req.addGetParameter("description", description);
+            req.addGetParameter("number", number);
+            Response postRes = srv.execute(req);
             if(false == postRes.wasSuccessfull())
             {
                 return false;
@@ -170,8 +179,12 @@ public class SvdInterruptHandler
 
     private boolean updateSrvInterrupt(int id, String irqName, String description, int number)
     {
-        String param = "id=" + id + "&name=" + irqName + "&description=" + description + "&number=" + number;
-        Response res = srv.put("interrupt", param);
+        Request req = new Request("interrupt", Request.PUT);
+        req.addGetParameter("id", id);
+        req.addGetParameter("name", irqName);
+        req.addGetParameter("description", description);
+        req.addGetParameter("number", number);
+        Response res = srv.execute(req);
         if(false == res.wasSuccessfull())
         {
             return false;

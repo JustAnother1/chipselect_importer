@@ -1,7 +1,8 @@
 package org.chipselect.importer.server;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Vector;
-import java.util.regex.Pattern;
 
 public class Request
 {
@@ -20,26 +21,38 @@ public class Request
         this.resource = resource;
     }
 
+    public Request(String resource, int type)
+    {
+        this.resource = resource;
+        this.type = type;
+    }
+
     public void setType(int type)
     {
         this.type = type;
     }
 
-    public void addGetParameter(String filter)
+    public void addGetParameter(String variable, String value)
     {
+        variable = URLEncoder.encode(variable, StandardCharsets.UTF_8);
+        value = URLEncoder.encode(value, StandardCharsets.UTF_8);
+        String filter = variable + "=" + value;
         urlGet.add(filter);
     }
 
-    private String makeTransportReady(String param)
+    public void addGetParameter(String variable, int value)
     {
-        param = param.trim();
-        // that does not work as we already have several parameters in the string and it therefore converts the = sign,...
-        // param = URLEncoder.encode(param, StandardCharsets.UTF_8);
-        param = param.replaceAll(Pattern.quote("+"), "%2B");
-        param = param.replaceAll(" ", "+");
-        return param;
+        variable = URLEncoder.encode(variable, StandardCharsets.UTF_8);
+        String filter = variable + "=" + value;
+        urlGet.add(filter);
     }
 
+    public void addGetParameter(String variable, long value)
+    {
+        variable = URLEncoder.encode(variable, StandardCharsets.UTF_8);
+        String filter = variable + "=" + value;
+        urlGet.add(filter);
+    }
     public String url()
     {
         StringBuilder sb = new StringBuilder();
@@ -47,10 +60,10 @@ public class Request
         if(0 < urlGet.size())
         {
             sb.append("?");
-            sb.append(makeTransportReady(urlGet.elementAt(0)));
+            sb.append(urlGet.elementAt(0));
             for(int i = 1; i < urlGet.size(); i++)
             {
-                sb.append("&" + makeTransportReady(urlGet.elementAt(i)));
+                sb.append("&" + urlGet.elementAt(i));
             }
         }
         // else no GET variables

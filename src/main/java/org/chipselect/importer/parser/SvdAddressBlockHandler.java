@@ -2,6 +2,7 @@ package org.chipselect.importer.parser;
 
 import java.util.List;
 
+import org.chipselect.importer.server.Request;
 import org.chipselect.importer.server.Response;
 import org.chipselect.importer.server.Server;
 import org.jdom2.Element;
@@ -37,7 +38,9 @@ public class SvdAddressBlockHandler
             log.error("Peripheral ID invalid !");
             return false;
         }
-        Response AddrBlockRes = srv.get("address_block", "per_id=" + srvPeripheralId);
+        Request req = new Request("address_block", Request.GET);
+        req.addGetParameter("per_id", srvPeripheralId);
+        Response AddrBlockRes = srv.execute(req);
         if(false == AddrBlockRes.wasSuccessfull())
         {
             return false;
@@ -62,7 +65,9 @@ public class SvdAddressBlockHandler
             log.error("Peripheral ID invalid !");
             return false;
         }
-        Response AddrBlockRes = srv.get("address_block", "per_id=" + srvPeripheralId);
+        Request req = new Request("address_block", Request.GET);
+        req.addGetParameter("per_id", srvPeripheralId);
+        Response AddrBlockRes = srv.execute(req);
         if(false == AddrBlockRes.wasSuccessfull())
         {
             return false;
@@ -201,21 +206,18 @@ public class SvdAddressBlockHandler
             String mem_usage,
             String protection)
     {
-        StringBuilder sb = new StringBuilder();
-        sb.append("address_offset=" + address_offset);
-        sb.append("&size=" + size);
+        Request req = new Request("address_block", Request.PUT);
+        req.addGetParameter("address_offset", address_offset);
+        req.addGetParameter("size", size);
         if(null != mem_usage)
         {
-            sb.append("&mem_usage=" + mem_usage);
+            req.addGetParameter("mem_usage", mem_usage);
         }
         if(null != protection)
         {
-            sb.append("&protection=" + protection);
+            req.addGetParameter("protection", protection);
         }
-
-        String param = sb.toString();
-        Response res = srv.put("address_block", param);
-
+        Response res = srv.execute(req);
         if(false == res.wasSuccessfull())
         {
             return false;
@@ -233,23 +235,19 @@ public class SvdAddressBlockHandler
             String protection,
             int peripheral_id)
     {
-        StringBuilder sb = new StringBuilder();
-        sb.append("address_offset=" + address_offset);
-        sb.append("&size=" + size);
+        Request req = new Request("address_block", Request.POST);
+        req.addGetParameter("address_offset", address_offset);
+        req.addGetParameter("size", size);
         if(null != mem_usage)
         {
-            sb.append("&mem_usage=" + mem_usage);
+        req.addGetParameter("mem_usage", mem_usage);
         }
         if(null != protection)
         {
-            sb.append("&protection=" + protection);
+        req.addGetParameter("protection", protection);
         }
-        //link the new address_block to the peripheral
-        sb.append("&per_id=" + peripheral_id);
-
-        String param = sb.toString();
-        Response res = srv.post("address_block", param);
-
+        req.addGetParameter("per_id", peripheral_id);
+        Response res = srv.execute(req);
         if(false == res.wasSuccessfull())
         {
             return false;

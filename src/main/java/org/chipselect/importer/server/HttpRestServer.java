@@ -36,7 +36,8 @@ public class HttpRestServer extends RestServer implements Server
         }
     }
 
-    protected Response getResponse(Request req)
+    @Override
+    public Response execute(Request req)
     {
         Response res = new Response();
         HttpURLConnection connection = null;
@@ -86,13 +87,19 @@ public class HttpRestServer extends RestServer implements Server
             log.error("{} Request failed! IOException!", req.getMethod());
             log.error("url : {}", req.url());
             log.error(e.toString());
-            log.error("X-debug header: {}", connection.getHeaderField("X-debug"));
-            log.error("X-EXCEPTION header: {}", connection.getHeaderField("X-EXCEPTION"));
-            log.error("X-SQL header: {}", connection.getHeaderField("X-SQL"));
+            String val = connection.getHeaderField(0);
+            log.error("status line: " + val);
+            int i = 1;
+            val = connection.getHeaderField(i);
+            while(null != val)
+            {
+                log.error(connection.getHeaderFieldKey(i) + " : " + val);
+                i++;
+                val = connection.getHeaderField(i);
+            }
             res.setError(e.toString());
         }
         return res;
     }
-
 
 }

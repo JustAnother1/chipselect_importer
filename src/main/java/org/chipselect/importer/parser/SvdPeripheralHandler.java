@@ -3,6 +3,7 @@ package org.chipselect.importer.parser;
 import java.util.List;
 
 import org.chipselect.importer.Tool;
+import org.chipselect.importer.server.Request;
 import org.chipselect.importer.server.Response;
 import org.chipselect.importer.server.Server;
 import org.jdom2.Element;
@@ -132,7 +133,9 @@ public class SvdPeripheralHandler
             log.error("Device ID invalid !");
             return false;
         }
-        Response res = srv.get("peripheral_instance", "dev_id=" + srvDeviceId);
+        Request req = new Request("peripheral_instance", Request.GET);
+        req.addGetParameter("dev_id", srvDeviceId);
+        Response res = srv.execute(req);
         if(false == res.wasSuccessfull())
         {
             srvAllPeripherals = null;
@@ -149,7 +152,9 @@ public class SvdPeripheralHandler
             log.error("Peripheral ID invalid !");
             return null;
         }
-        Response res = srv.get("peripheral", "id=" + peripheralId);
+        Request req = new Request("peripheral", Request.GET);
+        req.addGetParameter("id", peripheralId);
+        Response res = srv.execute(req);
         if(false == res.wasSuccessfull())
         {
             return null;
@@ -811,10 +816,9 @@ public class SvdPeripheralHandler
             log.warn("group name is empty !");
             return 0;
         }
-
-        String param = "group_name=" + group_name;
-        Response res = srv.post("peripheral", param);
-
+        Request req = new Request("peripheral", Request.POST);
+        req.addGetParameter("group_name", group_name);
+        Response res = srv.execute(req);
         if(false == res.wasSuccessfull())
         {
             return 0;
@@ -832,37 +836,26 @@ public class SvdPeripheralHandler
             int peripheral_id,
             String disable_condition )
     {
-        StringBuilder sb = new StringBuilder();
+        Request req = new Request("peripheral_instance", Request.POST);
         if(null != name)
         {
-            sb.append("name=" + name);
-        }
-        else
-        {
-            log.error(" a new peripheral _must_ have a name !");
-            return 0;
+            req.addGetParameter("name", name);
         }
         if(null != description)
         {
-            sb.append("&description=" + description);
+            req.addGetParameter("description", description);
         }
         if(0 != base_address)
         {
-            sb.append("&base_address=" + base_address);
+            req.addGetParameter("base_address", base_address);
         }
-
-        sb.append("&peripheral_id=" + peripheral_id);
-
+        req.addGetParameter("peripheral_id", peripheral_id);
         if(null != disable_condition)
         {
-            sb.append("&disable_condition=" + disable_condition);
+            req.addGetParameter("disable_condition", disable_condition);
         }
-        //link the new device to the microcontroller
-        sb.append("&dev_id=" + srvDeviceId);
-
-        String param = sb.toString();
-        Response res = srv.post("peripheral_instance", param);
-
+        req.addGetParameter("dev_id", srvDeviceId);
+        Response res = srv.execute(req);
         if(false == res.wasSuccessfull())
         {
             return 0;
@@ -881,32 +874,29 @@ public class SvdPeripheralHandler
             int peripheral_id,
             String disable_Condition )
     {
-        StringBuilder sb = new StringBuilder();
-        sb.append("id=" + id);
+        Request req = new Request("peripheral_instance", Request.PUT);
+        req.addGetParameter("id", id);
         if(null != name)
         {
-            sb.append("&name=" + name);
+            req.addGetParameter("name", name);
         }
         if(null != description)
         {
-            sb.append("&description=" + description);
+            req.addGetParameter("description", description);
         }
         if(0 != base_address)
         {
-            sb.append("&base_address=" + base_address);
+            req.addGetParameter("base_address", base_address);
         }
         if(0 != peripheral_id)
         {
-            sb.append("&peripheral_id=" + peripheral_id);
+            req.addGetParameter("peripheral_id", peripheral_id);
         }
         if(null != disable_Condition)
         {
-            sb.append("&disable_Condition=" + disable_Condition);
+            req.addGetParameter("disable_Condition", disable_Condition);
         }
-
-        String param = sb.toString();
-        Response res = srv.put("peripheral_instance", param);
-
+        Response res = srv.execute(req);
         if(false == res.wasSuccessfull())
         {
             return false;

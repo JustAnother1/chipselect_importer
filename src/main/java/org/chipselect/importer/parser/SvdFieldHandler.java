@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Vector;
 
 import org.chipselect.importer.Tool;
+import org.chipselect.importer.server.Request;
 import org.chipselect.importer.server.Response;
 import org.chipselect.importer.server.Server;
 import org.jdom2.Element;
@@ -29,7 +30,9 @@ public class SvdFieldHandler
             log.error("Register ID invalid !");
             return false;
         }
-        Response fieldstRes = srv.get("field", "reg_id=" + srvId);
+        Request req = new Request("field", Request.GET);
+        req.addGetParameter("reg_id", srvId);
+        Response fieldstRes = srv.execute(req);
         if(false == fieldstRes.wasSuccessfull())
         {
             return false;
@@ -278,36 +281,31 @@ public class SvdFieldHandler
             String modified_write_values,
             String read_action )
     {
-        StringBuilder sb = new StringBuilder();
-        sb.append("id=" + id);
+        Request req = new Request("field", Request.PUT);
+        req.addGetParameter("id", id);
         if(null != name)
         {
-            sb.append("&name=" + name);
+            req.addGetParameter("name", name);
         }
         if(null != description)
         {
-            sb.append("&description=" + description);
+            req.addGetParameter("description", description);
         }
-
-        sb.append("&bit_offset=" + bit_offset);
-        sb.append("&size_bit=" + size_bit);
-
+        req.addGetParameter("bit_offset", bit_offset);
+        req.addGetParameter("size_bit", size_bit);
         if(null != access)
         {
-            sb.append("&access=" + access);
+            req.addGetParameter("access", access);
         }
         if(null != modified_write_values)
         {
-            sb.append("&modified_write_values=" + modified_write_values);
+            req.addGetParameter("modified_write_values", modified_write_values);
         }
         if(null != read_action)
         {
-            sb.append("&read_action=" + read_action);
+            req.addGetParameter("read_action", read_action);
         }
-
-        String param = sb.toString();
-        Response res = srv.put("field", param);
-
+        Response res = srv.execute(req);
         if(false == res.wasSuccessfull())
         {
             return false;
@@ -329,41 +327,28 @@ public class SvdFieldHandler
             int reg_id
             )
     {
-        StringBuilder sb = new StringBuilder();
-        if(null != name)
-        {
-            sb.append("name=" + name);
-        }
-        else
-        {
-            log.error(" a new peripheral _must_ have a name !");
-            return 0;
-        }
+        Request req = new Request("field", Request.POST);
+        req.addGetParameter("name", name);
         if(null != description)
         {
-            sb.append("&description=" + description);
+            req.addGetParameter("description", description);
         }
-
-        sb.append("&bit_offset=" + bit_offset);
-        sb.append("&size_bit=" + size_bit);
-
+        req.addGetParameter("bit_offset", bit_offset);
+        req.addGetParameter("size_bit", size_bit);
         if(null != access)
         {
-            sb.append("&access=" + access);
+            req.addGetParameter("access", access);
         }
         if(null != modified_write_values)
         {
-            sb.append("&modified_write_values=" + modified_write_values);
+            req.addGetParameter("modified_write_values", modified_write_values);
         }
         if(null != read_action)
         {
-            sb.append("&read_action=" + read_action);
+            req.addGetParameter("read_action", read_action);
         }
-        sb.append("&reg_id=" + reg_id);
-
-        String param = sb.toString();
-        Response res = srv.post("field", param);
-
+        req.addGetParameter("reg_id", reg_id);
+        Response res = srv.execute(req);
         if(false == res.wasSuccessfull())
         {
             return 0;

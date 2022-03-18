@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Vector;
 
+import org.chipselect.importer.server.Request;
 import org.chipselect.importer.server.Response;
 import org.chipselect.importer.server.Server;
 import org.jdom2.Attribute;
@@ -50,7 +51,9 @@ public class SystemViewDescription
             vendorName = vendor.getText();
             log.info("Vendor from SVD : {}", vendorName);
         }
-        Response res = srv.get("vendor", "name=" + vendorName);
+        Request req = new Request("vendor", Request.GET);
+        req.addGetParameter("name", vendorName);
+        Response res = srv.execute(req);
         if(false == res.wasSuccessfull())
         {
             return false;
@@ -69,7 +72,9 @@ public class SystemViewDescription
         {
             // this vendor is not on the server
             log.info("The Vendor {} is not known on the server !", vendorName);
-            Response post_res = srv.post("vendor", "name=" + vendorName);
+            Request PostReq = new Request("vendor", Request.POST);
+            PostReq.addGetParameter("name", vendorName);
+            Response post_res = srv.execute(PostReq);
             if(false == post_res.wasSuccessfull())
             {
                 return false;
@@ -111,7 +116,9 @@ public class SystemViewDescription
 
         device_name = Name.getText();
         log.trace("device name from SVD : {}", device_name);
-        Response res = srv.get("microcontroller", "name=" + device_name);
+        Request req = new Request("microcontroller", Request.GET);
+        req.addGetParameter("name", device_name);
+        Response res = srv.execute(req);
         if(false == res.wasSuccessfull())
         {
             return false;
@@ -121,7 +128,10 @@ public class SystemViewDescription
         {
             // this device is not on the server
             log.info("The device {} is not known on the server !", device_name);
-            Response post_res = srv.post("microcontroller", "name=" + device_name + "&vendor_id=" + vendor_id);
+            Request PostReq = new Request("microcontroller", Request.POST);
+            PostReq.addGetParameter("name", device_name);
+            PostReq.addGetParameter("vendor_id", vendor_id);
+            Response post_res = srv.execute(PostReq);
             if(false == post_res.wasSuccessfull())
             {
                 return false;
@@ -135,7 +145,9 @@ public class SystemViewDescription
             else
             {
                 device_id = new_id;
-                res = srv.get("microcontroller", "name=" + device_name);
+                Request GetReq = new Request("microcontroller", Request.GET);
+                GetReq.addGetParameter("name", device_name);
+                res = srv.execute(GetReq);
                 if(false == res.wasSuccessfull())
                 {
                     return false;
@@ -234,7 +246,9 @@ public class SystemViewDescription
         }
         log.trace("Vendor Systick Configuration(int): {}", svdVendorSystickConfigInt);
 
-        Response res = srv.get("architecture", "svd_name=" + svdName);
+        Request req = new Request("architecture", Request.GET);
+        req.addGetParameter("svd_name", svdName);
+        Response res = srv.execute(req);
         if(false == res.wasSuccessfull())
         {
             return false;
@@ -287,7 +301,10 @@ public class SystemViewDescription
                 else
                 {
                     log.trace("Architecture ID mismatch: {} - {}", srvArchitectureId, archId);
-                    Response put_res = srv.put("microcontroller", "name=" + device_name + "&architecture_id=" + archId);
+                    Request putReq = new Request("microcontroller", Request.PUT);
+                    putReq.addGetParameter("name", device_name);
+                    putReq.addGetParameter("architecture_id", archId);
+                    Response put_res = srv.execute(putReq);
                     if(false == put_res.wasSuccessfull())
                     {
                         return false;
@@ -340,27 +357,22 @@ public class SystemViewDescription
             int interrupt_prio_bits,
             int ARM_Vendor_systick )
     {
-        StringBuilder sb = new StringBuilder();
-        sb.append("name=" + svd_name);
-        sb.append("&svd_name=" + svd_name);
-
+        Request postReq = new Request("architecture", Request.POST);
+        postReq.addGetParameter("name", svd_name);
+        postReq.addGetParameter("svd_name", svd_name);
         if(null != revision)
         {
-            sb.append("&revision=" + revision);
+            postReq.addGetParameter("revision", revision);
         }
-
         if(null != endian)
         {
-            sb.append("&endian=" + endian);
+            postReq.addGetParameter("endian", endian);
         }
-
-        sb.append("&hasMPU=" + hasMPU);
-        sb.append("&hasFPU=" + hasFPU);
-        sb.append("&interrupt_prio_bits=" + interrupt_prio_bits);
-        sb.append("&ARM_Vendor_systick=" + ARM_Vendor_systick);
-
-        String param = sb.toString();
-        Response res = srv.post("architecture", param);
+        postReq.addGetParameter("hasMPU", hasMPU);
+        postReq.addGetParameter("hasFPU", hasFPU);
+        postReq.addGetParameter("interrupt_prio_bits", interrupt_prio_bits);
+        postReq.addGetParameter("ARM_Vendor_systick", ARM_Vendor_systick);
+        Response res = srv.execute(postReq);
 
         if(false == res.wasSuccessfull())
         {
@@ -372,8 +384,10 @@ public class SystemViewDescription
             int architectureId = res.getInt("id");
             if(0 != device_id)
             {
-                String link_param = "id=" + device_id + "&architecture_id=" + architectureId;
-                Response link_res = srv.put("microcontroller", link_param);
+                Request linkRequest = new Request("microcontroller", Request.PUT);
+                linkRequest.addGetParameter("id", device_id);
+                linkRequest.addGetParameter("architecture_id", architectureId);
+                Response link_res = srv.execute(linkRequest);
                 return link_res.wasSuccessfull();
             }
             return true;
@@ -406,7 +420,10 @@ public class SystemViewDescription
         if(false == svdDescription.equals(srvDescription))
         {
             log.info("Description on server : {}, in SVD: {}", srvDescription, svdDescription);
-            Response post_res = srv.put("microcontroller", "name=" + device_name + "&description=" + svdDescription);
+            Request req = new Request("microcontroller", Request.PUT);
+            req.addGetParameter("name", device_name);
+            req.addGetParameter("description", svdDescription);
+            Response post_res = srv.execute(req);
             if(false == post_res.wasSuccessfull())
             {
                 return false;
@@ -437,7 +454,10 @@ public class SystemViewDescription
         if(srvAddrUnit != svdAddrUnit)
         {
             log.info("Address Unit on server : {}, in SVD: {}", srvAddrUnit, svdAddrUnit);
-            Response post_res = srv.put("microcontroller", "name=" + device_name + "&Addressable_unit_bit=" + svdAddrUnit);
+            Request req = new Request("microcontroller", Request.PUT);
+            req.addGetParameter("name", device_name);
+            req.addGetParameter("Addressable_unit_bit", svdAddrUnit);
+            Response post_res = srv.execute(req);
             if(false == post_res.wasSuccessfull())
             {
                 return false;
@@ -468,7 +488,10 @@ public class SystemViewDescription
         if(srvBusWidth != svdBusWidth)
         {
             log.info("Bus Width on server : {}, in SVD: {}", srvBusWidth, svdBusWidth);
-            Response put_res = srv.put("microcontroller", "name=" + device_name + "&bus_width_bit=" + svdBusWidth);
+            Request req = new Request("microcontroller", Request.PUT);
+            req.addGetParameter("name", device_name);
+            req.addGetParameter("bus_width_bit", svdBusWidth);
+            Response put_res = srv.execute(req);
             if(false == put_res.wasSuccessfull())
             {
                 return false;

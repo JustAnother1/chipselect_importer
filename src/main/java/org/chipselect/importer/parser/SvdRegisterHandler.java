@@ -575,7 +575,7 @@ public class SvdRegisterHandler
         req.addGetParameter("reset_value", reset_value);
         if(null != alternative_register)
         {
-            req.addGetParameter("alternative_register", alternative_register);
+            req.addGetParameter("alternate_register", alternative_register);
         }
         req.addGetParameter("reset_mask", reset_mask);
         if(null != read_action)

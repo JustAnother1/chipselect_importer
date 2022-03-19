@@ -105,7 +105,7 @@ public class SvdPeripheralHandler
         if(0 > srvIdx)
         {
             // new peripheral
-            log.trace("creating new peripheral {}", name);
+            log.trace("creating new derived peripheral {}", name);
             return createPeripheralInstanceFromDerived(svdDerivedPeripheral, svdOriginalPeripheral);
         }
         else
@@ -421,6 +421,13 @@ public class SvdPeripheralHandler
     {
         // name - already handled
         // ignoring  <version></version>
+        String OriginalName = svdOriginalPeripheral.getChildText("name");
+        int OriginalsrvIdx = getPeripheralSrvIndexFor(OriginalName);
+        if(0 > OriginalsrvIdx)
+        {
+            log.error("Server does not have the original peripheral ({})!", OriginalName);
+            return false;
+        }
 
         if(null !=  svdDerivedPeripheral.getChildText("dim"))
         {
@@ -534,7 +541,13 @@ public class SvdPeripheralHandler
         int peripheralId = srvAllPeripherals.getInt(srvIdx, "peripheral_id");
         if(0 == peripheralId)
         {
+            peripheralId = srvAllPeripherals.getInt(OriginalsrvIdx, "peripheral_id");
+        }
+        if(0 == peripheralId)
+        {
             // peripheral not on server -> create new peripheral
+            log.error(srvAllPeripherals.dump(srvIdx));
+            log.error(srvAllPeripherals.dump(OriginalsrvIdx));
             log.error("no peripheral - not implemented!");
             return false;
         }
@@ -799,6 +812,12 @@ public class SvdPeripheralHandler
             return false;
         }
 
+        // we might need this peripheral if some other is derived from it -> update the list of peripherals from the server
+        if(false == getAllPeripheralInstancesFromServer(srvDeviceId))
+        {
+            log.error("Could not read device peripherals from sever");
+            return false;
+        }
         // all done
         return true;
 
@@ -911,7 +930,6 @@ public class SvdPeripheralHandler
     {
         // name
         String svdName = svdDerivedPeripheral.getChildText("name");
-        log.trace("creating new derived peripheral for {}", svdName);
         // ignoring  <version></version>
 
         if(null !=  svdDerivedPeripheral.getChildText("dim"))
@@ -1062,7 +1080,26 @@ public class SvdPeripheralHandler
 
         int peripheralId = 0;
         int srvOrigIdx = getPeripheralSrvIndexFor(svdOriginalPeripheral.getChildText("name"));
+        if(0 > srvOrigIdx)
+        {
+            log.error("Server does not have the original peripheral {}!", svdOriginalPeripheral.getChildText("name"));
+            log.error("Server has these peripherals: {}", srvAllPeripherals.dumpAllNames());
+            return false;
+        }
         peripheralId = srvAllPeripherals.getInt(srvOrigIdx, "peripheral_id");
+        if(0 == peripheralId)
+        {
+            log.error("No Peripheral ID for {}", svdName);
+            log.error(srvAllPeripherals.dump(srvOrigIdx));
+            int srvDerivedIdx = getPeripheralSrvIndexFor(svdDerivedPeripheral.getChildText("name"));
+            if(0 > srvDerivedIdx)
+            {
+                log.error("Server does not have the derived peripheral !");
+                return false;
+            }
+            log.error(srvAllPeripherals.dump(srvDerivedIdx));
+            return false;
+        }
 
         // now all data is available so generate the peripheral Instance.
         int peripheralInstanceId =  postNewPeripheralInstanceToServer(
@@ -1095,6 +1132,13 @@ public class SvdPeripheralHandler
         // registers
         if(false == registerHandler.updateDerivedRegister(svdDerivedPeripheral, svdOriginalPeripheral, peripheralId))
         {
+            return false;
+        }
+
+        // we might need this peripheral if some other is derived from it -> update the list of peripherals from the server
+        if(false == getAllPeripheralInstancesFromServer(srvDeviceId))
+        {
+            log.error("Could not read device peripherals from sever");
             return false;
         }
 

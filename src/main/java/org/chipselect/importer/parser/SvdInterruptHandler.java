@@ -158,8 +158,14 @@ public class SvdInterruptHandler
             log.trace("created new interrupt on server: name = {}, description = {}", irqName, description);
             Request req = new Request("interrupt", Request.POST);
             req.addGetParameter("per_in_id", peripheralInstanceId);
-            req.addGetParameter("name", irqName);
-            req.addGetParameter("description", description);
+            if(null != irqName)
+            {
+                req.addGetParameter("name", irqName);
+            }
+            if(null != description)
+            {
+                req.addGetParameter("description", description);
+            }
             req.addGetParameter("number", number);
             Response postRes = srv.execute(req);
             if(false == postRes.wasSuccessfull())
@@ -181,8 +187,14 @@ public class SvdInterruptHandler
     {
         Request req = new Request("interrupt", Request.PUT);
         req.addGetParameter("id", id);
-        req.addGetParameter("name", irqName);
-        req.addGetParameter("description", description);
+        if(null != irqName)
+        {
+            req.addGetParameter("name", irqName);
+        }
+        if(null != description)
+        {
+            req.addGetParameter("description", description);
+        }
         req.addGetParameter("number", number);
         Response res = srv.execute(req);
         if(false == res.wasSuccessfull())

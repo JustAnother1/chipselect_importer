@@ -34,10 +34,13 @@ public class Request
 
     public void addGetParameter(String variable, String value)
     {
-        variable = URLEncoder.encode(variable, StandardCharsets.UTF_8);
-        value = URLEncoder.encode(value, StandardCharsets.UTF_8);
-        String filter = variable + "=" + value;
-        urlGet.add(filter);
+        if((null != variable) && (null != value))
+        {
+            variable = URLEncoder.encode(variable, StandardCharsets.UTF_8);
+            value = URLEncoder.encode(value, StandardCharsets.UTF_8);
+            String filter = variable + "=" + value;
+            urlGet.add(filter);
+        }
     }
 
     public void addGetParameter(String variable, int value)

@@ -94,7 +94,7 @@ public class SvdAddressBlockHandler
     private boolean checkAddressBlock(Response res, Element svdAaddressBlock, int srvPeripheralId)
     {
         int offset = -1;
-        int size = default_size;
+        long size = default_size;
         String usage = null;
         String protection = default_protection;
 
@@ -112,7 +112,7 @@ public class SvdAddressBlockHandler
                 break;
 
             case "size":
-                size = Integer.decode(child.getText());
+                size = Long.decode(child.getText());
                 break;
 
             case "usage":
@@ -135,7 +135,7 @@ public class SvdAddressBlockHandler
         for(int i = 0; i < numAddrBlockServer; i++)
         {
             int srvOffset = res.getInt(i, "address_offset");
-            int srvSize = res.getInt(i, "size");
+            long srvSize = res.getLong(i, "size");
             String srvUsage = res.getString(i, "mem_usage");
             String srvProtection = res.getString(i, "protection");
             if (offset == srvOffset)

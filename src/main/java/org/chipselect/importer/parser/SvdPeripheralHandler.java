@@ -264,11 +264,14 @@ public class SvdPeripheralHandler
             log.error("alternatePeripheral not implemented!");
             return false;
         }
+        /* used by TI to give all UART0 Registers the prefix UART0,...
+        we already know if a register named CR is part of UART0 or UART1.
+       -> No need to store this! Enjoy shorter names ! ;-)
         if(null !=  peripheral.getChildText("prependToName"))
         {
             log.error("prependToName not implemented!");
             return false;
-        }
+        } */
         if(null !=  peripheral.getChildText("appendToName"))
         {
             log.error("appendToName not implemented!");
@@ -459,11 +462,14 @@ public class SvdPeripheralHandler
             log.error("alternatePeripheral not implemented!");
             return false;
         }
+        /* used by TI to give all UART0 Registers the prefix UART0,...
+        we already know if a register named CR is part of UART0 or UART1.
+       -> No need to store this! Enjoy shorter names ! ;-)
         if(null !=  svdDerivedPeripheral.getChildText("prependToName"))
         {
             log.error("prependToName not implemented!");
             return false;
-        }
+        } */
         if(null !=  svdDerivedPeripheral.getChildText("appendToName"))
         {
             log.error("appendToName not implemented!");
@@ -677,11 +683,14 @@ public class SvdPeripheralHandler
             log.error("alternatePeripheral not implemented!");
             return false;
         }
+        /* used by TI to give all UART0 Registers the prefix UART0,...
+          we already know if a register named CR is part of UART0 or UART1.
+         -> No need to store this! Enjoy shorter names ! ;-)
         if(null !=  peripheral.getChildText("prependToName"))
         {
             log.error("prependToName not implemented!");
             return false;
-        }
+        }*/
         if(null !=  peripheral.getChildText("appendToName"))
         {
             log.error("appendToName not implemented!");
@@ -962,11 +971,14 @@ public class SvdPeripheralHandler
             log.error("alternatePeripheral not implemented!");
             return false;
         }
-        if(null !=  svdDerivedPeripheral.getChildText("prependToName"))
+        /* used by TI to give all UART0 Registers the prefix UART0,...
+           we already know if a register named CR is part of UART0 or UART1.
+           -> No need to store this! Enjoy shorter names ! ;-)
+        if(null !=  peripheral.getChildText("prependToName"))
         {
             log.error("prependToName not implemented!");
             return false;
-        }
+        }*/
         if(null !=  svdDerivedPeripheral.getChildText("appendToName"))
         {
             log.error("appendToName not implemented!");

@@ -30,6 +30,7 @@ public class SvdRegisterHandler
     private String reset_value = null;
     private long reset_valueLong = 0;
     private String alternate_register = null;
+    private String alternate_group = null;
     private String reset_Mask = null;
     private long reset_MaskLong = 0;
     private String read_action = null;
@@ -245,9 +246,12 @@ public class SvdRegisterHandler
                 dim_index = child.getText();
                 break;
 
+            case "alternateGroup" :
+                alternate_group = child.getText();
+                break;
+
             case "dimName" :
             case "dimArrayIndex" :
-            case "alternateGroup" :
             case "protection" :
             case "writeConstraint" :
                 log.error("Register child {} not implemented!", tagName);
@@ -273,6 +277,7 @@ public class SvdRegisterHandler
         access = default_access;
         reset_value = default_resetValue;
         alternate_register = null;
+        alternate_group = null;
         reset_Mask = default_resetMask;
         read_action = null;
         modified_write_values = null;
@@ -309,6 +314,7 @@ public class SvdRegisterHandler
         String srvAccess = res.getString(i, "access");
         String srvReset_value = res.getString(i, "reset_value");
         String srvAlternate_register = res.getString(i, "alternate_register");
+        String srvAlternate_group = res.getString(i, "alternate_group");
         String srvReset_Mask = res.getString(i, "reset_mask");
         String srvRead_action = res.getString(i, "read_action");
         String srvModified_write_values = res.getString(i, "modified_write_values");
@@ -367,6 +373,13 @@ public class SvdRegisterHandler
         }
         // else no change
 
+        if((null != alternate_group) && (false == "".equals(alternate_group)) && (false == alternate_group.equals(srvAlternate_group)))
+        {
+            log.trace("alternate group changed from :{}: to :{}:", srvAlternate_group, alternate_group);
+            changed = true;
+        }
+        // else no change
+
         if(   (null != reset_Mask)
            && (false == "".equals(reset_Mask))
            && (false == reset_Mask.equals(srvReset_Mask)))
@@ -419,7 +432,8 @@ public class SvdRegisterHandler
                     reset_MaskLong, // reset_mask,
                     read_action, // read_action,
                     modified_write_values, // modified_write_values,
-                    data_type // data_type
+                    data_type, // data_type
+                    alternate_group // alternate_group
                     ))
             {
                 log.error("Failed to update register on server");
@@ -470,6 +484,7 @@ public class SvdRegisterHandler
                     read_action, // read_action,
                     modified_write_values, // modified_write_values,
                     data_type, // data_taype
+                    alternate_group, // alternate_group
                     peripheralId);
             if(0 == srvId)
             {
@@ -550,7 +565,8 @@ public class SvdRegisterHandler
             long reset_mask,
             String read_action,
             String modified_write_values,
-            String data_type )
+            String data_type,
+            String alternate_group)
     {
         Request req = new Request("register", Request.PUT);
         req.addGetParameter("id", id);
@@ -590,6 +606,10 @@ public class SvdRegisterHandler
         {
             req.addGetParameter("data_type", data_type);
         }
+        if(null != alternate_group)
+        {
+            req.addGetParameter("alternate_group", alternate_group);
+        }
         Response res = srv.execute(req);
         if(false == res.wasSuccessfull())
         {
@@ -614,6 +634,7 @@ public class SvdRegisterHandler
             String read_action,
             String modified_write_values,
             String data_type,
+            String alternate_group,
             int peripheralId)
     {
         Request req = new Request("register", Request.POST);
@@ -649,6 +670,10 @@ public class SvdRegisterHandler
         if(null != data_type)
         {
             req.addGetParameter("data_type", data_type);
+        }
+        if(null != alternate_group)
+        {
+            req.addGetParameter("alternate_group", alternate_group);
         }
         req.addGetParameter("per_id", peripheralId);
         Response res = srv.execute(req);

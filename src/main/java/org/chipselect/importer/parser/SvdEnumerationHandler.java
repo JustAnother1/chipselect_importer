@@ -266,6 +266,7 @@ public class SvdEnumerationHandler
                     String srvDescription = res.getString(i, "description");
                     if(false == svdDescription.equals(srvDescription))
                     {
+                        log.trace("Description changed from {} to {} !", srvDescription, svdDescription);
                         changed = true;
                     }
                 }
@@ -279,6 +280,7 @@ public class SvdEnumerationHandler
                     String srvValue = res.getString(i, "value");
                     if(false == svdValue.equals(srvValue))
                     {
+                        log.trace("value changed from {} to {} !", srvValue, svdValue);
                         changed = true;
                     }
                 }
@@ -288,6 +290,7 @@ public class SvdEnumerationHandler
                 {
                     if(0 == srvIsDefault)
                     {
+                        log.trace("isDefault changed from 1 to 0 !");
                         changed = true;
                     }
                 }
@@ -295,6 +298,7 @@ public class SvdEnumerationHandler
                 {
                     if(1 == srvIsDefault)
                     {
+                        log.trace("isDefault changed from 0 to 1 !");
                         changed = true;
                     }
                 }

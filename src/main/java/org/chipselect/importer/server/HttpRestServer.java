@@ -19,6 +19,7 @@ public class HttpRestServer extends RestServer implements Server
     private final String restUser;
     private final String restPassword;
     private final boolean hasUser;
+    private final int[] numRequests = new int[Request.MAX_TYPE_NUM + 1];
 
     public HttpRestServer(String restUrl, String restUser, String restPassword)
     {
@@ -34,6 +35,37 @@ public class HttpRestServer extends RestServer implements Server
         {
             hasUser = false;
         }
+        for(int i = 0; i < Request.MAX_TYPE_NUM + 1; i++)
+        {
+            numRequests[i] = 0;
+        }
+    }
+
+    @Override
+    public String getStatus()
+    {
+        StringBuilder sb = new StringBuilder();
+        if(0 < numRequests[Request.GET])
+        {
+            sb.append("GET : " + numRequests[Request.GET] + " Requests\n");
+        }
+        if(0 < numRequests[Request.POST])
+        {
+            sb.append("POST : " + numRequests[Request.POST] + " Requests\n");
+        }
+        if(0 < numRequests[Request.PUT])
+        {
+            sb.append("PUT : " + numRequests[Request.PUT] + " Requests\n");
+        }
+        if(0 < numRequests[Request.PATCH])
+        {
+            sb.append("PATCH : " + numRequests[Request.PATCH] + " Requests\n");
+        }
+        if(0 < numRequests[Request.DELETE])
+        {
+            sb.append("DELETE : " + numRequests[Request.DELETE] + " Requests\n");
+        }
+        return sb.toString();
     }
 
     @Override
@@ -41,6 +73,7 @@ public class HttpRestServer extends RestServer implements Server
     {
         Response res = new Response();
         HttpURLConnection connection = null;
+        numRequests[req.getType()] ++;
         // Create a neat value object to hold the URL
         try
         {

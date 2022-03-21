@@ -269,6 +269,8 @@ public class ImporterMain
             }
         }
         // import something else ?
+
+        log.info(chipselect.getStatus());
         return done_something;
     }
 

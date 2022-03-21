@@ -11,6 +11,7 @@ public class Request
     public static final int PUT = 3;
     public static final int PATCH = 4;
     public static final int DELETE = 5;
+    public static final int MAX_TYPE_NUM = 5;
 
     private final String resource;
     private int type;
@@ -30,6 +31,11 @@ public class Request
     public void setType(int type)
     {
         this.type = type;
+    }
+
+    public int getType()
+    {
+        return type;
     }
 
     public void addGetParameter(String variable, String value)

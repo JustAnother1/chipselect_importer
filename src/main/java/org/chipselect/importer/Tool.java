@@ -214,6 +214,7 @@ public final class Tool
         wet = wet.replaceAll("\t", " ");
         wet = wet.replaceAll("\r", " ");
         wet = wet.replaceAll(";", " ");
+        wet = wet.replaceAll("\"", " ");
         wet = wet.replaceAll("&", " and ");
         while(true == wet.contains("  "))
         {

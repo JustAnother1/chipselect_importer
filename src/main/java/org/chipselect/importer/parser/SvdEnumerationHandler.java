@@ -99,9 +99,13 @@ public class SvdEnumerationHandler
         {
             // create new enumeration for this field
             enumId = createEnumerationOnServer(fieldId, svdName, svdUsage);
-            log.error("could not create a enumeration !");
-            log.error(Tool.getXMLRepresentationFor(enumE));
-            return false;
+            if(0 == enumId)
+            {
+                log.error("could not create a enumeration !");
+                log.error(Tool.getXMLRepresentationFor(enumE));
+                return false;
+            }
+            // else  OK
         }
         else if(1 == numEnumsOnServer)
         {

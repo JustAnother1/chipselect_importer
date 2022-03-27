@@ -334,8 +334,11 @@ public class SvdPeripheralHandler
         HexString strSrvBaseAddress = new HexString(srvAllPeripherals.getString(idx, "base_address"));
         if(false == strBaseAddress.equals(strSrvBaseAddress))
         {
-            log.error("update baseAddress not implemented!");
-            return false;
+            if(null != strBaseAddress.toString())
+            {
+                log.error("update baseAddress not implemented!");
+                return false;
+            }
         }
 
         // peripheral
@@ -551,8 +554,11 @@ public class SvdPeripheralHandler
         HexString strSrvBaseAddress =  new HexString(srvAllPeripherals.getString(srvIdx, "base_address"));
         if(false == strBaseAddress.equals(strSrvBaseAddress))
         {
-            log.error("update baseAddress not implemented!");
-            return false;
+            if(null != strBaseAddress.toString())
+            {
+                log.error("update baseAddress not implemented!");
+                return false;
+            }
         }
 
         // peripheral

@@ -247,27 +247,55 @@ public class HexString
 
     public boolean equals(HexString other)
     {
-        String otherVal = other.toString();
-        return val.equals(otherVal);
+        if((null == val) || (null == other))
+        {
+            return false;
+        }
+        else
+        {
+            String otherVal = other.toString();
+            return val.equals(otherVal);
+        }
     }
 
     public boolean equals(String other)
     {
-        HexString o = new HexString(other);
-        String oVal = o.toString();
-        return val.equals(oVal);
+        if(null == val)
+        {
+            return false;
+        }
+        else
+        {
+            HexString o = new HexString(other);
+            String oVal = o.toString();
+            return val.equals(oVal);
+        }
     }
 
     public boolean equals(int other)
     {
-        String otherVal = longToString(other);
-        return val.equals(otherVal);
+        if(null == val)
+        {
+            return false;
+        }
+        else
+        {
+            String otherVal = longToString(other);
+            return val.equals(otherVal);
+        }
     }
 
     public boolean equals(long other)
     {
-        String otherVal = longToString(other);
-        return val.equals(otherVal);
+        if(null == val)
+        {
+            return false;
+        }
+        else
+        {
+            String otherVal = longToString(other);
+            return val.equals(otherVal);
+        }
     }
 
     public boolean equals(Object other)

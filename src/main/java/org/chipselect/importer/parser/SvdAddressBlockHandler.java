@@ -150,8 +150,11 @@ public class SvdAddressBlockHandler
                 boolean changed = false;
                 if(false ==size.equals(srvSize))
                 {
-                    log.trace("Size changed from {} to {} !", srvSize, size);
-                    changed = true;
+                    if(null != size.toString())
+                    {
+                        log.trace("Size changed from {} to {} !", srvSize, size);
+                        changed = true;
+                    }
                 }
                 if((null != usage) && (false == usage.equals(srvUsage)))
                 {

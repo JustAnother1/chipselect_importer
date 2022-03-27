@@ -315,8 +315,11 @@ public class SvdRegisterHandler
         {
             if(false == addressOffset.equals(srvAddressOffsetVal))
             {
-                log.trace("address offset changed from :{}: to :{}:", srvAddressOffsetVal, addressOffset);
-                changed = true;
+                if(null != addressOffset.toString())
+                {
+                    log.trace("address offset changed from :{}: to :{}:", srvAddressOffsetVal, addressOffset);
+                    changed = true;
+                }
             }
         }
         // else no change
@@ -338,8 +341,11 @@ public class SvdRegisterHandler
         {
             if(false == reset_value.equals(srvReset_value))
             {
-                log.trace("reset value changed from :{}: to :{}:", srvReset_value, reset_value);
-                changed = true;
+                if(null != reset_value.toString())
+                {
+                    log.trace("reset value changed from :{}: to :{}:", srvReset_value, reset_value);
+                    changed = true;
+                }
             }
 
             // else "0" is not different to "0x00"
@@ -364,8 +370,11 @@ public class SvdRegisterHandler
         {
             if(false == reset_Mask.equals(srvReset_Mask))
             {
-                log.trace("reset mask changed from :{}: to :{}:", srvReset_Mask, reset_Mask);
-                changed = true;
+                if(null != reset_Mask.toString())
+                {
+                    log.trace("reset mask changed from :{}: to :{}:", srvReset_Mask, reset_Mask);
+                    changed = true;
+                }
             }
             // else "0" is not different to "0x00"
         }

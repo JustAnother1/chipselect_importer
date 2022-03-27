@@ -286,8 +286,25 @@ public class SvdPeripheralHandler
             if(false == svdDescriptionValue.equals(srvValue))
             {
                 log.info("update needed for {} from :{}: to :{}:!", "description", srvValue, svdDescriptionValue);
-                log.error("description not implemented!");
-                return false;
+
+                int id = srvAllPeripherals.getInt(idx, "id");
+                if(0 == id)
+                {
+                    log.error("Peripheral ID on server is invalid !");
+                    return false;
+                }
+
+                if(false == updateServerPeripheralInstance(
+                        id,
+                        null,
+                        svdDescriptionValue,
+                        null,
+                        0,
+                        null ))
+                {
+                    log.error("update description failed!");
+                    return false;
+                }
             }
             // else value is the same so no update needed -> OK
         }
@@ -482,8 +499,25 @@ public class SvdPeripheralHandler
             if(false == svdDescriptionValue.equals(srvValue))
             {
                 log.info("update needed for {} from :{}: to :{}:!", "description", srvValue, svdDescriptionValue);
-                log.error("update description not implemented!");
-                return false;
+
+                int id = srvAllPeripherals.getInt(srvIdx, "id");
+                if(0 == id)
+                {
+                    log.error("Peripheral ID on server is invalid !");
+                    return false;
+                }
+
+                if(false == updateServerPeripheralInstance(
+                        id,
+                        null,
+                        svdDescriptionValue,
+                        null,
+                        0,
+                        null ))
+                {
+                    log.error("update description failed!");
+                    return false;
+                }
             }
             // else value is the same so no update needed -> OK
         }

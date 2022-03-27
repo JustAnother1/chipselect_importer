@@ -177,6 +177,10 @@ public class SvdRegisterHandler
 
             case "name" :
                 name = child.getText();
+                if(null != name)
+                {
+                    name = name.trim();
+                }
                 break;
 
             case "displayName" :
@@ -189,6 +193,10 @@ public class SvdRegisterHandler
 
             case "alternateRegister" :
                 alternate_register = child.getText();
+                if(null != alternate_register)
+                {
+                    alternate_register = alternate_register.trim();
+                }
                 break;
 
             case "addressOffset" :
@@ -201,6 +209,10 @@ public class SvdRegisterHandler
 
             case "access" :
                 access = child.getText();
+                if(null != access)
+                {
+                    access = access.trim();
+                }
                 break;
 
             case "resetValue" :
@@ -213,14 +225,26 @@ public class SvdRegisterHandler
 
             case "dataType" :
                 data_type = child.getText();
+                if(null != data_type)
+                {
+                    data_type = data_type.trim();
+                }
                 break;
 
             case "modifiedWriteValues" :
                 modified_write_values = child.getText();
+                if(null != modified_write_values)
+                {
+                    modified_write_values = modified_write_values.trim();
+                }
                 break;
 
             case "readAction" :
                 read_action = child.getText();
+                if(null != read_action)
+                {
+                    read_action = read_action.trim();
+                }
                 break;
 
             case "fields" :
@@ -237,10 +261,18 @@ public class SvdRegisterHandler
 
             case "dimIndex" :
                 dim_index = child.getText();
+                if(null != dim_index)
+                {
+                    dim_index = dim_index.trim();
+                }
                 break;
 
             case "alternateGroup" :
                 alternate_group = child.getText();
+                if(null != alternate_group)
+                {
+                    alternate_group = alternate_group.trim();
+                }
                 break;
 
             case "dimName" :
@@ -430,6 +462,11 @@ public class SvdRegisterHandler
     private boolean checkIfUpdateOrNewRegister(Response res, int peripheralId, HexString localAddressOffset)
     {
         int srvId = -1;
+        if(null == name)
+        {
+            log.error("Register does not have a name !");
+            return false;
+        }
         log.trace("checking register {}", name);
 
         boolean found = false;
@@ -437,17 +474,24 @@ public class SvdRegisterHandler
         for(int i = 0; i < numRegisterServer; i++)
         {
             String srvName = res.getString(i, "name");
-
-            if((null != name) && (true == name.equals(srvName)))
+            if(null == srvName)
             {
-                found = true;
-                srvId = res.getInt(i,  "id");
-                log.trace("found register {} ({})", name, srvId);
-                if(false == checkIfUpdateOfRegisterIsNeeded(res, i, srvId))
+                continue;
+            }
+            else
+            {
+                srvName = srvName.trim();
+                if(true == name.equals(srvName))
                 {
-                    return false;
+                    found = true;
+                    srvId = res.getInt(i,  "id");
+                    log.trace("found register {} ({})", name, srvId);
+                    if(false == checkIfUpdateOfRegisterIsNeeded(res, i, srvId))
+                    {
+                        return false;
+                    }
+                    break;
                 }
-                break;
             }
         }
 

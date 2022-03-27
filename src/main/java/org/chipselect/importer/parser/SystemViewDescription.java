@@ -533,24 +533,11 @@ public class SystemViewDescription
         String default_resetMask = device.getChildText("resetMask");
         String default_protection = device.getChildText("protection");
         log.trace("default_size: {}", default_size);
-        int default_size_int = 0;
-        if(null != default_size)
-        {
-            if(default_size.startsWith("0x"))
-            {
-                default_size_int = Integer.valueOf(default_size.substring(2), 16);
-            }
-            else
-            {
-                default_size_int = Integer.valueOf(default_size);
-            }
-        }
-        log.trace("default_size(int): {}", default_size_int);
         log.trace("default_access: {}", default_access);
         log.trace("default_resetValue: {}", default_resetValue);
         log.trace("default_resetMask: {}", default_resetMask);
         log.trace("default_protection: {}", default_protection);
-        handler.setDefaultSize(default_size_int);
+        handler.setDefaultSize(default_size);
         handler.setDefaultAccess(default_access);
         handler.setDefaultResetValue(default_resetValue);
         handler.setDefaultResetMask(default_resetMask);

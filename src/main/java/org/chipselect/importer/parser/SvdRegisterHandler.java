@@ -24,15 +24,13 @@ public class SvdRegisterHandler
     private String name = null;
     private String displayName = null;
     private String description = null;
-    private long addressOffsetLong = 0;
+    private HexString addressOffset = null;
     private int size = 0;
     private String access = null;
-    private String reset_value = null;
-    private long reset_valueLong = 0;
+    private HexString reset_value = null;
     private String alternate_register = null;
     private String alternate_group = null;
-    private String reset_Mask = null;
-    private long reset_MaskLong = 0;
+    private HexString reset_Mask = null;
     private String read_action = null;
     private String modified_write_values = null;
     private String data_type = null;
@@ -194,12 +192,7 @@ public class SvdRegisterHandler
                 break;
 
             case "addressOffset" :
-                String addressOffset = child.getText();
-                if((null != addressOffset) && (false == "".equals(addressOffset)))
-                {
-                    addressOffsetLong = Long.decode(addressOffset);
-                }
-                // else let addressOffsetLong be the default
+                addressOffset = new HexString(child.getText());
                 break;
 
             case "size" :
@@ -211,11 +204,11 @@ public class SvdRegisterHandler
                 break;
 
             case "resetValue" :
-                reset_value = child.getText();
+                reset_value = new HexString(child.getText());
                 break;
 
             case "resetMask" :
-                reset_Mask = child.getText();
+                reset_Mask = new HexString(child.getText());
                 break;
 
             case "dataType" :
@@ -272,13 +265,13 @@ public class SvdRegisterHandler
         name = null;
         displayName = null;
         description = null;
-        addressOffsetLong = 0;
         size = default_size;
         access = default_access;
-        reset_value = default_resetValue;
+        addressOffset = null;
+        reset_value = new HexString(default_resetValue);
         alternate_register = null;
         alternate_group = null;
-        reset_Mask = default_resetMask;
+        reset_Mask = new HexString(default_resetMask);
         read_action = null;
         modified_write_values = null;
         data_type = null;
@@ -286,30 +279,13 @@ public class SvdRegisterHandler
         dim = 0;
         dim_increment = 0;
         dim_index = null;
-
-        if(null != default_resetValue)
-        {
-            reset_valueLong = Long.decode(default_resetValue);
-        }
-        else
-        {
-            reset_valueLong = 0;
-        }
-        if(null != default_resetMask)
-        {
-            reset_MaskLong = Long.decode(default_resetMask);
-        }
-        else
-        {
-            reset_MaskLong = 0;
-        }
     }
 
     private boolean checkIfUpdateOfRegisterIsNeeded(Response res, int i, int srvId)
     {
         String srvDisplayName = res.getString(i, "display_name");
         String srvDescription = res.getString(i, "description");
-        String srvAddressOffset = res.getString(i, "address_offset");
+        String srvAddressOffsetVal = res.getString(i, "address_offset");
         int    srvSize = res.getInt(i,  "size");
         String srvAccess = res.getString(i, "access");
         String srvReset_value = res.getString(i, "reset_value");
@@ -334,12 +310,17 @@ public class SvdRegisterHandler
             changed = true;
         }
         // else no change
-        long srvAddressOffsetVal = Long.decode(srvAddressOffset);
-        if(addressOffsetLong != srvAddressOffsetVal)
+
+        if(null != addressOffset)
         {
-            log.trace("address offset changed from :{}: to :{}:", srvAddressOffset, addressOffsetLong);
-            changed = true;
+            if(false == addressOffset.equals(srvAddressOffsetVal))
+            {
+                log.trace("address offset changed from :{}: to :{}:", srvAddressOffsetVal, addressOffset);
+                changed = true;
+            }
         }
+        // else no change
+
         // else no change
         if((size != -1) && (size != srvSize))
         {
@@ -353,19 +334,18 @@ public class SvdRegisterHandler
             changed = true;
         }
         // else no change
-        if((null != reset_value) && (false == "".equals(reset_value)) && (false == reset_value.equals(srvReset_value)))
+        if(null != reset_value)
         {
-            reset_valueLong = Long.decode(reset_value);
-            long srvVal = Long.decode(srvReset_value);
-            if(reset_valueLong != srvVal)
+            if(false == reset_value.equals(srvReset_value))
             {
                 log.trace("reset value changed from :{}: to :{}:", srvReset_value, reset_value);
-                log.trace("reset value changed from :{}: to :{}:", srvVal, reset_valueLong);
                 changed = true;
             }
+
             // else "0" is not different to "0x00"
         }
         // else no change
+
         if((null != alternate_register) && (false == "".equals(alternate_register)) && (false == alternate_register.equals(srvAlternate_register)))
         {
             log.trace("alternate register changed from :{}: to :{}:", srvAlternate_register, alternate_register);
@@ -380,17 +360,9 @@ public class SvdRegisterHandler
         }
         // else no change
 
-        if(   (null != reset_Mask)
-           && (false == "".equals(reset_Mask))
-           && (false == reset_Mask.equals(srvReset_Mask)))
+        if(null != reset_Mask)
         {
-            reset_MaskLong = Long.decode(reset_Mask);
-            long srvVal = 0;
-            if((null != srvReset_Mask) && (false == "".equals(srvReset_Mask)))
-            {
-                srvVal = Long.decode(srvReset_Mask);
-            }
-            if(reset_MaskLong != srvVal)
+            if(false == reset_Mask.equals(srvReset_Mask))
             {
                 log.trace("reset mask changed from :{}: to :{}:", srvReset_Mask, reset_Mask);
                 changed = true;
@@ -398,6 +370,7 @@ public class SvdRegisterHandler
             // else "0" is not different to "0x00"
         }
         // else no change
+
         if((null != read_action) && (false == "".equals(read_action)) && (false == read_action.equals(srvRead_action)))
         {
             log.trace("read action changed from :{}: to :{}:", srvRead_action, read_action);
@@ -424,12 +397,12 @@ public class SvdRegisterHandler
                     name, // name,
                     displayName, // display_name,
                     description, // description,
-                    addressOffsetLong, // address_offset,
+                    addressOffset.toString(), // address_offset,
                     size, // size,
                     access, // access,
-                    reset_valueLong, // reset_value,
+                    reset_value.toString(), // reset_value,
                     alternate_register, // alternative_register,
-                    reset_MaskLong, // reset_mask,
+                    reset_Mask.toString(), // reset_mask,
                     read_action, // read_action,
                     modified_write_values, // modified_write_values,
                     data_type, // data_type
@@ -445,7 +418,7 @@ public class SvdRegisterHandler
     }
 
 
-    private boolean checkIfUpdateOrNewRegister(Response res, int peripheralId)
+    private boolean checkIfUpdateOrNewRegister(Response res, int peripheralId, HexString localAddressOffset)
     {
         int srvId = -1;
         log.trace("checking register {}", name);
@@ -475,12 +448,12 @@ public class SvdRegisterHandler
                     name, // name,
                     displayName, // display_name,
                     description, // description,
-                    addressOffsetLong, // address_offset,
+                    localAddressOffset.toString(), // address_offset,
                     size, // size,
                     access, // access,
-                    reset_valueLong, // reset_value,
+                    reset_value.toString(), // reset_value,
                     alternate_register, // alternative_register,
-                    reset_MaskLong, // reset_mask,
+                    reset_Mask.toString(), // reset_mask,
                     read_action, // read_action,
                     modified_write_values, // modified_write_values,
                     data_type, // data_taype
@@ -526,7 +499,7 @@ public class SvdRegisterHandler
             }
             String groupName = name;
             String groupDisplayName = displayName;
-            Long groupAddressOffset = addressOffsetLong;
+            Long groupAddressOffset = Long.decode(addressOffset.toString());
             for(int i = 0; i< grp.getNumberElements(); i++)
             {
                 // prepare values for this register
@@ -535,8 +508,9 @@ public class SvdRegisterHandler
                 // displayName
                 displayName = grp.getElementNameFor(groupDisplayName, i);
                 // addressOffset
-                addressOffsetLong = groupAddressOffset + (i * grp.getByteOffsetBytes());
-                if(false == checkIfUpdateOrNewRegister(res, peripheralId))
+                Long addressOffsetLong = groupAddressOffset + (i * grp.getByteOffsetBytes());
+                HexString DimAddressOffset = new HexString(addressOffsetLong);
+                if(false == checkIfUpdateOrNewRegister(res, peripheralId, DimAddressOffset))
                 {
                     return false;
                 }
@@ -544,7 +518,7 @@ public class SvdRegisterHandler
         }
         else
         {
-            if(false == checkIfUpdateOrNewRegister(res, peripheralId))
+            if(false == checkIfUpdateOrNewRegister(res, peripheralId, addressOffset))
             {
                 return false;
             }
@@ -557,12 +531,12 @@ public class SvdRegisterHandler
             String name,
             String display_name,
             String description,
-            long address_offset,
+            String address_offset,
             int size,
             String access,
-            long reset_value,
+            String reset_value,
             String alternative_register,
-            long reset_mask,
+            String reset_mask,
             String read_action,
             String modified_write_values,
             String data_type,
@@ -582,18 +556,27 @@ public class SvdRegisterHandler
         {
             req.addGetParameter("description", description);
         }
-        req.addGetParameter("address_offset", address_offset);
+        if(null != address_offset)
+        {
+            req.addGetParameter("address_offset", address_offset);
+        }
         req.addGetParameter("size", size);
         if(null != access)
         {
             req.addGetParameter("access", access);
         }
-        req.addGetParameter("reset_value", reset_value);
+        if(null != reset_value)
+        {
+            req.addGetParameter("reset_value", reset_value);
+        }
         if(null != alternative_register)
         {
             req.addGetParameter("alternate_register", alternative_register);
         }
-        req.addGetParameter("reset_mask", reset_mask);
+        if(null != reset_mask)
+        {
+            req.addGetParameter("reset_mask", reset_mask);
+        }
         if(null != read_action)
         {
             req.addGetParameter("read_action", read_action);
@@ -625,12 +608,12 @@ public class SvdRegisterHandler
             String name,
             String display_name,
             String description,
-            long address_offset,
+            String address_offset,
             int size,
             String access,
-            long reset_value,
+            String reset_value,
             String alternative_register,
-            long reset_mask,
+            String reset_mask,
             String read_action,
             String modified_write_values,
             String data_type,
@@ -647,18 +630,27 @@ public class SvdRegisterHandler
         {
             req.addGetParameter("description", description);
         }
-        req.addGetParameter("address_offset", address_offset);
+        if(null != address_offset)
+        {
+            req.addGetParameter("address_offset", address_offset);
+        }
         req.addGetParameter("size", size);
         if(null != access)
         {
             req.addGetParameter("access", access);
         }
-        req.addGetParameter("reset_value", reset_value);
+        if(null != reset_value)
+        {
+            req.addGetParameter("reset_value", reset_value);
+        }
         if(null != alternative_register)
         {
             req.addGetParameter("alternative_register", alternative_register);
         }
-        req.addGetParameter("reset_mask", reset_mask);
+        if(null != reset_mask)
+        {
+            req.addGetParameter("reset_mask", reset_mask);
+        }
         if(null != read_action)
         {
             req.addGetParameter("read_action", read_action);

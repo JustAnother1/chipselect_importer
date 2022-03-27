@@ -17,11 +17,6 @@ public class SvdPeripheralHandler
     private final SvdAddressBlockHandler addressBlockHandler;
     private final SvdInterruptHandler interruptHandler;
     private final SvdRegisterHandler registerHandler;
-    private int default_size = 0;
-    private String default_access = null;
-    private String default_resetValue = null;
-    private String default_resetMask = null;
-    private String default_protection = null;
     private Response srvAllPeripherals = null;
     private int srvDeviceId = 0;
 
@@ -33,34 +28,29 @@ public class SvdPeripheralHandler
         registerHandler = new SvdRegisterHandler(srv);
     }
 
-    public void setDefaultSize(int default_size)
+    public void setDefaultSize(String default_size)
     {
-        this.default_size = default_size;
-        addressBlockHandler.setDefaultSize(this.default_size);
+        addressBlockHandler.setDefaultSize(default_size);
     }
 
     public void setDefaultAccess(String default_access)
     {
-        this.default_access = default_access;
-        registerHandler.setDefaultAccess(this.default_access);
+        registerHandler.setDefaultAccess(default_access);
     }
 
     public void setDefaultResetValue(String default_resetValue)
     {
-        this.default_resetValue = default_resetValue;
-        registerHandler.setDefaultResetValue(this.default_resetValue);
+        registerHandler.setDefaultResetValue(default_resetValue);
     }
 
     public void setDefaultResetMask(String default_resetMask)
     {
-        this.default_resetMask = default_resetMask;
-        registerHandler.setDefaultResetMask(this.default_resetMask);
+        registerHandler.setDefaultResetMask(default_resetMask);
     }
 
     public void setDefaultProtection(String default_protection)
     {
-        this.default_protection = default_protection;
-        addressBlockHandler.setDefaultProtection(this.default_protection);
+        addressBlockHandler.setDefaultProtection(default_protection);
     }
 
     /**
@@ -323,16 +313,10 @@ public class SvdPeripheralHandler
         }
 
         // baseAddress
-        String strBaseAddress = peripheral.getChildText("baseAddress");
-        long baseAddress = Long.decode(strBaseAddress);
-        String strSrvBaseAddress = srvAllPeripherals.getString(idx, "base_address");
-        long srvBaseAddress = Long.decode(strSrvBaseAddress);
-        if(baseAddress != srvBaseAddress)
+        HexString strBaseAddress = new HexString(peripheral.getChildText("baseAddress"));
+        HexString strSrvBaseAddress = new HexString(srvAllPeripherals.getString(idx, "base_address"));
+        if(false == strBaseAddress.equals(strSrvBaseAddress))
         {
-            log.trace("baseAddress = {}", strBaseAddress);
-            log.trace("baseAddress = {}", baseAddress);
-            log.trace("srvBaseAddress = {}", strSrvBaseAddress);
-            log.trace("srvBaseAddress = {}", srvBaseAddress);
             log.error("update baseAddress not implemented!");
             return false;
         }
@@ -371,31 +355,31 @@ public class SvdPeripheralHandler
         String svdSize = peripheral.getChildText("size");
         if(null != svdSize)
         {
-            default_size = Integer.parseInt(svdSize);
+            setDefaultSize(svdSize);
         }
         // access
         String svdAccess = peripheral.getChildText("access");
         if(null != svdAccess)
         {
-            default_access = svdAccess;
+            setDefaultAccess(svdAccess);
         }
         // protection
         String svdProtection = peripheral.getChildText("protection");
         if(null != svdProtection)
         {
-            default_protection = svdProtection;
+            setDefaultProtection(svdProtection);
         }
         // resetValue
         String svdResetValue = peripheral.getChildText("resetValue");
         if(null != svdResetValue)
         {
-            default_resetValue = svdResetValue;
+            setDefaultResetValue(svdResetValue);
         }
         // resetMask
         String svdResetMask = peripheral.getChildText("resetMask");
         if(null != svdResetMask)
         {
-            default_resetMask = svdResetMask;
+            setDefaultResetMask(svdResetMask);
         }
 
         // addressBlock
@@ -529,16 +513,10 @@ public class SvdPeripheralHandler
         }
 
         // baseAddress
-        String strBaseAddress = svdDerivedPeripheral.getChildText("baseAddress");
-        long baseAddress = Long.decode(strBaseAddress);
-        String strSrvBaseAddress = srvAllPeripherals.getString(srvIdx, "base_address");
-        long srvBaseAddress = Long.decode(strSrvBaseAddress);
-        if(baseAddress != srvBaseAddress)
+        HexString strBaseAddress = new HexString(svdDerivedPeripheral.getChildText("baseAddress"));
+        HexString strSrvBaseAddress =  new HexString(srvAllPeripherals.getString(srvIdx, "base_address"));
+        if(false == strBaseAddress.equals(strSrvBaseAddress))
         {
-            log.trace("baseAddress = {}", strBaseAddress);
-            log.trace("baseAddress = {}", baseAddress);
-            log.trace("srvBaseAddress = {}", strSrvBaseAddress);
-            log.trace("srvBaseAddress = {}", srvBaseAddress);
             log.error("update baseAddress not implemented!");
             return false;
         }
@@ -595,31 +573,31 @@ public class SvdPeripheralHandler
         String svdSize = svdDerivedPeripheral.getChildText("size");
         if(null != svdSize)
         {
-            default_size = Integer.parseInt(svdSize);
+            setDefaultSize(svdSize);
         }
         // access
         String svdAccess = svdDerivedPeripheral.getChildText("access");
         if(null != svdAccess)
         {
-            default_access = svdAccess;
+            setDefaultAccess(svdAccess);
         }
         // protection
         String svdProtection = svdDerivedPeripheral.getChildText("protection");
         if(null != svdProtection)
         {
-            default_protection = svdProtection;
+            setDefaultProtection(svdProtection);
         }
         // resetValue
         String svdResetValue = svdDerivedPeripheral.getChildText("resetValue");
         if(null != svdResetValue)
         {
-            default_resetValue = svdResetValue;
+            setDefaultResetValue(svdResetValue);
         }
         // resetMask
         String svdResetMask = svdDerivedPeripheral.getChildText("resetMask");
         if(null != svdResetMask)
         {
-            default_resetMask = svdResetMask;
+            setDefaultResetMask(svdResetMask);
         }
 
         // "per_in_id" == srvIdx
@@ -727,7 +705,6 @@ public class SvdPeripheralHandler
 
         // baseAddress
         String strBaseAddress = peripheral.getChildText("baseAddress");
-        long baseAddress = Long.decode(strBaseAddress);
 
         // groupName
         String svdGroupName = peripheral.getChildText("groupName");
@@ -736,38 +713,38 @@ public class SvdPeripheralHandler
         String svdSize = peripheral.getChildText("size");
         if(null != svdSize)
         {
-            default_size = Integer.parseInt(svdSize);
+            setDefaultSize(svdSize);
         }
         // access
         String svdAccess = peripheral.getChildText("access");
         if(null != svdAccess)
         {
-            default_access = svdAccess;
+            setDefaultAccess(svdAccess);
         }
         // protection
         String svdProtection = peripheral.getChildText("protection");
         if(null != svdProtection)
         {
-            default_protection = svdProtection;
+            setDefaultProtection(svdProtection);
         }
         // resetValue
         String svdResetValue = peripheral.getChildText("resetValue");
         if(null != svdResetValue)
         {
-            default_resetValue = svdResetValue;
+            setDefaultResetValue(svdResetValue);
         }
         // resetMask
         String svdResetMask = peripheral.getChildText("resetMask");
         if(null != svdResetMask)
         {
-            default_resetMask = svdResetMask;
+            setDefaultResetMask(svdResetMask);
         }
 
         // now all data is available so generate the peripheral Instance.
         int peripheralInstanceId =  postNewPeripheralInstanceToServer(
                 svdName,// name,
                 svdDescriptionValue, // description,
-                baseAddress, // base_address,
+                strBaseAddress, // base_address,
                 0, // peripheral_id,
                 svdDisableCondition// disable_condition
                 );
@@ -793,7 +770,7 @@ public class SvdPeripheralHandler
                 peripheralInstanceId, // id
                 null,  // name
                 null, // description
-                0, //base_address
+                null, //base_address
                 peripheralId,
                 null // disable_condition
                 ))
@@ -860,7 +837,7 @@ public class SvdPeripheralHandler
     private int postNewPeripheralInstanceToServer(
             String name,
             String description,
-            long base_address,
+            String base_address,
             int peripheral_id,
             String disable_condition )
     {
@@ -873,7 +850,7 @@ public class SvdPeripheralHandler
         {
             req.addGetParameter("description", description);
         }
-        if(0 != base_address)
+        if(null != base_address)
         {
             req.addGetParameter("base_address", base_address);
         }
@@ -898,7 +875,7 @@ public class SvdPeripheralHandler
             int id,
             String name,
             String description,
-            long base_address,
+            String base_address,
             int peripheral_id,
             String disable_Condition )
     {
@@ -912,7 +889,7 @@ public class SvdPeripheralHandler
         {
             req.addGetParameter("description", description);
         }
-        if(0 != base_address)
+        if(null != base_address)
         {
             req.addGetParameter("base_address", base_address);
         }
@@ -1026,7 +1003,6 @@ public class SvdPeripheralHandler
         {
             strBaseAddress = svdOriginalPeripheral.getChildText("baseAddress");
         }
-        long baseAddress = Long.decode(strBaseAddress);
 
         // groupName
         String svdGroupName = svdDerivedPeripheral.getChildText("groupName");
@@ -1043,7 +1019,7 @@ public class SvdPeripheralHandler
         }
         if(null != svdSize)
         {
-            default_size = Integer.parseInt(svdSize);
+            setDefaultSize(svdSize);
         }
 
         // access
@@ -1054,7 +1030,7 @@ public class SvdPeripheralHandler
         }
         if(null != svdAccess)
         {
-            default_access = svdAccess;
+            setDefaultAccess(svdAccess);
         }
 
         // protection
@@ -1065,7 +1041,7 @@ public class SvdPeripheralHandler
         }
         if(null != svdProtection)
         {
-            default_protection = svdProtection;
+            setDefaultProtection(svdProtection);
         }
 
         // resetValue
@@ -1076,7 +1052,7 @@ public class SvdPeripheralHandler
         }
         if(null != svdResetValue)
         {
-            default_resetValue = svdResetValue;
+            setDefaultResetValue(svdResetValue);
         }
 
         // resetMask
@@ -1087,7 +1063,7 @@ public class SvdPeripheralHandler
         }
         if(null != svdResetMask)
         {
-            default_resetMask = svdResetMask;
+            setDefaultResetMask(svdResetMask);
         }
 
         int peripheralId = 0;
@@ -1117,7 +1093,7 @@ public class SvdPeripheralHandler
         int peripheralInstanceId =  postNewPeripheralInstanceToServer(
                 svdName,// name,
                 svdDescriptionValue, // description,
-                baseAddress, // base_address,
+                strBaseAddress, // base_address,
                 peripheralId, // peripheral_id,
                 svdDisableCondition// disable_condition
                 );

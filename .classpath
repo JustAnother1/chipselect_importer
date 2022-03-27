@@ -12,5 +12,6 @@
 	<classpathentry kind="lib" path="lib/logback-1.0.13/logback-core-1.0.13.jar"/>
 	<classpathentry kind="lib" path="lib/system-rules-1.16.0/system-rules-1.16.0.jar"/>
 	<classpathentry kind="lib" path="lib/json-20211205.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/5"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

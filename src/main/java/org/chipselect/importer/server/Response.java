@@ -91,7 +91,7 @@ public class Response
             }
             if(true == obj.isNull(key))
             {
-                log.warn("requested key({}) is null", key);
+                // log.warn("requested key({}) is null", key);
                 return 0;
             }
             try
@@ -110,11 +110,13 @@ public class Response
                 catch(JSONException e2)
                 {
                     log.warn("JSON: Int convert Exception !(key: {} - {})", key, obj);
+                    System.exit(98);
                     return 0;
                 }
                 catch(NumberFormatException e1)
                 {
                     log.warn("Int convert Exception !(key: {} - {})", key, obj);
+                    System.exit(99);
                     return 0;
                 }
             }
@@ -148,7 +150,7 @@ public class Response
             }
             if(true == obj.isNull(key))
             {
-                log.warn("requested key({}) is null", key);
+                // log.warn("requested key({}) is null", key);
                 return 0;
             }
             try
@@ -167,11 +169,13 @@ public class Response
                 catch(JSONException e2)
                 {
                     log.warn("JSON: Int convert Exception !(key: {} - {})", key, obj);
+                    System.exit(100);
                     return 0;
                 }
                 catch(NumberFormatException e1)
                 {
                     log.warn("Int convert Exception !(key: {} - {})", key, obj);
+                    System.exit(101);
                     return 0;
                 }
             }
@@ -191,15 +195,31 @@ public class Response
         }
         else
         {
+            if(0 ==  dataArr.length())
+            {
+                log.warn("data array is empty");
+                return "";
+            }
+            JSONObject obj = dataArr.getJSONObject(index);
+            if(false == obj.has(key))
+            {
+                log.warn("requested key not in data entry");
+                return "";
+            }
+            if(true == obj.isNull(key))
+            {
+                // log.warn("requested key({}) is null", key);
+                return "";
+            }
             try
             {
-                JSONObject obj = dataArr.getJSONObject(index);
                 String res = obj.getString(key);
                 res = res.trim();
                 return res;
             }
             catch(JSONException e)
             {
+                System.exit(102);
                 return "";
             }
         }
@@ -219,13 +239,29 @@ public class Response
         }
         else
         {
+            if(0 ==  dataArr.length())
+            {
+                log.warn("data array is empty");
+                return false;
+            }
+            JSONObject obj = dataArr.getJSONObject(index);
+            if(false == obj.has(key))
+            {
+                log.warn("requested key not in data entry");
+                return false;
+            }
+            if(true == obj.isNull(key))
+            {
+                // log.warn("requested key({}) is null", key);
+                return false;
+            }
             try
             {
-                JSONObject obj = dataArr.getJSONObject(index);
                 return obj.getBoolean(key);
             }
             catch(JSONException e)
             {
+                System.exit(103);
                 return false;
             }
         }

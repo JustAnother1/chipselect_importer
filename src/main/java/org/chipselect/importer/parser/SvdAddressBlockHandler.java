@@ -13,7 +13,7 @@ public class SvdAddressBlockHandler
 {
     private final Logger log = LoggerFactory.getLogger(this.getClass().getName());
     private final Server srv;
-    private int default_size = -1;
+    private String default_size = null;
     private String default_protection = null;
 
     public SvdAddressBlockHandler(Server srv)
@@ -21,7 +21,7 @@ public class SvdAddressBlockHandler
         this.srv = srv;
     }
 
-    public void setDefaultSize(int default_size)
+    public void setDefaultSize(String default_size)
     {
         this.default_size = default_size;
     }
@@ -93,8 +93,8 @@ public class SvdAddressBlockHandler
 
     private boolean checkAddressBlock(Response res, Element svdAaddressBlock, int srvPeripheralId)
     {
-        int offset = -1;
-        long size = default_size;
+        HexString offset = null;
+        HexString size = new HexString(default_size);
         String usage = null;
         String protection = default_protection;
 
@@ -108,11 +108,11 @@ public class SvdAddressBlockHandler
             // all defined child types from SVD standard
             // compare to: https://arm-software.github.io/CMSIS_5/develop/SVD/html/elem_device.html
             case "offset":
-                offset = Integer.decode(child.getText());
+                offset =  new HexString(child.getText());
                 break;
 
             case "size":
-                size = Long.decode(child.getText());
+                size = new HexString(child.getText());
                 break;
 
             case "usage":
@@ -129,30 +129,43 @@ public class SvdAddressBlockHandler
                 return false;
             }
         }
+        if(null == offset)
+        {
+            log.error("SVD does not specify the required address offset !");
+            return false;
+        }
 
         boolean found = false;
         int numAddrBlockServer = res.numResults();
         for(int i = 0; i < numAddrBlockServer; i++)
         {
+            int srvId = res.getInt(i, "id");
             int srvOffset = res.getInt(i, "address_offset");
-            long srvSize = res.getLong(i, "size");
+            String srvSize = res.getString(i, "size");
             String srvUsage = res.getString(i, "mem_usage");
             String srvProtection = res.getString(i, "protection");
-            if (offset == srvOffset)
+            if((true == offset.equals(srvOffset)) && (0 != srvId))
             {
                 // check for changes
-                if(    (offset != srvOffset)
-                    || (size != srvSize)
-                    || ((null != usage) && (false == usage.equals(srvUsage)))
-                    || ((null != protection) && (false == protection.equals(srvProtection)))
-                    )
+                boolean changed = false;
+                if(false ==size.equals(srvSize))
                 {
-                    /* This is not the Address Block we found in the SVD
-                    log.trace("offset : new: {} old : {}", offset, srvOffset);
-                    log.trace("size : new: {} old : {}", size, srvSize);
-                    log.trace("usage : new: {} old : {}", usage, srvUsage);
-                    log.trace("protection : new: {} old : {}", protection, srvProtection);
-                    */
+                    log.trace("Size changed from {} to {} !", srvSize, size);
+                    changed = true;
+                }
+                if((null != usage) && (false == usage.equals(srvUsage)))
+                {
+                    log.trace("usage changed from {} to {} !", srvUsage, usage);
+                    changed = true;
+                }
+                if((null != protection) && (false == protection.equals(srvProtection)))
+                {
+                    log.trace("protection changed from {} to {} !", srvProtection, protection);
+                    changed = true;
+                }
+
+                if(true == changed)
+                {
                     if(null == srvProtection)
                     {
                         srvProtection = "";
@@ -162,8 +175,9 @@ public class SvdAddressBlockHandler
                         protection = default_protection;
                     }
                     if(false == updateAddressBlockToServer(
-                            offset, //address_offset,
-                            size, // size,
+                            srvId,
+                            offset.toString(), //address_offset,
+                            size.toString(), // size,
                             usage, // mem_usage,
                             protection // protection,
                             ))
@@ -187,8 +201,8 @@ public class SvdAddressBlockHandler
                 protection = default_protection;
             }
             return postNewAddressBlockToServer(
-                    offset, //address_offset,
-                    size, // size,
+                    offset.toString(), //address_offset,
+                    size.toString(), // size,
                     usage, // mem_usage,
                     protection, // protection,
                     srvPeripheralId// peripheral_id
@@ -201,14 +215,22 @@ public class SvdAddressBlockHandler
     }
 
     private boolean updateAddressBlockToServer(
-            int address_offset,
-            long size,
+            int id,
+            String address_offset,
+            String size,
             String mem_usage,
             String protection)
     {
         Request req = new Request("address_block", Request.PUT);
-        req.addGetParameter("address_offset", address_offset);
-        req.addGetParameter("size", size);
+        req.addGetParameter("id", id);
+        if(null != address_offset)
+        {
+            req.addGetParameter("address_offset", address_offset);
+        }
+        if(null != size)
+        {
+            req.addGetParameter("size", size);
+        }
         if(null != mem_usage)
         {
             req.addGetParameter("mem_usage", mem_usage);
@@ -229,22 +251,28 @@ public class SvdAddressBlockHandler
     }
 
     private boolean postNewAddressBlockToServer(
-            int address_offset,
-            long size,
+            String address_offset,
+            String size,
             String mem_usage,
             String protection,
             int peripheral_id)
     {
         Request req = new Request("address_block", Request.POST);
-        req.addGetParameter("address_offset", address_offset);
-        req.addGetParameter("size", size);
+        if(null != address_offset)
+        {
+            req.addGetParameter("address_offset", address_offset);
+        }
+        if(null != size)
+        {
+            req.addGetParameter("size", size);
+        }
         if(null != mem_usage)
         {
-        req.addGetParameter("mem_usage", mem_usage);
+            req.addGetParameter("mem_usage", mem_usage);
         }
         if(null != protection)
         {
-        req.addGetParameter("protection", protection);
+            req.addGetParameter("protection", protection);
         }
         req.addGetParameter("per_id", peripheral_id);
         Response res = srv.execute(req);

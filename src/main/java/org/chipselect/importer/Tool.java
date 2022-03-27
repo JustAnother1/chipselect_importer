@@ -318,4 +318,51 @@ public final class Tool
         }
         */
     }
+
+
+    public static long decode(String val)
+    {
+        if(null == val)
+        {
+            return 0;
+        }
+        if(1> val.length())
+        {
+            return 0;
+        }
+        if((    val.contains("a"))
+            || (val.contains("A"))
+            || (val.contains("b"))
+            || (val.contains("B"))
+            || (val.contains("c"))
+            || (val.contains("C"))
+            || (val.contains("d"))
+            || (val.contains("D"))
+            || (val.contains("e"))
+            || (val.contains("E"))
+            || (val.contains("f"))
+            || (val.contains("F"))
+            || (val.contains("x"))
+            || (val.contains("X"))
+            )
+        {
+            // is a Hex number
+            System.out.println("Hex : " + val);
+            if((val.contains("x")) || (val.contains("X")))
+            {
+                // is a valid Hex
+                return Long.decode(val);
+            }
+            else
+            {
+                String help = "0x" + val;
+                return Long.decode(help);
+            }
+        }
+        else
+        {
+            return Long.decode(val);
+        }
+    }
+
 }

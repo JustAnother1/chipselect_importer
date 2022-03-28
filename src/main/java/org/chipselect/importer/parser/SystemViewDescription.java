@@ -296,12 +296,6 @@ public class SystemViewDescription
                     }
                 }
             }
-            if(0 != srvArchitectureId)
-            {
-                // this architecture should be on the server, but is not !
-                log.error("Could not match architecture from SVD with server architecture id = {}", srvArchitectureId);
-                return false;
-            }
             // architecture not in database -> create new architecture in database
             log.info("architecture not found -> create new architecture");
             return createArchitectureOnServer(

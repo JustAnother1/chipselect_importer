@@ -52,6 +52,7 @@ public class ImporterMain
 
     private void startLogging(final String[] args)
     {
+        boolean colour = true;
         int numOfV = 0;
         for(int i = 0; i < args.length; i++)
         {
@@ -59,22 +60,27 @@ public class ImporterMain
             {
                 numOfV ++;
             }
+            // -noColour
+            if(true == "-noColour".equals(args[i]))
+            {
+                colour = false;
+            }
         }
 
         // configure Logging
         switch(numOfV)
         {
-        case 0: setLogLevel("warn"); break;
-        case 1: setLogLevel("debug");break;
+        case 0: setLogLevel("warn", colour); break;
+        case 1: setLogLevel("debug", colour);break;
         case 2:
         default:
-            setLogLevel("trace");
+            setLogLevel("trace", colour);
             System.err.println("Build from " + Tool.getCommitID());
             break;
         }
     }
 
-    private void setLogLevel(String LogLevel)
+    private void setLogLevel(String LogLevel, boolean colour)
     {
         final LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
         try
@@ -82,18 +88,37 @@ public class ImporterMain
             final JoranConfigurator configurator = new JoranConfigurator();
             configurator.setContext(context);
             context.reset();
-            final String logCfg =
-            "<configuration>" +
-              "<appender name='STDERR' class='ch.qos.logback.core.ConsoleAppender'>" +
-              "<target>System.err</target>" +
-                "<encoder>" +
-                  "<pattern>%highlight(%-5level) [%logger{36}] %msg%n</pattern>" +
-                "</encoder>" +
-              "</appender>" +
-              "<root level='" + LogLevel + "'>" +
-                "<appender-ref ref='STDERR' />" +
-              "</root>" +
-            "</configuration>";
+            final String logCfg;
+            if(true == colour)
+            {
+                logCfg =
+                "<configuration>" +
+                  "<appender name='STDERR' class='ch.qos.logback.core.ConsoleAppender'>" +
+                  "<target>System.err</target>" +
+                    "<encoder>" +
+                       "<pattern>%highlight(%-5level) [%logger{36}] %msg%n</pattern>" +
+                    "</encoder>" +
+                  "</appender>" +
+                  "<root level='" + LogLevel + "'>" +
+                    "<appender-ref ref='STDERR' />" +
+                  "</root>" +
+                "</configuration>";
+            }
+            else
+            {
+                logCfg =
+                "<configuration>" +
+                  "<appender name='STDERR' class='ch.qos.logback.core.ConsoleAppender'>" +
+                  "<target>System.err</target>" +
+                    "<encoder>" +
+                      "<pattern>%-5level [%logger{36}] %msg%n</pattern>" +
+                    "</encoder>" +
+                  "</appender>" +
+                  "<root level='" + LogLevel + "'>" +
+                    "<appender-ref ref='STDERR' />" +
+                  "</root>" +
+                "</configuration>";
+            }
             ByteArrayInputStream bin;
             bin = new ByteArrayInputStream(logCfg.getBytes(StandardCharsets.UTF_8));
             configurator.doConfigure(bin);
@@ -111,6 +136,7 @@ public class ImporterMain
         System.out.println("Parameters:");
         System.out.println("-h / --help                : print this message.");
         System.out.println("-v                         : verbose output for even more messages use -v -v");
+        System.out.println("-noColour                  : do not highlight the output.");
         System.out.println("-svd <file name>           : import a svd file.");
         System.out.println("-vendor <vendor name>      : set chip venor name. This is necessary if the vendor name is not contained in the imported file.");
         System.out.println("-REST_URL <URL>            : URL of REST server with chip database.");
@@ -133,6 +159,10 @@ public class ImporterMain
                     return false;
                 }
                 else if(true == "-v".equals(args[i]))
+                {
+                    // already handled -> ignore
+                }
+                else if(true == "-noColour".equals(args[i]))
                 {
                     // already handled -> ignore
                 }

@@ -5,3 +5,4 @@ prototypes/
 /dependency-reduced-pom.xml
 /*.svd
 /*.sh
+/*.py

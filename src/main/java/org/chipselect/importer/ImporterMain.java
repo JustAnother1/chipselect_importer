@@ -39,6 +39,7 @@ public class ImporterMain
 {
     private final Logger log = LoggerFactory.getLogger(this.getClass().getName());
     private boolean import_svd = false;
+    private boolean checkVendorOnly = false;
     private String svd_FileName = null;
     private String vendor_name = null;
     private String restUrl = null;
@@ -139,6 +140,7 @@ public class ImporterMain
         System.out.println("-noColour                  : do not highlight the output.");
         System.out.println("-svd <file name>           : import a svd file.");
         System.out.println("-vendor <vendor name>      : set chip venor name. This is necessary if the vendor name is not contained in the imported file.");
+        System.out.println("-onlyVendor                : Do not import the file, only check if the Vendor information is contained.");
         System.out.println("-REST_URL <URL>            : URL of REST server with chip database.");
         System.out.println("-user <name>               : user name for REST server.");
         System.out.println("-password <password>       : password for REST server.");
@@ -187,6 +189,10 @@ public class ImporterMain
                     }
                     vendor_name = args[i];
                     import_svd = true;
+                }
+                else if(true == "-onlyVendor".equals(args[i]))
+                {
+                    checkVendorOnly = true;
                 }
                 else if(true == "-REST_URL".equals(args[i]))
                 {
@@ -268,7 +274,7 @@ public class ImporterMain
                     {
                         parser.setVendorName(vendor_name);
                     }
-                    if(false == parser.parse(jdomDocument))
+                    if(false == parser.parse(jdomDocument, checkVendorOnly))
                     {
                         return false;
                     }

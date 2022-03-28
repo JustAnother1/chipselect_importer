@@ -563,7 +563,7 @@ public class SystemViewDescription
         specified_vendor_name = vendor_name;
     }
 
-    public boolean parse(Document doc)
+    public boolean parse(Document doc, boolean checkVendorOnly)
     {
         // is valid XML?
         if(null == doc)
@@ -632,6 +632,11 @@ public class SystemViewDescription
         if(false == handleVendor(device))
         {
             return false;
+        }
+        if(true == checkVendorOnly)
+        {
+            log.info("Vendor information OK!");
+            return true;
         }
         if(false == handleName(device))
         {

@@ -163,6 +163,22 @@ public class SystemViewDescription
         return true;
     }
 
+    private int decodeBoolString(String val)
+    {
+        if("true".equals(val))
+        {
+            return 1;
+        }
+        else if("false".equals(val))
+        {
+            return 0;
+        }
+        else
+        {
+            return Integer.valueOf(val);
+        }
+    }
+
     private boolean handleCpuElement(Element cpuElement, int srvArchitectureId)
     {
         if(null == cpuElement)
@@ -177,34 +193,10 @@ public class SystemViewDescription
         String svdVendorSystickConfig = cpuElement.getChildText("vendorSystickConfig");
         String svdMpuPresent = cpuElement.getChildText("mpuPresent");
         // from svd standard:  This tag is either set to true or false, 1 or 0.
-        int svdMpuPresentInt = 0;
-        if("true".equals(svdMpuPresent))
-        {
-            svdMpuPresentInt = 1;
-        }
-        else if("false".equals(svdMpuPresent))
-        {
-            svdMpuPresentInt = 0;
-        }
-        else
-        {
-            svdMpuPresentInt = Integer.valueOf(svdMpuPresent);
-        }
+        int svdMpuPresentInt = decodeBoolString(svdMpuPresent);
         // from svd standard:  This tag is either set to true or false, 1 or 0.
         String svdFpuPresent = cpuElement.getChildText("fpuPresent");
-        int svdFpuPresentInt = 0;
-        if("true".equals(svdFpuPresent))
-        {
-            svdFpuPresentInt = 1;
-        }
-        else if("false".equals(svdFpuPresent))
-        {
-            svdFpuPresentInt = 0;
-        }
-        else
-        {
-            svdFpuPresentInt = Integer.valueOf(svdFpuPresent);
-        }
+        int svdFpuPresentInt = decodeBoolString(svdFpuPresent);
         // ignoring optional tags:
         // fpuDP
         // dspPresent
@@ -231,19 +223,7 @@ public class SystemViewDescription
         int svdNvicPrioBitsInt = Integer.valueOf(svdNvicPrioBits);
         log.trace("NVIC Priority Bits(int): {}", svdNvicPrioBitsInt);
         log.trace("Vendor Systick Configuration: {}", svdVendorSystickConfig);
-        int svdVendorSystickConfigInt = 0;
-        if("true".equals(svdVendorSystickConfig))
-        {
-            svdVendorSystickConfigInt = 1;
-        }
-        else if("false".equals(svdVendorSystickConfig))
-        {
-            svdVendorSystickConfigInt = 0;
-        }
-        else
-        {
-            svdVendorSystickConfigInt = Integer.valueOf(svdVendorSystickConfig);
-        }
+        int svdVendorSystickConfigInt = decodeBoolString(svdVendorSystickConfig);
         log.trace("Vendor Systick Configuration(int): {}", svdVendorSystickConfigInt);
 
         Request req = new Request("architecture", Request.GET);

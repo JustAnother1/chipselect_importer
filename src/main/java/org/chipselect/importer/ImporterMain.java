@@ -282,6 +282,7 @@ public class ImporterMain
                 }
                 catch(FileNotFoundException e)
                 {
+                    e.printStackTrace();
                     log.error("File not found: {}", svd_FileName);
                     jdomDocument = null;
                 }

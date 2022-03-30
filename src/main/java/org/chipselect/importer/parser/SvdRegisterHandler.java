@@ -313,7 +313,7 @@ public class SvdRegisterHandler
         dim_index = null;
     }
 
-    private boolean checkIfUpdateOfRegisterIsNeeded(Response res, int i, int srvId)
+    private boolean checkIfUpdateOfRegisterIsNeeded(Response res, int i, int srvId, HexString localAddressOffset)
     {
         String srvDisplayName = res.getString(i, "display_name");
         String srvDescription = res.getString(i, "description");
@@ -343,13 +343,13 @@ public class SvdRegisterHandler
         }
         // else no change
 
-        if(null != addressOffset)
+        if(null != localAddressOffset)
         {
-            if(false == addressOffset.equals(srvAddressOffsetVal))
+            if(false == localAddressOffset.equals(srvAddressOffsetVal))
             {
-                if(null != addressOffset.toString())
+                if(null != localAddressOffset.toString())
                 {
-                    log.trace("address offset changed from :{}: to :{}:", srvAddressOffsetVal, addressOffset);
+                    log.trace("address offset changed from :{}: to :{}:", srvAddressOffsetVal, localAddressOffset);
                     changed = true;
                 }
             }
@@ -438,7 +438,7 @@ public class SvdRegisterHandler
                     name, // name,
                     displayName, // display_name,
                     description, // description,
-                    addressOffset.toString(), // address_offset,
+                    localAddressOffset.toString(), // address_offset,
                     size, // size,
                     access, // access,
                     reset_value.toString(), // reset_value,
@@ -486,7 +486,7 @@ public class SvdRegisterHandler
                     found = true;
                     srvId = res.getInt(i,  "id");
                     log.trace("found register {} ({})", name, srvId);
-                    if(false == checkIfUpdateOfRegisterIsNeeded(res, i, srvId))
+                    if(false == checkIfUpdateOfRegisterIsNeeded(res, i, srvId, localAddressOffset))
                     {
                         return false;
                     }

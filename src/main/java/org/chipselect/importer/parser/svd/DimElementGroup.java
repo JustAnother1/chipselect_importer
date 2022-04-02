@@ -4,6 +4,7 @@ import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.chipselect.importer.Tool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,19 +20,31 @@ public class DimElementGroup
     public DimElementGroup(int dim, int dim_increment, String dim_index)
     {
         valid = true;
+        indexValues = new Vector<String>();
         this.dim = dim;
+        this.dim_increment = dim_increment;
         if(2>dim)
         {
-            log.error("invalid dim value: {}", dim);
-            valid = false;
+            // some files are stupid and have a dim of 1
+            if((1 == dim) && (null == dim_index))
+            {
+                indexValues.add("1");
+                valid = true;
+                return;
+            }
+            else
+            {
+                log.error("invalid dim value: {}", dim);
+                log.error("invalid dim_index value: {}", dim_index);
+                valid = false;
+                return;
+            }
         }
-        this.dim_increment = dim_increment;
         if(1>dim_increment)
         {
             log.error("invalid dimIncrement value: {}", dim_increment);
             valid = false;
         }
-        indexValues = new Vector<String>();
         // dim_index Null
         if(null == dim_index)
         {
@@ -52,8 +65,8 @@ public class DimElementGroup
             }
             else
             {
-                int start = Integer.decode(parts[0]);
-                int end = Integer.decode(parts[1]);
+                int start = (int)Tool.decode(parts[0]);
+                int end = (int)Tool.decode(parts[1]);
                 for(int i = start; i <= end; i++)
                 {
                     indexValues.add("" + i);

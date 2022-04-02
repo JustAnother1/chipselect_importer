@@ -20,6 +20,9 @@ public class HttpRestServer extends RestServer implements Server
     private final String restPassword;
     private final boolean hasUser;
     private final int[] numRequests = new int[Request.MAX_TYPE_NUM + 1];
+    private final long[] RequestsTimes = new long[Request.MAX_TYPE_NUM + 1];
+    private final long[] RequestsTimeMin = new long[Request.MAX_TYPE_NUM + 1];
+    private final long[] RequestsTimeMax = new long[Request.MAX_TYPE_NUM + 1];
 
     public HttpRestServer(String restUrl, String restUser, String restPassword)
     {
@@ -38,6 +41,9 @@ public class HttpRestServer extends RestServer implements Server
         for(int i = 0; i < Request.MAX_TYPE_NUM + 1; i++)
         {
             numRequests[i] = 0;
+            RequestsTimes[i] = 0;
+            RequestsTimeMin[i] = Long.MAX_VALUE;
+            RequestsTimeMax[i] = 0;
         }
     }
 
@@ -47,23 +53,38 @@ public class HttpRestServer extends RestServer implements Server
         StringBuilder sb = new StringBuilder();
         if(0 < numRequests[Request.GET])
         {
-            sb.append("GET : " + numRequests[Request.GET] + " Requests\n");
+            sb.append("GET : " + numRequests[Request.GET] + " Requests");
+            sb.append(String.format(" (%d/%d/%d)\n", RequestsTimeMin[Request.GET],
+                    RequestsTimes[Request.GET]/numRequests[Request.GET],
+                    RequestsTimeMax[Request.GET]));
         }
         if(0 < numRequests[Request.POST])
         {
-            sb.append("POST : " + numRequests[Request.POST] + " Requests\n");
+            sb.append("POST : " + numRequests[Request.POST] + " Requests");
+            sb.append(String.format(" (%d/%d/%d)\n", RequestsTimeMin[Request.POST],
+                    RequestsTimes[Request.POST]/numRequests[Request.POST],
+                    RequestsTimeMax[Request.POST]));
         }
         if(0 < numRequests[Request.PUT])
         {
-            sb.append("PUT : " + numRequests[Request.PUT] + " Requests\n");
+            sb.append("PUT : " + numRequests[Request.PUT] + " Requests");
+            sb.append(String.format(" (%d/%d/%d)\n", RequestsTimeMin[Request.PUT],
+                    RequestsTimes[Request.PUT]/numRequests[Request.PUT],
+                    RequestsTimeMax[Request.PUT]));
         }
         if(0 < numRequests[Request.PATCH])
         {
-            sb.append("PATCH : " + numRequests[Request.PATCH] + " Requests\n");
+            sb.append("PATCH : " + numRequests[Request.PATCH] + " Requests");
+            sb.append(String.format(" (%d/%d/%d)\n", RequestsTimeMin[Request.PATCH],
+                    RequestsTimes[Request.PATCH]/numRequests[Request.PATCH],
+                    RequestsTimeMax[Request.PATCH]));
         }
         if(0 < numRequests[Request.DELETE])
         {
-            sb.append("DELETE : " + numRequests[Request.DELETE] + " Requests\n");
+            sb.append("DELETE : " + numRequests[Request.DELETE] + " Requests");
+            sb.append(String.format(" (%d/%d/%d)\n", RequestsTimeMin[Request.DELETE],
+                    RequestsTimes[Request.DELETE]/numRequests[Request.DELETE],
+                    RequestsTimeMax[Request.DELETE]));
         }
         return sb.toString();
     }
@@ -71,9 +92,11 @@ public class HttpRestServer extends RestServer implements Server
     @Override
     public Response execute(Request req)
     {
+        long start = System.nanoTime();
+        int reqType = req.getType();
         Response res = new Response();
         HttpURLConnection connection = null;
-        numRequests[req.getType()] ++;
+        numRequests[reqType] ++;
         // Create a neat value object to hold the URL
         try
         {
@@ -131,6 +154,17 @@ public class HttpRestServer extends RestServer implements Server
                 val = connection.getHeaderField(i);
             }
             res.setError(e.toString());
+        }
+        long finish = System.nanoTime();
+        long timeElapsed = finish - start;
+        RequestsTimes[reqType] += timeElapsed;
+        if(timeElapsed > RequestsTimeMax[reqType])
+        {
+            RequestsTimeMax[reqType] = timeElapsed;
+        }
+        if(timeElapsed < RequestsTimeMin[reqType])
+        {
+            RequestsTimeMin[reqType] = timeElapsed;
         }
         return res;
     }

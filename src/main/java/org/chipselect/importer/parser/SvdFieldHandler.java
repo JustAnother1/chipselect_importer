@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Vector;
 
 import org.chipselect.importer.Tool;
+import org.chipselect.importer.parser.svd.DimElementGroup;
 import org.chipselect.importer.server.Request;
 import org.chipselect.importer.server.Response;
 import org.chipselect.importer.server.Server;
@@ -16,6 +17,18 @@ public class SvdFieldHandler
     private final Logger log = LoggerFactory.getLogger(this.getClass().getName());
     private final Server srv;
     private SvdEnumerationHandler enumHandler;
+
+    private String svdName = null;
+    private String description = null;
+    private int bitOffset = -1;
+    private int sizeBit = -1;
+    private String access = null;
+    private String modifiedWriteValues = null;
+    private String readAction = null;
+    private Vector<Element> enumerations = new Vector<Element>();
+    private int dim = 0;
+    private int dim_increment = 0;
+    private String dim_index = null;
 
     public SvdFieldHandler(Server srv)
     {
@@ -49,17 +62,23 @@ public class SvdFieldHandler
         return true;
     }
 
-    private boolean checkField(Response res, Element field, int reg_id)
+    private void initFieldValues()
     {
-        String svdName = null;
-        String description = null;
-        int bitOffset = -1;
-        int sizeBit = -1;
-        String access = null;
-        String modifiedWriteValues = null;
-        String readAction = null;
-        Vector<Element> enumerations = new Vector<Element>();
+        svdName = null;
+        description = null;
+        bitOffset = -1;
+        sizeBit = -1;
+        access = null;
+        modifiedWriteValues = null;
+        readAction = null;
+        enumerations = new Vector<Element>();
+        dim = 0;
+        dim_increment = 0;
+        dim_index = null;
+    }
 
+    private boolean checkForUnknownChildren(Element field)
+    {
         // check for unknown children
         List<Element> children = field.getChildren();
         for(Element child : children)
@@ -136,8 +155,8 @@ public class SvdFieldHandler
                 readAction = child.getText();
                 break;
 
-            case "writeConstraint":
-                // limits allowable write values, what if I write something else? does the chip explode?
+            case "writeConstraint": // limits allowable write values, what if I write something else? does the chip explode?
+            case "dimName":         // name of a C Structure to define the field
                 // -> ignore for now.
                 break;
 
@@ -145,11 +164,18 @@ public class SvdFieldHandler
                 enumerations.add(child);
                 break;
 
-
             case "dim":
+                dim = (int)Tool.decode(child.getText());
+                break;
+
             case "dimIncrement":
+                dim_increment = (int)Tool.decode(child.getText());
+                break;
+
             case "dimIndex":
-            case "dimName":
+                dim_index = child.getText();
+                break;
+
             case "dimArrayIndex":
                 log.error("field child {} not implemented!", name);
                 return false;
@@ -160,6 +186,11 @@ public class SvdFieldHandler
                 return false;
             }
         }
+        return true;
+    }
+
+    private boolean checkIfUpdateOrNewField(Response res,  int reg_id)
+    {
         log.trace("checking field {}", svdName);
 
         int srvId = -1;
@@ -268,6 +299,52 @@ public class SvdFieldHandler
                 }
             }
         }
+        return true;
+    }
+
+    private boolean checkField(Response res, Element field, int reg_id)
+    {
+        initFieldValues();
+        if(false == checkForUnknownChildren(field))
+        {
+            return false;
+        }
+
+        // dim* ?
+        if((0 != dim) || (0 != dim_increment))
+        {
+            // this is not one field but many,...
+            DimElementGroup grp = new DimElementGroup(dim, dim_increment, dim_index);
+            if(false == grp.isValid())
+            {
+                log.trace("\n" + Tool.getXMLRepresentationFor(field));
+                return false;
+            }
+
+            String groupName = svdName;
+            int groupAddressOffsetBit = bitOffset;
+            for(int i = 0; i< grp.getNumberElements(); i++)
+            {
+                // prepare values for this register
+                // name
+                svdName = grp.getElementNameFor(groupName, i);
+                // addressOffsetBit
+                bitOffset = groupAddressOffsetBit + (i * grp.getByteOffsetBytes());  // yes in this instance the bytes are bits!
+
+                if(false == checkIfUpdateOrNewField(res, reg_id))
+                {
+                    return false;
+                }
+            }
+        }
+        else
+        {
+            if(false == checkIfUpdateOrNewField(res, reg_id))
+            {
+                return false;
+            }
+        }
+
         return true;
     }
 

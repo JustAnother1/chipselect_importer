@@ -25,7 +25,7 @@ public class SvdRegisterHandler
     private String displayName = null;
     private String description = null;
     private HexString addressOffset = null;
-    private int size = 0;
+    private long size = 0;
     private String access = null;
     private HexString reset_value = null;
     private String alternate_register = null;
@@ -93,7 +93,7 @@ public class SvdRegisterHandler
                 // compare to: https://arm-software.github.io/CMSIS_5/develop/SVD/html/elem_device.html
                 case "cluster":
                     log.error("cluster not implemented!");
-                    break;
+                    return false;
 
                 case "register":
                     if(false == checkRegister(res, child, peripheralId))
@@ -204,7 +204,7 @@ public class SvdRegisterHandler
                 break;
 
             case "size" :
-                size = Integer.decode(child.getText());
+                size = Tool.decode(child.getText());
                 break;
 
             case "access" :
@@ -252,11 +252,11 @@ public class SvdRegisterHandler
                 break;
 
             case "dim" :
-                dim = Integer.decode(child.getText());
+                dim = (int)Tool.decode(child.getText());
                 break;
 
             case "dimIncrement":
-                dim_increment = Integer.decode(child.getText());
+                dim_increment = (int)Tool.decode(child.getText());
                 break;
 
             case "dimIndex" :
@@ -318,7 +318,7 @@ public class SvdRegisterHandler
         String srvDisplayName = res.getString(i, "display_name");
         String srvDescription = res.getString(i, "description");
         String srvAddressOffsetVal = res.getString(i, "address_offset");
-        int    srvSize = res.getInt(i,  "size");
+        long   srvSize = res.getInt(i,  "size");
         String srvAccess = res.getString(i, "access");
         String srvReset_value = res.getString(i, "reset_value");
         String srvAlternate_register = res.getString(i, "alternate_register");
@@ -548,11 +548,12 @@ public class SvdRegisterHandler
             DimElementGroup grp = new DimElementGroup(dim, dim_increment, dim_index);
             if(false == grp.isValid())
             {
+                log.trace("\n" + Tool.getXMLRepresentationFor(svdRegister));
                 return false;
             }
             String groupName = name;
             String groupDisplayName = displayName;
-            Long groupAddressOffset = Long.decode(addressOffset.toString());
+            Long groupAddressOffset = Tool.decode(addressOffset.toString());
             for(int i = 0; i< grp.getNumberElements(); i++)
             {
                 // prepare values for this register
@@ -580,12 +581,12 @@ public class SvdRegisterHandler
     }
 
     private boolean updateServerRegister(
-            int id,
+            int    id,
             String name,
             String display_name,
             String description,
             String address_offset,
-            int size,
+            long   size,
             String access,
             String reset_value,
             String alternative_register,
@@ -662,7 +663,7 @@ public class SvdRegisterHandler
             String display_name,
             String description,
             String address_offset,
-            int size,
+            long   size,
             String access,
             String reset_value,
             String alternative_register,

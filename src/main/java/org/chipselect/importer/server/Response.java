@@ -3,6 +3,8 @@ package org.chipselect.importer.server;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+
+import org.chipselect.importer.Tool;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -104,7 +106,7 @@ public class Response
                 try
                 {
                     String hlp = obj.getString(key);
-                    int res = Integer.decode(hlp);
+                    int res = (int)Tool.decode(hlp);
                     return res;
                 }
                 catch(JSONException e2)
@@ -163,7 +165,7 @@ public class Response
                 try
                 {
                     String hlp = obj.getString(key);
-                    long res = Long.decode(hlp);
+                    long res = Tool.decode(hlp);
                     return res;
                 }
                 catch(JSONException e2)

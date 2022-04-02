@@ -79,15 +79,15 @@ public class SvdFieldHandler
                 break;
 
             case "bitOffset":
-                bitOffset = Integer.decode(child.getText());
+                bitOffset = (int)Tool.decode(child.getText());
                 break;
 
             case "bitWidth":
-                sizeBit= Integer.decode(child.getText());
+                sizeBit= (int)Tool.decode(child.getText());
                 break;
 
             case "lsb":
-                bitOffset = Integer.decode(child.getText());
+                bitOffset = (int)Tool.decode(child.getText());
                 if(-1 != sizeBit)
                 {
                     // we already know msb, so fix the assumption of lsb = 0
@@ -99,11 +99,11 @@ public class SvdFieldHandler
                 if(-1 == bitOffset)
                 {
                     // we do not know lsb yet -> assume lsb = 0
-                    sizeBit = Integer.decode(child.getText());
+                    sizeBit = (int)Tool.decode(child.getText());
                 }
                 else
                 {
-                    sizeBit = Integer.decode(child.getText()) - bitOffset;
+                    sizeBit = (int)Tool.decode(child.getText()) - bitOffset;
                 }
                 break;
 
@@ -120,8 +120,8 @@ public class SvdFieldHandler
                     log.error("range: {}, parts: {} !", range, parts);
                     return false;
                 }
-                bitOffset = Integer.decode(parts[1]);
-                sizeBit = Integer.decode(parts[0]) + 1;
+                bitOffset = (int)Tool.decode(parts[1]);
+                sizeBit = (int)Tool.decode(parts[0]) + 1;
                 break;
 
             case "access":

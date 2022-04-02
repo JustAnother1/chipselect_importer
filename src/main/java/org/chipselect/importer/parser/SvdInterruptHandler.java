@@ -84,7 +84,7 @@ public class SvdInterruptHandler
     {
         String irqName = null;
         String description = null;
-        int number = -1;
+        long number = -1;
 
         // check for unknown children
         List<Element> children = svdInterrupt.getChildren();
@@ -104,7 +104,7 @@ public class SvdInterruptHandler
                 break;
 
             case "value":
-                number = Integer.decode(child.getText());
+                number = Tool.decode(child.getText());
                 break;
 
             default:
@@ -122,7 +122,7 @@ public class SvdInterruptHandler
         {
             String srvName = res.getString(i, "name");
             String srvDescription = res.getString(i, "description");
-            int srvNumber = res.getInt(i, "number");
+            long srvNumber = res.getLong(i, "number");
 
             if((null != irqName) && (true == irqName.equals(srvName)))
             {
@@ -183,7 +183,7 @@ public class SvdInterruptHandler
         }
     }
 
-    private boolean updateSrvInterrupt(int id, String irqName, String description, int number)
+    private boolean updateSrvInterrupt(int id, String irqName, String description, long number)
     {
         Request req = new Request("interrupt", Request.PUT);
         req.addGetParameter("id", id);

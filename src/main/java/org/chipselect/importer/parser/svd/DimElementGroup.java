@@ -82,6 +82,26 @@ public class DimElementGroup
                 }
             }
         }
+        // dim_index: "A-D"
+        // regular expression: [a-zA-Z]\h*-\h*[a-zA-Z]
+        else if(true == Pattern.matches("[a-zA-Z]\\h*-\\h*[a-zA-Z]", dim_index))
+        {
+            char start = dim_index.charAt(0);
+            char end = dim_index.charAt(dim_index.length()-1);
+            for(;start <= end; start ++)
+            {
+                indexValues.add("" + start);
+            }
+            if(indexValues.size() == dim)
+            {
+                // OK !
+            }
+            else
+            {
+                log.error("wrong number of values: {} - {}", dim, indexValues.size());
+                valid = false;
+            }
+        }
         // dim_index: "A, B, C, D, E"
         // regular expression: .+,.+
         else if(true == Pattern.matches(".+,.+", dim_index))

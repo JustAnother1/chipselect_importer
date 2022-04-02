@@ -249,11 +249,15 @@ public class SvdPeripheralHandler
             log.error("dimArrayIndex not implemented!");
             return false;
         }
+        /* only available if address blocks of this peripheral are also used by another peripheral.
+         * So basically only a warning that the address conflict is intentional.
+         -> no need to store this.
         if(null !=  peripheral.getChildText("alternatePeripheral"))
         {
             log.error("alternatePeripheral not implemented!");
             return false;
-        }
+        }*/
+
         /* used by TI to give all UART0 Registers the prefix UART0,...
         we already know if a register named CR is part of UART0 or UART1.
        -> No need to store this! Enjoy shorter names ! ;-)
@@ -461,11 +465,16 @@ public class SvdPeripheralHandler
             log.error("dimArrayIndex not implemented!");
             return false;
         }
+        /* only available if address blocks of this peripheral are also used by another peripheral.
+         * So basically only a warning that the address conflict is intentional.
+         -> no need to store this.
         if(null !=  svdDerivedPeripheral.getChildText("alternatePeripheral"))
         {
             log.error("alternatePeripheral not implemented!");
             return false;
         }
+        */
+
         /* used by TI to give all UART0 Registers the prefix UART0,...
         we already know if a register named CR is part of UART0 or UART1.
        -> No need to store this! Enjoy shorter names ! ;-)
@@ -696,11 +705,15 @@ public class SvdPeripheralHandler
             log.error("dimArrayIndex not implemented!");
             return false;
         }
+        /* only available if address blocks of this peripheral are also used by another peripheral.
+         * So basically only a warning that the address conflict is intentional.
+         -> no need to store this.
         if(null !=  peripheral.getChildText("alternatePeripheral"))
         {
             log.error("alternatePeripheral not implemented!");
             return false;
-        }
+        }*/
+
         /* used by TI to give all UART0 Registers the prefix UART0,...
           we already know if a register named CR is part of UART0 or UART1.
          -> No need to store this! Enjoy shorter names ! ;-)
@@ -983,11 +996,15 @@ public class SvdPeripheralHandler
             log.error("dimArrayIndex not implemented!");
             return false;
         }
+        /* only available if address blocks of this peripheral are also used by another peripheral.
+         * So basically only a warning that the address conflict is intentional.
+         -> no need to store this.
         if(null !=  svdDerivedPeripheral.getChildText("alternatePeripheral"))
         {
             log.error("alternatePeripheral not implemented!");
             return false;
-        }
+        }*/
+
         /* used by TI to give all UART0 Registers the prefix UART0,...
            we already know if a register named CR is part of UART0 or UART1.
            -> No need to store this! Enjoy shorter names ! ;-)

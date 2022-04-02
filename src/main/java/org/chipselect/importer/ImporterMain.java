@@ -285,18 +285,21 @@ public class ImporterMain
                     e.printStackTrace();
                     log.error("File not found: {}", svd_FileName);
                     jdomDocument = null;
+                    return false;
                 }
                 catch(JDOMException e)
                 {
                     log.error("JDOMException occured !");
                     log.error(e.getLocalizedMessage());
                     jdomDocument = null;
+                    return false;
                 }
                 catch (IOException e)
                 {
                     log.error("IOException occured !");
                     log.error(e.getLocalizedMessage());
                     jdomDocument = null;
+                    return false;
                 }
             }
             else

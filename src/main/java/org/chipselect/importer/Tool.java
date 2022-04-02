@@ -330,6 +330,10 @@ public final class Tool
         {
             return 0;
         }
+        if("0x0".equals(val))
+        {
+            return 0;
+        }
         if((    val.contains("a"))
             || (val.contains("A"))
             || (val.contains("b"))
@@ -347,21 +351,20 @@ public final class Tool
             )
         {
             // is a Hex number
-            System.out.println("Hex : " + val);
-            if((val.contains("x")) || (val.contains("X")))
+            if((val.startsWith("0x")) || (val.startsWith("0X")))
             {
-                // is a valid Hex
-                return Long.decode(val);
+                return Long.parseLong​(val.substring(2), 16);
             }
             else
             {
-                String help = "0x" + val;
-                return Long.decode(help);
+                return Long.parseLong​(val, 16);
             }
         }
         else
         {
-            return Long.decode(val);
+            // "018" is not an illegal octal number but a stupid human not knowing about the octal prefix
+            // nobody uses octal anyway -> this is decimal!
+            return Long.parseLong​(val, 10);
         }
     }
 

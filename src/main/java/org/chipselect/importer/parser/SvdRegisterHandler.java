@@ -1,6 +1,7 @@
 package org.chipselect.importer.parser;
 
 import java.util.List;
+import java.util.Vector;
 
 import org.chipselect.importer.Tool;
 import org.chipselect.importer.parser.svd.DimElementGroup;
@@ -24,13 +25,13 @@ public class SvdRegisterHandler
     private String name = null;
     private String displayName = null;
     private String description = null;
-    private HexString addressOffset = null;
+    private HexString addressOffset = new HexString(0);
     private long size = 0;
     private String access = null;
-    private HexString reset_value = null;
+    private HexString reset_value = new HexString(0);
     private String alternate_register = null;
     private String alternate_group = null;
-    private HexString reset_Mask = null;
+    private HexString reset_Mask =new HexString(0);
     private String read_action = null;
     private String modified_write_values = null;
     private String data_type = null;
@@ -80,6 +81,7 @@ public class SvdRegisterHandler
             Response res = srv.execute(req);
             if(false == res.wasSuccessfull())
             {
+                log.error("could not read the registers from the server");
                 return false;
             }
             // else -> go on
@@ -92,8 +94,11 @@ public class SvdRegisterHandler
                 // all defined child types from SVD standard
                 // compare to: https://arm-software.github.io/CMSIS_5/develop/SVD/html/elem_device.html
                 case "cluster":
-                    log.error("cluster not implemented!");
-                    return false;
+                    if(false == checkCluster(res, child, peripheralId))
+                    {
+                        return false;
+                    }
+                    break;
 
                 case "register":
                     if(false == checkRegister(res, child, peripheralId))
@@ -132,6 +137,7 @@ public class SvdRegisterHandler
             Response res = srv.execute(req);
             if(false == res.wasSuccessfull())
             {
+                log.error("could not read the registers from the server");
                 return false;
             }
             // else -> go on
@@ -144,7 +150,10 @@ public class SvdRegisterHandler
                 // all defined child types from SVD standard
                 // compare to: https://arm-software.github.io/CMSIS_5/develop/SVD/html/elem_device.html
                 case "cluster":
-                    log.error("cluster not implemented!");
+                    if(false == checkCluster(res, child, peripheralId))
+                    {
+                        return false;
+                    }
                     break;
 
                 case "register":
@@ -164,6 +173,230 @@ public class SvdRegisterHandler
         return true;
     }
 
+    private boolean checkCluster(Response res, Element cluster, int peripheralId)
+    {
+        String clusterName = null;
+        String clusterDescription = null;
+        HexString clusterAddressOffset =  new HexString(0);
+        long clusterSize = 0;
+        String clusterAccess = null;
+        HexString clusterResetValue =  new HexString(0);
+        HexString clusterResetMask =  new HexString(0);
+        Vector<Element> registers = new Vector<Element>();
+        Vector<Element> clusters = new Vector<Element>();
+        int clusterDim = 0;
+        int clusterDimIncrement = 0;
+        String clusterDimIndex = null;
+
+        String derived = cluster.getAttributeValue("derivedFrom");
+        if(null != derived)
+        {
+            log.error("Derived Clusters not implemented !");
+            return false;
+        }
+        List<Element> children = cluster.getChildren();
+        for(Element child : children)
+        {
+            String tagName = child.getName();
+            switch(tagName)
+            {
+            // all defined child types from SVD standard
+
+            case "dim" :
+                clusterDim = (int)Tool.decode(child.getText());
+                break;
+
+            case "dimIncrement":
+                clusterDimIncrement = (int)Tool.decode(child.getText());
+                break;
+
+            case "dimIndex" :
+                clusterDimIndex = child.getText();
+                if(null != clusterDimIndex)
+                {
+                    clusterDimIndex = clusterDimIndex.trim();
+                }
+                break;
+
+            case "dimName" :
+            case "dimArrayIndex" :
+                // ignoring this for now.
+                break;
+
+            case "name" :
+                clusterName = child.getText();
+                if(null != clusterName)
+                {
+                    clusterName = clusterName.trim();
+                }
+                break;
+
+            case "description" :
+                clusterDescription = Tool.cleanupString(child.getText());
+                break;
+
+            case "alternateCluster" :
+            case "headerStructName":
+                // we ignore this for now.
+                break;
+
+            case "addressOffset" :
+                clusterAddressOffset = new HexString(child.getText());
+                break;
+
+            case "size" :
+                clusterSize = Tool.decode(child.getText());
+                break;
+
+            case "access" :
+                clusterAccess = child.getText();
+                if(null != clusterAccess)
+                {
+                    clusterAccess = clusterAccess.trim();
+                }
+                break;
+
+            case "protection" :
+                // we ignore that for now
+                break;
+
+            case "resetValue" :
+                clusterResetValue = new HexString(child.getText());
+                break;
+
+            case "resetMask" :
+                clusterResetMask = new HexString(child.getText());
+                break;
+
+            case "register" :
+                registers.add(child);
+                break;
+
+            case "cluster" :
+                clusters.add(child);
+                break;
+
+            default:
+                // undefined child found. This is not a valid SVD file !
+                log.error("Unknown cluster child tag: {}", tagName);
+                return false;
+            }
+        }
+        // dim* ?
+        if((0 != clusterDim) || (0 != clusterDimIncrement))
+        {
+            DimElementGroup cluGrp = new DimElementGroup(clusterDim, clusterDimIncrement, clusterDimIndex);
+            if(false == cluGrp.isValid())
+            {
+                log.trace("\n" + Tool.getXMLRepresentationFor(cluster));
+                log.error("invalid dim value");
+                return false;
+            }
+
+            for(int ci = 0; ci< cluGrp.getNumberElements(); ci++)
+            {
+                for(int ri = 0; ri < registers.size(); ri++)
+                {
+                    Element child = registers.elementAt(ri);
+                    // prepare values for this register
+                    // make sure that all values are fresh and clean
+                    initRegisterValues();
+                    name = cluGrp.getElementNameFor(clusterName, ci);
+                    description = clusterDescription;
+                    addressOffset = clusterAddressOffset.add(ci * cluGrp.getByteOffsetBytes());
+                    size = clusterSize;
+                    access = clusterAccess;
+                    reset_value = clusterResetValue;
+                    reset_Mask = clusterResetMask;
+
+                    // check for unknown children
+                    if(false == checkRegisterForUnknownChildren(child))
+                    {
+                        return false;
+                    }
+                    // that check also populated the values of the registers into the member variables.
+
+                    // dim* ?
+                    if((0 != dim) || (0 != dim_increment))
+                    {
+                        // this is not one register but many,...
+                        DimElementGroup grp = new DimElementGroup(dim, dim_increment, dim_index);
+                        if(false == grp.isValid())
+                        {
+                            log.trace("\n" + Tool.getXMLRepresentationFor(child));
+                            log.error("invalid dim value");
+                            return false;
+                        }
+                        String groupName = name;
+                        String groupDisplayName = displayName;
+                        Long groupAddressOffset = Tool.decode(addressOffset.toString());
+                        for(int i = 0; i< grp.getNumberElements(); i++)
+                        {
+                            // prepare values for this register
+                            // name
+                            name = grp.getElementNameFor(groupName, i);
+                            // displayName
+                            displayName = grp.getElementNameFor(groupDisplayName, i);
+                            // addressOffset
+                            Long addressOffsetLong = groupAddressOffset + (i * grp.getByteOffsetBytes());
+                            HexString DimAddressOffset = new HexString(addressOffsetLong);
+                            if(false == checkIfUpdateOrNewRegister(res, peripheralId, DimAddressOffset))
+                            {
+                                return false;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if(false == checkIfUpdateOrNewRegister(res, peripheralId, addressOffset))
+                        {
+                            return false;
+                        }
+                    }
+                }
+                for(int i = 0; i < clusters.size(); i++)
+                {
+                    Element child = clusters.elementAt(i);
+                    if(false == checkCluster(res, child, peripheralId))
+                    {
+                        return false;
+                    }
+                }
+            }
+        }
+        else
+        {
+            if((0 < registers.size()) || (0 < clusters.size()))
+            {
+                // in violation of the standard someone just wanted to group some registers.
+                // so ignore the cluster and just add the registers
+                for(int ri = 0; ri < registers.size(); ri++)
+                {
+                    Element child = registers.elementAt(ri);
+                    if(false == checkRegister(res, child, peripheralId))
+                    {
+                        return false;
+                    }
+                }
+                for(int ci = 0; ci < clusters.size(); ci++)
+                {
+                    Element child = clusters.elementAt(ci);
+                    if(false == checkCluster(res, child, peripheralId))
+                    {
+                        return false;
+                    }
+                }
+            }
+            else
+            {
+                log.error("invalid cluster definition, no dim!(dim:{}, dim increment:{})", clusterDim, clusterDimIncrement);
+                log.error("\n" + Tool.getXMLRepresentationFor(cluster));
+                return false;
+            }
+        }
+        return true;
+    }
+
     private boolean checkRegisterForUnknownChildren(Element svdRegister)
     {
         List<Element> children = svdRegister.getChildren();
@@ -173,8 +406,6 @@ public class SvdRegisterHandler
             switch(tagName)
             {
             // all defined child types from SVD standard
-            // compare to: https://arm-software.github.io/CMSIS_5/develop/SVD/html/elem_device.html
-
             case "name" :
                 name = child.getText();
                 if(null != name)
@@ -213,6 +444,10 @@ public class SvdRegisterHandler
                 {
                     access = access.trim();
                 }
+                break;
+
+            case "protection" :
+                // we ignore this for now
                 break;
 
             case "resetValue" :
@@ -277,15 +512,15 @@ public class SvdRegisterHandler
 
             case "dimName" :
             case "dimArrayIndex" :
-            case "protection" :
             case "writeConstraint" :
                 log.error("Register child {} not implemented!", tagName);
-                log.error(Tool.getXMLRepresentationFor(svdRegister));
+                log.error("\n" + Tool.getXMLRepresentationFor(svdRegister));
                 return false;
 
             default:
                 // undefined child found. This is not a valid SVD file !
                 log.error("Unknown register child tag: {}", tagName);
+                log.error("\n" + Tool.getXMLRepresentationFor(svdRegister));
                 return false;
             }
         }
@@ -549,6 +784,7 @@ public class SvdRegisterHandler
             if(false == grp.isValid())
             {
                 log.trace("\n" + Tool.getXMLRepresentationFor(svdRegister));
+                log.error("invalid dim value");
                 return false;
             }
             String groupName = name;
@@ -650,6 +886,7 @@ public class SvdRegisterHandler
         Response res = srv.execute(req);
         if(false == res.wasSuccessfull())
         {
+            log.error("could not update the register on the server");
             return false;
         }
         else
@@ -725,6 +962,7 @@ public class SvdRegisterHandler
         Response res = srv.execute(req);
         if(false == res.wasSuccessfull())
         {
+            log.error("could not create the new register on the server");
             return 0;
         }
         else

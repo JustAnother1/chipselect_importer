@@ -209,4 +209,38 @@ public class HexStringTest {
         HexString cut = new HexString("0ff");
         assertTrue(cut.equals("0x000000ff"));
     }
+
+    @Test
+    public void testAdd()
+    {
+        HexString cut = new HexString("230");
+        HexString out = cut.add(520);
+        // 750 = 0x2EE
+        assertEquals("0x2EE", out.toString());
+    }
+
+    @Test
+    public void testAddLongLonger()
+    {
+        HexString cut = new HexString("0xF");
+        HexString out = cut.add(255);
+        assertEquals("0x10E", out.toString());
+    }
+
+    @Test
+    public void testAddValLonger()
+    {
+        HexString cut = new HexString("0xFFF");
+        HexString out = cut.add(5);
+        assertEquals("0x1004", out.toString());
+    }
+
+    @Test
+    public void testAdd_singleDigitDecimal()
+    {
+        HexString cut = new HexString("2");
+        HexString out = cut.add(5);
+        HexString should = new HexString("7");
+        assertTrue(out.equals(should));
+    }
 }

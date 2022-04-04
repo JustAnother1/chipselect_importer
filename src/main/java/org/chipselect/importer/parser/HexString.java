@@ -303,6 +303,91 @@ public class HexString
         return false;
     }
 
+    private int char2Int(char c)
+    {
+        switch(c)
+        {
+        case '1': return 1;
+        case '2': return 2;
+        case '3': return 3;
+        case '4': return 4;
+        case '5': return 5;
+        case '6': return 6;
+        case '7': return 7;
+        case '8': return 8;
+        case '9': return 9;
+        case 'a': return 10;
+        case 'A': return 10;
+        case 'b': return 11;
+        case 'B': return 11;
+        case 'c': return 12;
+        case 'C': return 12;
+        case 'd': return 13;
+        case 'D': return 13;
+        case 'e': return 14;
+        case 'E': return 14;
+        case 'f': return 15;
+        case 'F': return 15;
+        case '0':
+        default:
+            return 0;
+        }
+    }
+
+    public HexString add(int value)
+    {
+        return this.add((long)value);
+    }
+
+    public HexString add(long value)
+    {
+        if(null == val)
+        {
+            return new HexString(value);
+        }
+        // val must now be like "0x1234"
+        int posval = val.length() -1;
+        int carry = 0;
+        StringBuilder sb = new StringBuilder();
+        while((value > 0) || (1 < posval))
+        {
+            int i = (int)(value%16); // i can not be larger than 15, so cast is not an issue
+            value = value - i;
+            value = value /16;
+            char old;
+            if(1 < posval)
+            {
+                old = val.charAt(posval);
+                posval--;
+            }
+            else
+            {
+                // value has more positions than val has -> add leading zeros.
+                old = '0';
+            }
+            int oi = char2Int(old);
+            int cur = i + oi + carry;
+            if(15 < cur)
+            {
+                carry = cur -16;
+                sb.append(intToChar(carry));
+                carry = 1;
+            }
+            else
+            {
+                sb.append(intToChar(cur));
+            }
+        }
+
+        if(0 != carry)
+        {
+            sb.append(intToChar(carry));
+        }
+        sb.reverse();
+        return new HexString("0x" + sb.toString());
+    }
+
+
     @Override
     public String toString()
     {

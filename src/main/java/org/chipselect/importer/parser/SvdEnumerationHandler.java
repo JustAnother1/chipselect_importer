@@ -68,7 +68,7 @@ public class SvdEnumerationHandler
             // compare to: https://arm-software.github.io/CMSIS_5/develop/SVD/html/elem_registers.html#elem_enumeratedValues
 
             case "name":
-                svdName = child.getText();
+                svdName = Tool.cleanupString(child.getText());
                 break;
 
             case "usage":
@@ -122,6 +122,7 @@ public class SvdEnumerationHandler
                     if(false == srvName.equals(svdName))
                     {
                         // this server enumeration has a name and it is different to the name in the SVD
+                        log.trace("name changed from {} to {}", srvName, svdName);
                         changed = true;
                     }
                 }
@@ -132,6 +133,7 @@ public class SvdEnumerationHandler
                 if(null != svdName)
                 {
                     // this server enum has no name, but the svd one has a name
+                    log.trace("name changed from {} to {}", srvName, svdName);
                     changed = true;
                 }
             }
@@ -143,6 +145,7 @@ public class SvdEnumerationHandler
                 {
                     if(false == svdUsage.equals(srvUsage))
                     {
+                        log.trace("usage changed from {} to {}", srvUsage, svdUsage);
                         changed = true;
                     }
                 }
@@ -156,6 +159,7 @@ public class SvdEnumerationHandler
                 }
                 else
                 {
+                    log.trace("usage changed from {} to {}", srvUsage, svdUsage);
                     changed = true;
                 }
             }
@@ -424,7 +428,7 @@ public class SvdEnumerationHandler
         }
         if(null != usage)
         {
-            req.addGetParameter("usage", usage);
+            req.addGetParameter("usage_right", usage);
         }
         Response res = srv.execute(req);
         if(false == res.wasSuccessfull())
@@ -447,7 +451,7 @@ public class SvdEnumerationHandler
         }
         if(null != usage)
         {
-            req.addGetParameter("usage", usage);
+            req.addGetParameter("usage_right", usage);
         }
         Response res = srv.execute(req);
         if(false == res.wasSuccessfull())

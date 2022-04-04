@@ -115,6 +115,7 @@ public class SvdPeripheralHandler
         if(0 == srvDeviceId)
         {
             srvAllPeripherals = null;
+            log.error("no device id given");
             return false;
         }
         this.srvDeviceId = srvDeviceId;
@@ -129,6 +130,7 @@ public class SvdPeripheralHandler
         if(false == res.wasSuccessfull())
         {
             srvAllPeripherals = null;
+            log.error("could not read the peripherals from the server");
             return false;
         }
         srvAllPeripherals = res;
@@ -147,6 +149,7 @@ public class SvdPeripheralHandler
         Response res = srv.execute(req);
         if(false == res.wasSuccessfull())
         {
+            log.error("could not read the fields from the server");
             return null;
         }
         else
@@ -957,6 +960,7 @@ public class SvdPeripheralHandler
         Response res = srv.execute(req);
         if(false == res.wasSuccessfull())
         {
+            log.error("could not update the peripheral instance on the server");
             return false;
         }
         else

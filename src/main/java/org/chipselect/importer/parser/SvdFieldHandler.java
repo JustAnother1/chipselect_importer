@@ -48,6 +48,7 @@ public class SvdFieldHandler
         Response fieldstRes = srv.execute(req);
         if(false == fieldstRes.wasSuccessfull())
         {
+            log.error("could not read the fields from the server");
             return false;
         }
         // else -> go on
@@ -318,6 +319,7 @@ public class SvdFieldHandler
             if(false == grp.isValid())
             {
                 log.trace("\n" + Tool.getXMLRepresentationFor(field));
+                log.error("invalid dim value");
                 return false;
             }
 
@@ -385,6 +387,7 @@ public class SvdFieldHandler
         Response res = srv.execute(req);
         if(false == res.wasSuccessfull())
         {
+            log.error("could not update the field on the server");
             return false;
         }
         else
@@ -428,6 +431,7 @@ public class SvdFieldHandler
         Response res = srv.execute(req);
         if(false == res.wasSuccessfull())
         {
+            log.error("could not create a new field on the server");
             return 0;
         }
         else

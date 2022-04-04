@@ -56,6 +56,7 @@ public class SystemViewDescription
         Response res = srv.execute(req);
         if(false == res.wasSuccessfull())
         {
+            log.error("could not read the vendor from the server");
             return false;
         }
         int id = 0;
@@ -77,6 +78,7 @@ public class SystemViewDescription
             Response post_res = srv.execute(PostReq);
             if(false == post_res.wasSuccessfull())
             {
+                log.error("could not write the vendor to the server");
                 return false;
             }
             int new_id = post_res.getInt("id");
@@ -121,6 +123,7 @@ public class SystemViewDescription
         Response res = srv.execute(req);
         if(false == res.wasSuccessfull())
         {
+            log.error("could not read the device from the server");
             return false;
         }
         int id = res.getInt("id");
@@ -134,6 +137,7 @@ public class SystemViewDescription
             Response post_res = srv.execute(PostReq);
             if(false == post_res.wasSuccessfull())
             {
+                log.error("could not write the device to the server");
                 return false;
             }
             int new_id = post_res.getInt("id");
@@ -150,6 +154,7 @@ public class SystemViewDescription
                 res = srv.execute(GetReq);
                 if(false == res.wasSuccessfull())
                 {
+                    log.error("could not read the device from the server");
                     return false;
                 }
                 device_response = res;
@@ -210,10 +215,12 @@ public class SystemViewDescription
         // sauRegionsConfig
         if((null == svdName) || (null == svdRevision) || (null == svdEndian) || (null == svdNvicPrioBits) || (null == svdVendorSystickConfig))
         {
+            log.error("CPU element invalid");
             return false;
         }
         if((1 > svdName.length()) || (1 > svdRevision.length()) || (1 > svdEndian.length()) || (1 > svdNvicPrioBits.length()) || (1 > svdVendorSystickConfig.length()))
         {
+            log.error("CPU element invalid");
             return false;
         }
         log.trace("Name: {}", svdName);
@@ -231,6 +238,7 @@ public class SystemViewDescription
         Response res = srv.execute(req);
         if(false == res.wasSuccessfull())
         {
+            log.error("could not read the architecture from the server");
             return false;
         }
         if(0 < res.numResults())
@@ -287,6 +295,7 @@ public class SystemViewDescription
                     Response put_res = srv.execute(putReq);
                     if(false == put_res.wasSuccessfull())
                     {
+                        log.error("could not update the device on the server");
                         return false;
                     }
                     else
@@ -350,6 +359,7 @@ public class SystemViewDescription
 
         if(false == res.wasSuccessfull())
         {
+            log.error("could not create the new architecture on the server");
             return false;
         }
         else
@@ -400,6 +410,7 @@ public class SystemViewDescription
             Response post_res = srv.execute(req);
             if(false == post_res.wasSuccessfull())
             {
+                log.error("could not update the device on the server");
                 return false;
             }
         }
@@ -434,6 +445,7 @@ public class SystemViewDescription
             Response post_res = srv.execute(req);
             if(false == post_res.wasSuccessfull())
             {
+                log.error("could not update the device on the server");
                 return false;
             }
         }
@@ -468,6 +480,7 @@ public class SystemViewDescription
             Response put_res = srv.execute(req);
             if(false == put_res.wasSuccessfull())
             {
+                log.error("could not update the device on the server");
                 return false;
             }
         }
@@ -481,6 +494,7 @@ public class SystemViewDescription
         if(null == peripherals)
         {
             // no peripherals in this device ?
+            log.error("no peripherals in SVD file");
             return false;
         }
 

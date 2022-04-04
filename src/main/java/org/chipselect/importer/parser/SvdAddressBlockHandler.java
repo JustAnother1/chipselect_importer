@@ -43,6 +43,7 @@ public class SvdAddressBlockHandler
         Response AddrBlockRes = srv.execute(req);
         if(false == AddrBlockRes.wasSuccessfull())
         {
+            log.error("could not read address blocks from server !");
             return false;
         }
         // else -> go on
@@ -70,6 +71,7 @@ public class SvdAddressBlockHandler
         Response AddrBlockRes = srv.execute(req);
         if(false == AddrBlockRes.wasSuccessfull())
         {
+            log.error("could not read address blocks from server !");
             return false;
         }
         // else -> go on
@@ -245,6 +247,7 @@ public class SvdAddressBlockHandler
         Response res = srv.execute(req);
         if(false == res.wasSuccessfull())
         {
+            log.error("could not update address block on server");
             return false;
         }
         else
@@ -281,6 +284,7 @@ public class SvdAddressBlockHandler
         Response res = srv.execute(req);
         if(false == res.wasSuccessfull())
         {
+            log.error("could not write new address block to server");
             return false;
         }
         else

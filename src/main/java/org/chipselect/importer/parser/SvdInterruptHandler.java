@@ -32,6 +32,7 @@ public class SvdInterruptHandler
         Response interruptRes = srv.execute(req);
         if(false == interruptRes.wasSuccessfull())
         {
+            log.error("could not read the interrupts from the server");
             return false;
         }
         // else -> go on
@@ -60,6 +61,7 @@ public class SvdInterruptHandler
         Response interruptRes = srv.execute(req);
         if(false == interruptRes.wasSuccessfull())
         {
+            log.error("could not read the interrupts from the server");
             return false;
         }
         // else -> go on
@@ -170,6 +172,7 @@ public class SvdInterruptHandler
             Response postRes = srv.execute(req);
             if(false == postRes.wasSuccessfull())
             {
+                log.error("could not write the new interrupt to the server");
                 return false;
             }
             else
@@ -199,6 +202,7 @@ public class SvdInterruptHandler
         Response res = srv.execute(req);
         if(false == res.wasSuccessfull())
         {
+            log.error("could not update the interrupt on the server");
             return false;
         }
         else

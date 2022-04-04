@@ -33,6 +33,7 @@ public class SvdEnumerationHandler
         Response enumRes = srv.execute(req);
         if(false == enumRes.wasSuccessfull())
         {
+            log.error("could not read enumeration from server");
             return false;
         }
         // else -> go on
@@ -187,6 +188,7 @@ public class SvdEnumerationHandler
             Response enumValRes = srv.execute(req);
             if(false == enumValRes.wasSuccessfull())
             {
+                log.error("could not read enumeration from server");
                 return false;
             }
             for(int i = 0; i < enum_values.size(); i++)
@@ -362,6 +364,7 @@ public class SvdEnumerationHandler
         Response res = srv.execute(req);
         if(false == res.wasSuccessfull())
         {
+            log.error("could not create new enumeration value on server");
             return 0;
         }
         else
@@ -402,6 +405,7 @@ public class SvdEnumerationHandler
         Response res = srv.execute(req);
         if(false == res.wasSuccessfull())
         {
+            log.error("could not update the enumeration volue on the server");
             return false;
         }
         else
@@ -448,6 +452,7 @@ public class SvdEnumerationHandler
         Response res = srv.execute(req);
         if(false == res.wasSuccessfull())
         {
+            log.error("could not update the enumeration on the server");
             return false;
         }
         else

@@ -91,7 +91,7 @@ public class SvdFieldHandler
             // compare to: https://arm-software.github.io/CMSIS_5/develop/SVD/html/elem_device.html
 
             case "name":
-                svdName = child.getText();
+                svdName = Tool.cleanupString(child.getText());
                 break;
 
             case "description":

@@ -274,11 +274,13 @@ public class SvdPeripheralHandler
             log.error("appendToName not implemented!");
             return false;
         }
+        /* used by Cmsemicon
+         * -> ignore for now
         if(null !=  peripheral.getChildText("headerStructName"))
         {
             log.error("headerStructName not implemented!");
             return false;
-        }
+        }*/
 
         // description
         String svdDescriptionValue = peripheral.getChildText("description");
@@ -491,11 +493,13 @@ public class SvdPeripheralHandler
             log.error("appendToName not implemented!");
             return false;
         }
+        /*  used by Cmsemicon
+         * -> ignore for now
         if(null !=  svdDerivedPeripheral.getChildText("headerStructName"))
         {
             log.error("headerStructName not implemented!");
             return false;
-        }
+        }*/
 
         // description
         String svdDescriptionValue = svdDerivedPeripheral.getChildText("description");
@@ -730,11 +734,13 @@ public class SvdPeripheralHandler
             log.error("appendToName not implemented!");
             return false;
         }
+        /*  used by Cmsemicon
+         * -> ignore for now
         if(null !=  peripheral.getChildText("headerStructName"))
         {
             log.error("headerStructName not implemented!");
             return false;
-        }
+        }*/
 
         // description
         String svdDescriptionValue = peripheral.getChildText("description");
@@ -1022,11 +1028,13 @@ public class SvdPeripheralHandler
             log.error("appendToName not implemented!");
             return false;
         }
+        /* used by Cmsemicon
+         * -> ignore for now
         if(null !=  svdDerivedPeripheral.getChildText("headerStructName"))
         {
             log.error("headerStructName not implemented!");
             return false;
-        }
+        }*/
 
         // description
         String svdDescriptionValue = svdDerivedPeripheral.getChildText("description");

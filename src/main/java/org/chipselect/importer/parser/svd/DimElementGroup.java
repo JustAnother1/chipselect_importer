@@ -26,11 +26,24 @@ public class DimElementGroup
         if(2>dim)
         {
             // some files are stupid and have a dim of 1
-            if((1 == dim) && (null == dim_index))
+            if(1 == dim)
             {
-                indexValues.add("1");
-                valid = true;
-                return;
+                if(null == dim_index)
+                {
+                    indexValues.add("0");
+                    valid = true;
+                    return;
+                }
+                else
+                {
+                    dim_index = dim_index.trim();
+                    if(1 == dim_index.length())
+                    {
+                        indexValues.add(dim_index);
+                        valid = true;
+                        return;
+                    }
+                }
             }
             else
             {

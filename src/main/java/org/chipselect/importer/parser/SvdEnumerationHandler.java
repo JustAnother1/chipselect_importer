@@ -253,7 +253,7 @@ public class SvdEnumerationHandler
         int numEnumValuesOnServer = res.numResults();
         for(int i = 0; i < numEnumValuesOnServer; i++)
         {
-            String srvName = res.getString(i, "name");
+            String srvName = Tool.cleanupString(res.getString(i, "name"));
             if(null == srvName)
             {
                 log.warn("Server has unnamed enumeration value !");

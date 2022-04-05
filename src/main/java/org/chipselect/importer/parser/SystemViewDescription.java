@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Vector;
 
+import org.chipselect.importer.Tool;
 import org.chipselect.importer.server.Request;
 import org.chipselect.importer.server.Response;
 import org.chipselect.importer.server.Server;
@@ -388,7 +389,7 @@ public class SystemViewDescription
             // but not required
             return true;
         }
-        String svdDescription = description.getText().trim();
+        String svdDescription = Tool.cleanupString(description.getText());
         if(1 > svdDescription.length())
         {
             // empty description :-(

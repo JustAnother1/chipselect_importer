@@ -190,19 +190,26 @@ public class HexString
 
     private String decimalToString(String value)
     {
-        BigInteger bi = new BigInteger(value);
-        StringBuilder sb = new StringBuilder();
-        BigInteger sixteen = new BigInteger("16");
-        while(bi.compareTo(sixteen) != -1) // // bigger than 16(=1) or 16(=0)
+        if(1 > value.length())
         {
-            BigInteger i = bi.mod(sixteen);
-            bi = bi.subtract(i);
-            sb.append(intToChar(i.longValue()));
-            bi = bi.divide(sixteen);
+            return "0x0";
         }
-        sb.append(intToChar(bi.longValue()));
-        sb.reverse();
-        return "0x" + sb.toString();
+        else
+        {
+            BigInteger bi = new BigInteger(value);
+            StringBuilder sb = new StringBuilder();
+            BigInteger sixteen = new BigInteger("16");
+            while(bi.compareTo(sixteen) != -1) // // bigger than 16(=1) or 16(=0)
+            {
+                BigInteger i = bi.mod(sixteen);
+                bi = bi.subtract(i);
+                sb.append(intToChar(i.longValue()));
+                bi = bi.divide(sixteen);
+            }
+            sb.append(intToChar(bi.longValue()));
+            sb.reverse();
+            return "0x" + sb.toString();
+        }
     }
 
     private String longToString(long value)

@@ -76,7 +76,7 @@ public class SvdEnumerationHandler
                 break;
 
             case "headerEnumName":
-                log.error("enumeration child {} not implemented!", name);
+                log.error("enumeration child headerEnumName(={}) not implemented!", child.getText());
                 return false;
 
             case "enumeratedValue":

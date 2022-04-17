@@ -229,27 +229,27 @@ public class SvdPeripheralHandler
 
         if(null !=  peripheral.getChildText("dim"))
         {
-            log.error("dim not implemented!");
+            log.error("dim not implemented!(={})", peripheral.getChildText("dim"));
             return false;
         }
         if(null !=  peripheral.getChildText("dimIncrement"))
         {
-            log.error("dimIncrement not implemented!");
+            log.error("dimIncrement not implemented!(={})", peripheral.getChildText("dimIncrement"));
             return false;
         }
         if(null !=  peripheral.getChildText("dimIndex"))
         {
-            log.error("dimIndex not implemented!");
+            log.error("dimIndex not implemented!(={})", peripheral.getChildText("dimIndex"));
             return false;
         }
         if(null !=  peripheral.getChildText("dimName"))
         {
-            log.error("dimName not implemented!");
+            log.error("dimName not implemented!(={})", peripheral.getChildText("dimName"));
             return false;
         }
         if(null !=  peripheral.getChildText("dimArrayIndex"))
         {
-            log.error("dimArrayIndex not implemented!");
+            log.error("dimArrayIndex not implemented!(={})",peripheral.getChildText("dimArrayIndex") );
             return false;
         }
         /* only available if address blocks of this peripheral are also used by another peripheral.
@@ -257,7 +257,7 @@ public class SvdPeripheralHandler
          -> no need to store this.
         if(null !=  peripheral.getChildText("alternatePeripheral"))
         {
-            log.error("alternatePeripheral not implemented!");
+            log.error("alternatePeripheral not implemented!(={})");
             return false;
         }*/
 
@@ -266,19 +266,19 @@ public class SvdPeripheralHandler
        -> No need to store this! Enjoy shorter names ! ;-)
         if(null !=  peripheral.getChildText("prependToName"))
         {
-            log.error("prependToName not implemented!");
+            log.error("prependToName not implemented!(={})", peripheral.getChildText("prependToName"));
             return false;
         } */
         if(null !=  peripheral.getChildText("appendToName"))
         {
-            log.error("appendToName not implemented!");
+            log.error("appendToName not implemented!(={})",  peripheral.getChildText("appendToName"));
             return false;
         }
         /* used by Cmsemicon
          * -> ignore for now
         if(null !=  peripheral.getChildText("headerStructName"))
         {
-            log.error("headerStructName not implemented!");
+            log.error("headerStructName not implemented!(={})", peripheral.getChildText("headerStructName"));
             return false;
         }*/
 
@@ -345,6 +345,7 @@ public class SvdPeripheralHandler
         {
             if(null != strBaseAddress.toString())
             {
+                log.info("update needed for {} from :{}: to :{}:!", "baseAddress", strSrvBaseAddress, strBaseAddress);
                 log.error("update baseAddress not implemented!");
                 return false;
             }
@@ -447,27 +448,27 @@ public class SvdPeripheralHandler
 
         if(null !=  svdDerivedPeripheral.getChildText("dim"))
         {
-            log.error("dim not implemented!");
+            log.error("dim not implemented!(={})", svdDerivedPeripheral.getChildText("dim"));
             return false;
         }
         if(null !=  svdDerivedPeripheral.getChildText("dimIncrement"))
         {
-            log.error("dimIncrement not implemented!");
+            log.error("dimIncrement not implemented!(={})", svdDerivedPeripheral.getChildText("dimIncrement"));
             return false;
         }
         if(null !=  svdDerivedPeripheral.getChildText("dimIndex"))
         {
-            log.error("dimIndex not implemented!");
+            log.error("dimIndex not implemented!(={})", svdDerivedPeripheral.getChildText("dimIndex"));
             return false;
         }
         if(null !=  svdDerivedPeripheral.getChildText("dimName"))
         {
-            log.error("dimName not implemented!");
+            log.error("dimName not implemented!(={})", svdDerivedPeripheral.getChildText("dimName"));
             return false;
         }
         if(null !=  svdDerivedPeripheral.getChildText("dimArrayIndex"))
         {
-            log.error("dimArrayIndex not implemented!");
+            log.error("dimArrayIndex not implemented!(={})", svdDerivedPeripheral.getChildText("dimArrayIndex"));
             return false;
         }
         /* only available if address blocks of this peripheral are also used by another peripheral.
@@ -475,7 +476,7 @@ public class SvdPeripheralHandler
          -> no need to store this.
         if(null !=  svdDerivedPeripheral.getChildText("alternatePeripheral"))
         {
-            log.error("alternatePeripheral not implemented!");
+            log.error("alternatePeripheral not implemented!(={})", svdDerivedPeripheral.getChildText("alternatePeripheral"));
             return false;
         }
         */
@@ -485,19 +486,19 @@ public class SvdPeripheralHandler
        -> No need to store this! Enjoy shorter names ! ;-)
         if(null !=  svdDerivedPeripheral.getChildText("prependToName"))
         {
-            log.error("prependToName not implemented!");
+            log.error("prependToName not implemented!(={})", svdDerivedPeripheral.getChildText("prependToName"));
             return false;
         } */
         if(null !=  svdDerivedPeripheral.getChildText("appendToName"))
         {
-            log.error("appendToName not implemented!");
+            log.error("appendToName not implemented!(={})", svdDerivedPeripheral.getChildText("appendToName"));
             return false;
         }
         /*  used by Cmsemicon
          * -> ignore for now
         if(null !=  svdDerivedPeripheral.getChildText("headerStructName"))
         {
-            log.error("headerStructName not implemented!");
+            log.error("headerStructName not implemented!(={})", svdDerivedPeripheral.getChildText("headerStructName"));
             return false;
         }*/
 
@@ -572,6 +573,7 @@ public class SvdPeripheralHandler
         {
             if(null != strBaseAddress.toString())
             {
+                log.info("update needed for {} from :{}: to :{}:!", "disableCondition", strSrvBaseAddress, strBaseAddress);
                 log.error("update baseAddress not implemented!");
                 return false;
             }
@@ -689,27 +691,27 @@ public class SvdPeripheralHandler
 
         if(null !=  peripheral.getChildText("dim"))
         {
-            log.error("dim not implemented!");
+            log.error("dim not implemented!(={})", peripheral.getChildText("dim"));
             return false;
         }
         if(null !=  peripheral.getChildText("dimIncrement"))
         {
-            log.error("dimIncrement not implemented!");
+            log.error("dimIncrement not implemented!(={})", peripheral.getChildText("dimIncrement"));
             return false;
         }
         if(null !=  peripheral.getChildText("dimIndex"))
         {
-            log.error("dimIndex not implemented!");
+            log.error("dimIndex not implemented!(={})", peripheral.getChildText("dimIndex"));
             return false;
         }
         if(null !=  peripheral.getChildText("dimName"))
         {
-            log.error("dimName not implemented!");
+            log.error("dimName not implemented!(={})", peripheral.getChildText("dimName"));
             return false;
         }
         if(null !=  peripheral.getChildText("dimArrayIndex"))
         {
-            log.error("dimArrayIndex not implemented!");
+            log.error("dimArrayIndex not implemented!(={})", peripheral.getChildText("dimArrayIndex"));
             return false;
         }
         /* only available if address blocks of this peripheral are also used by another peripheral.
@@ -717,7 +719,7 @@ public class SvdPeripheralHandler
          -> no need to store this.
         if(null !=  peripheral.getChildText("alternatePeripheral"))
         {
-            log.error("alternatePeripheral not implemented!");
+            log.error("alternatePeripheral not implemented!(={})", peripheral.getChildText("alternatePeripheral"));
             return false;
         }*/
 
@@ -726,19 +728,19 @@ public class SvdPeripheralHandler
          -> No need to store this! Enjoy shorter names ! ;-)
         if(null !=  peripheral.getChildText("prependToName"))
         {
-            log.error("prependToName not implemented!");
+            log.error("prependToName not implemented!(={})",  peripheral.getChildText("prependToName"));
             return false;
         }*/
         if(null !=  peripheral.getChildText("appendToName"))
         {
-            log.error("appendToName not implemented!");
+            log.error("appendToName not implemented!(={})", peripheral.getChildText("appendToName"));
             return false;
         }
         /*  used by Cmsemicon
          * -> ignore for now
         if(null !=  peripheral.getChildText("headerStructName"))
         {
-            log.error("headerStructName not implemented!");
+            log.error("headerStructName not implemented!(={})", peripheral.getChildText("headerStructName"));
             return false;
         }*/
 
@@ -983,27 +985,27 @@ public class SvdPeripheralHandler
 
         if(null !=  svdDerivedPeripheral.getChildText("dim"))
         {
-            log.error("dim not implemented!");
+            log.error("dim not implemented!(={})", svdDerivedPeripheral.getChildText("dim"));
             return false;
         }
         if(null !=  svdDerivedPeripheral.getChildText("dimIncrement"))
         {
-            log.error("dimIncrement not implemented!");
+            log.error("dimIncrement not implemented!(={})", svdDerivedPeripheral.getChildText("dimIncrement"));
             return false;
         }
         if(null !=  svdDerivedPeripheral.getChildText("dimIndex"))
         {
-            log.error("dimIndex not implemented!");
+            log.error("dimIndex not implemented!(={})", svdDerivedPeripheral.getChildText("dimIndex"));
             return false;
         }
         if(null !=  svdDerivedPeripheral.getChildText("dimName"))
         {
-            log.error("dimName not implemented!");
+            log.error("dimName not implemented!(={})", svdDerivedPeripheral.getChildText("dimName"));
             return false;
         }
         if(null !=  svdDerivedPeripheral.getChildText("dimArrayIndex"))
         {
-            log.error("dimArrayIndex not implemented!");
+            log.error("dimArrayIndex not implemented!(={})", svdDerivedPeripheral.getChildText("dimArrayIndex"));
             return false;
         }
         /* only available if address blocks of this peripheral are also used by another peripheral.
@@ -1011,7 +1013,7 @@ public class SvdPeripheralHandler
          -> no need to store this.
         if(null !=  svdDerivedPeripheral.getChildText("alternatePeripheral"))
         {
-            log.error("alternatePeripheral not implemented!");
+            log.error("alternatePeripheral not implemented!(={})", svdDerivedPeripheral.getChildText("alternatePeripheral"));
             return false;
         }*/
 
@@ -1020,19 +1022,19 @@ public class SvdPeripheralHandler
            -> No need to store this! Enjoy shorter names ! ;-)
         if(null !=  peripheral.getChildText("prependToName"))
         {
-            log.error("prependToName not implemented!");
+            log.error("prependToName not implemented!(={})", peripheral.getChildText("prependToName"));
             return false;
         }*/
         if(null !=  svdDerivedPeripheral.getChildText("appendToName"))
         {
-            log.error("appendToName not implemented!");
+            log.error("appendToName not implemented!(={})", svdDerivedPeripheral.getChildText("appendToName"));
             return false;
         }
         /* used by Cmsemicon
          * -> ignore for now
         if(null !=  svdDerivedPeripheral.getChildText("headerStructName"))
         {
-            log.error("headerStructName not implemented!");
+            log.error("headerStructName not implemented!(={})", svdDerivedPeripheral.getChildText("headerStructName"));
             return false;
         }*/
 

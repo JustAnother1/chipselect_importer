@@ -178,7 +178,7 @@ public class SvdFieldHandler
                 break;
 
             case "dimArrayIndex":
-                log.error("field child {} not implemented!", name);
+                log.error("field child dimArrayIndex (={}) not implemented!", child.getText());
                 return false;
 
             default:

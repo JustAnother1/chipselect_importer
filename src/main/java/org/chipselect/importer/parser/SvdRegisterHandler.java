@@ -191,6 +191,7 @@ public class SvdRegisterHandler
         String derived = cluster.getAttributeValue("derivedFrom");
         if(null != derived)
         {
+            log.error(Tool.getXMLRepresentationFor(cluster));
             log.error("Derived Clusters not implemented !");
             return false;
         }
@@ -513,7 +514,7 @@ public class SvdRegisterHandler
             case "dimName" :
             case "dimArrayIndex" :
             case "writeConstraint" :
-                log.error("Register child {} not implemented!", tagName);
+                log.error("Register child {} (={}) not implemented!", tagName, child.getText());
                 log.error("\n" + Tool.getXMLRepresentationFor(svdRegister));
                 return false;
 

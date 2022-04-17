@@ -245,12 +245,13 @@ public class ImporterMain
                 }
                 else
                 {
-                    System.err.println("Invalid Parameter : " + args[i]);
+                    System.err.println("Invalid parameter : " + args[i]);
                     return false;
                 }
             }
             else
             {
+                System.err.println("Invalid option : " + args[i]);
                 return false;
             }
         }
@@ -347,7 +348,7 @@ public class ImporterMain
                     catch(FileNotFoundException e)
                     {
                         e.printStackTrace();
-                        log.error("File not found: {}", svd_FileName);
+                        log.error("File not found: {}", segger_FileName);
                         jdomDocument = null;
                         return false;
                     }
@@ -368,7 +369,7 @@ public class ImporterMain
                 }
                 else
                 {
-                    log.error("the file {} does not exist.", svd_FileName);
+                    log.error("the file {} does not exist.", segger_FileName);
                     return false;
                 }
             }

@@ -21,6 +21,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
+import org.chipselect.importer.parser.SeggerXmlParser;
 import org.chipselect.importer.parser.SystemViewDescription;
 import org.chipselect.importer.server.HttpRestServer;
 import org.chipselect.importer.server.Server;
@@ -39,8 +40,10 @@ public class ImporterMain
 {
     private final Logger log = LoggerFactory.getLogger(this.getClass().getName());
     private boolean import_svd = false;
+    private boolean import_segger = false;
     private boolean checkVendorOnly = false;
     private String svd_FileName = null;
+    private String segger_FileName = null;
     private String vendor_name = null;
     private String restUrl = null;
     private String restUser = null;
@@ -139,6 +142,7 @@ public class ImporterMain
         System.out.println("-v                         : verbose output for even more messages use -v -v");
         System.out.println("-noColour                  : do not highlight the output.");
         System.out.println("-svd <file name>           : import a svd file.");
+        System.out.println("-segger <file name>        : import SEGGER J-Link device database file.");
         System.out.println("-vendor <vendor name>      : set chip venor name. This is necessary if the vendor name is not contained in the imported file.");
         System.out.println("-onlyVendor                : Do not import the file, only check if the Vendor information is contained.");
         System.out.println("-REST_URL <URL>            : URL of REST server with chip database.");
@@ -178,6 +182,17 @@ public class ImporterMain
                     }
                     svd_FileName = args[i];
                     import_svd = true;
+                }
+                else if(true == "-segger".equals(args[i]))
+                {
+                    i++;
+                    if(i == args.length)
+                    {
+                        System.err.println("ERROR: missing parameter for " + args[i-1]);
+                        return false;
+                    }
+                    segger_FileName = args[i];
+                    import_segger = true;
                 }
                 else if(true == "-vendor".equals(args[i]))
                 {
@@ -305,6 +320,62 @@ public class ImporterMain
             else
             {
                 log.error("the file {} does not exist.", svd_FileName);
+                return false;
+            }
+        }
+        if(true == import_segger)
+        {
+            if(segger_FileName.endsWith(".xml"))
+            {
+                // XML file
+                Document jdomDocument = null;
+                File xf = new File(segger_FileName);
+                if(true == xf.exists())
+                {
+                    SAXBuilder jdomBuilder = new SAXBuilder();
+                    log.trace("trying to open {}", segger_FileName);
+                    try
+                    {
+                        jdomDocument = jdomBuilder.build(segger_FileName);
+                        SeggerXmlParser parser = new SeggerXmlParser(chipselect);
+                        if(false == parser.parse(jdomDocument))
+                        {
+                            return false;
+                        }
+                        done_something = true;
+                    }
+                    catch(FileNotFoundException e)
+                    {
+                        e.printStackTrace();
+                        log.error("File not found: {}", svd_FileName);
+                        jdomDocument = null;
+                        return false;
+                    }
+                    catch(JDOMException e)
+                    {
+                        log.error("JDOMException occured !");
+                        log.error(e.getLocalizedMessage());
+                        jdomDocument = null;
+                        return false;
+                    }
+                    catch (IOException e)
+                    {
+                        log.error("IOException occured !");
+                        log.error(e.getLocalizedMessage());
+                        jdomDocument = null;
+                        return false;
+                    }
+                }
+                else
+                {
+                    log.error("the file {} does not exist.", svd_FileName);
+                    return false;
+                }
+            }
+            else
+            {
+                // CSV
+                log.error("CSV format not yet implemented !");
                 return false;
             }
         }

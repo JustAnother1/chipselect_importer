@@ -561,13 +561,16 @@ public class SystemViewDescription
                 }
             }
         }
-        log.trace("now handling derived peripherals....");
-        for(Element peripheral : derivedPeripherals)
+        if(false == derivedPeripherals.isEmpty())
         {
-            String derived = peripheral.getAttributeValue("derivedFrom");
-            if(false == handler.handleDerived(peripheral, namedPeripherals.get(derived)))
+            log.trace("now handling derived peripherals....");
+            for(Element peripheral : derivedPeripherals)
             {
-                return false;
+                String derived = peripheral.getAttributeValue("derivedFrom");
+                if(false == handler.handleDerived(peripheral, namedPeripherals.get(derived)))
+                {
+                    return false;
+                }
             }
         }
         return true;

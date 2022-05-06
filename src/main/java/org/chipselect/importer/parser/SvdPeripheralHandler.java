@@ -332,8 +332,24 @@ public class SvdPeripheralHandler
             if(false == svdValue.equals(srvValue))
             {
                 log.info("update needed for {} from :{}: to :{}:!", "disableCondition", srvValue, svdValue);
-                log.error("disableCondition not implemented!");
-                return false;
+                int id = srvAllPeripherals.getInt(idx, "id");
+                if(0 == id)
+                {
+                    log.error("Peripheral ID on server is invalid !");
+                    return false;
+                }
+
+                if(false == updateServerPeripheralInstance(
+                        id,
+                        null,
+                        null,
+                        null,
+                        0,
+                        svdValue ))
+                {
+                    log.error("update disableCondition failed!");
+                    return false;
+                }
             }
             // else value is the same so no update needed -> OK
         }
@@ -560,8 +576,24 @@ public class SvdPeripheralHandler
             if(false == svdValue.equals(srvValue))
             {
                 log.info("update needed for {} from :{}: to :{}:!", "disableCondition", srvValue, svdValue);
-                log.error("update disableCondition not implemented!");
-                return false;
+                int id = srvAllPeripherals.getInt(srvIdx, "id");
+                if(0 == id)
+                {
+                    log.error("Peripheral ID on server is invalid !");
+                    return false;
+                }
+
+                if(false == updateServerPeripheralInstance(
+                        id,
+                        null,
+                        null,
+                        null,
+                        0,
+                        svdValue ))
+                {
+                    log.error("update disableCondition failed!");
+                    return false;
+                }
             }
             // else value is the same so no update needed -> OK
         }
@@ -573,7 +605,7 @@ public class SvdPeripheralHandler
         {
             if(null != strBaseAddress.toString())
             {
-                log.info("update needed for {} from :{}: to :{}:!", "disableCondition", strSrvBaseAddress, strBaseAddress);
+                log.info("update needed for {} from :{}: to :{}:!", "baseAddress", strSrvBaseAddress, strBaseAddress);
                 log.error("update baseAddress not implemented!");
                 return false;
             }

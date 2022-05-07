@@ -60,13 +60,8 @@ public class SystemViewDescription
             log.error("could not read the vendor from the server");
             return false;
         }
-        int id = 0;
-        int alt = res.getInt("alternative");
-        if(alt != 0)
-        {
-            id = alt;
-        }
-        else
+        int id = res.getInt("alternative");
+        if(id == 0)
         {
             id = res.getInt("id");
         }
@@ -668,9 +663,21 @@ public class SystemViewDescription
         int srv_vendor_id = device_response.getInt("vendor_id");
         if(vendor_id != srv_vendor_id)
         {
-            log.error("Vendor_id on server: {}, but from SVD: {}!", srv_vendor_id, vendor_id);
-            return false;
+            // check if it is an alternative
+            if(true == isAlternativeVendor(vendor_id, srv_vendor_id))
+            {
+                // OK
+            }
+            else
+            {
+                String svdName = getVendorNameFromId(vendor_id);
+                String srvName = getVendorNameFromId(srv_vendor_id);
+                log.error("Vendor id on server: {}, but from SVD: {}!", srv_vendor_id, vendor_id);
+                log.error("Vendor name on server: {}, but from SVD: {}!", srvName, svdName);
+                return false;
+            }
         }
+
         if(false == handleDescription(device, device_response))
         {
             return false;
@@ -703,6 +710,45 @@ public class SystemViewDescription
         // headerDefinitionsPrefix
         // vendorExtensions
         return true;
+    }
+
+    private String getVendorNameFromId(int id)
+    {
+        Request req = new Request("vendor", Request.GET);
+        req.addGetParameter("id", id);
+        Response res = srv.execute(req);
+        return res.getString("name");
+    }
+
+    private boolean isAlternativeVendor(int vendor_id_A, int vendor_id_B)
+    {
+        if(vendor_id_A == vendor_id_B)
+        {
+            // // same vendor
+            return true;
+        }
+        int alt_A = getAlternativeVendorOf(vendor_id_A);
+        if(vendor_id_B == alt_A)
+        {
+            // B is alternative of A
+            return true;
+        }
+        int alt_B = getAlternativeVendorOf(vendor_id_B);
+        if(vendor_id_A == alt_B)
+        {
+            // A is alternative of B
+            return true;
+        }
+        // different vendors
+        return false;
+    }
+
+    private int getAlternativeVendorOf(int id)
+    {
+        Request req = new Request("vendor", Request.GET);
+        req.addGetParameter("id", id);
+        Response res = srv.execute(req);
+        return res.getInt("alternative");
     }
 
 }

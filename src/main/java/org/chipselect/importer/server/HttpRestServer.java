@@ -48,44 +48,28 @@ public class HttpRestServer extends RestServer implements Server
         }
     }
 
+    private String statusForType(int type)
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.append(Request.getMethodName(type) + " : " + numRequests[type] + " Requests");
+        sb.append(String.format(" (%d/%d/%d)\n",
+                RequestsTimeMin[type]/1000000,
+                (RequestsTimes[type]/numRequests[type])/1000000,
+                RequestsTimeMax[type]/1000000 ) );
+        return sb.toString();
+    }
+
     @Override
     public String getStatus()
     {
         StringBuilder sb = new StringBuilder();
-        if(0 < numRequests[Request.GET])
+        sb.append("Type : (min / avareage / max)\n");
+        for(int i = 1; i <= Request.MAX_TYPE_NUM; i++)
         {
-            sb.append("GET : " + numRequests[Request.GET] + " Requests");
-            sb.append(String.format(" (%d/%d/%d)\n", RequestsTimeMin[Request.GET],
-                    RequestsTimes[Request.GET]/numRequests[Request.GET],
-                    RequestsTimeMax[Request.GET]));
-        }
-        if(0 < numRequests[Request.POST])
-        {
-            sb.append("POST : " + numRequests[Request.POST] + " Requests");
-            sb.append(String.format(" (%d/%d/%d)\n", RequestsTimeMin[Request.POST],
-                    RequestsTimes[Request.POST]/numRequests[Request.POST],
-                    RequestsTimeMax[Request.POST]));
-        }
-        if(0 < numRequests[Request.PUT])
-        {
-            sb.append("PUT : " + numRequests[Request.PUT] + " Requests");
-            sb.append(String.format(" (%d/%d/%d)\n", RequestsTimeMin[Request.PUT],
-                    RequestsTimes[Request.PUT]/numRequests[Request.PUT],
-                    RequestsTimeMax[Request.PUT]));
-        }
-        if(0 < numRequests[Request.PATCH])
-        {
-            sb.append("PATCH : " + numRequests[Request.PATCH] + " Requests");
-            sb.append(String.format(" (%d/%d/%d)\n", RequestsTimeMin[Request.PATCH],
-                    RequestsTimes[Request.PATCH]/numRequests[Request.PATCH],
-                    RequestsTimeMax[Request.PATCH]));
-        }
-        if(0 < numRequests[Request.DELETE])
-        {
-            sb.append("DELETE : " + numRequests[Request.DELETE] + " Requests");
-            sb.append(String.format(" (%d/%d/%d)\n", RequestsTimeMin[Request.DELETE],
-                    RequestsTimes[Request.DELETE]/numRequests[Request.DELETE],
-                    RequestsTimeMax[Request.DELETE]));
+            if(0 < numRequests[i])
+            {
+                sb.append(statusForType(i));
+            }
         }
         return sb.toString();
     }

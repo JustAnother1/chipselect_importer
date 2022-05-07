@@ -83,6 +83,11 @@ public class Request
 
     public String getMethod()
     {
+        return getMethodName(type);
+    }
+
+    public static String getMethodName(int type)
+    {
         switch(type)
         {
         case GET:    return "GET";
@@ -90,8 +95,8 @@ public class Request
         case PUT:    return "PUT";
         case PATCH:  return "PATCH";
         case DELETE: return "DELETE";
+        default:     return "INVALID";
         }
-        return "GET";
     }
 
     public boolean hasBody()

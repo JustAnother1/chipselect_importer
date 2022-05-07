@@ -166,6 +166,7 @@ public class SystemViewDescription
 
     private int decodeBoolString(String val)
     {
+        val = val.toLowerCase();
         if("true".equals(val))
         {
             return 1;

@@ -2,6 +2,7 @@ package org.chipselect.importer.server;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
@@ -105,11 +106,20 @@ public class HttpRestServer extends RestServer implements Server
 
             connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod(req.getMethod());
+            if(true == req.hasBody())
+            {
+                connection.setDoOutput(true);
+            }
             connection.setRequestProperty("accept", "application/json");
             if(true == hasUser)
             {
                 Base64.Encoder enc = Base64.getUrlEncoder();
                 connection.addRequestProperty("Authorization", "Basic " + enc.encodeToString((restUser + ":" + restPassword).getBytes()));
+            }
+            if(true == req.hasBody())
+            {
+                OutputStream requestStream = connection.getOutputStream();
+                requestStream.write(req.getBodyDataBytes());
             }
             connection.connect();
             InputStream responseStream = connection.getInputStream();

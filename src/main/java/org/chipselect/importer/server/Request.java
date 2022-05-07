@@ -16,6 +16,7 @@ public class Request
     private final String resource;
     private int type;
     private Vector<String> urlGet = new Vector<String>();
+    private Vector<String> urPost = new Vector<String>();
 
     public Request(String resource)
     {
@@ -62,6 +63,7 @@ public class Request
         String filter = variable + "=" + value;
         urlGet.add(filter);
     }
+
     public String url()
     {
         StringBuilder sb = new StringBuilder();
@@ -90,6 +92,58 @@ public class Request
         case DELETE: return "DELETE";
         }
         return "GET";
+    }
+
+    public boolean hasBody()
+    {
+        if(0 == urPost.size())
+        {
+            return false;
+        }
+        else
+        {
+            return true;
+        }
+    }
+
+    public byte[] getBodyDataBytes()
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.append("{\\n");
+        for(int i = 0; i < urPost.size(); i++)
+        {
+            sb.append(urPost.elementAt(i) + "\n");
+        }
+        sb.append("}");
+
+        String data = sb.toString();
+        byte[] out = data.getBytes(StandardCharsets.UTF_8);
+        return out;
+    }
+
+    public void addPostParameter(String variable, String value)
+    {
+        if((null != variable) && (null != value))
+        {
+            variable = URLEncoder.encode(variable, StandardCharsets.UTF_8);
+            value = URLEncoder.encode(value, StandardCharsets.UTF_8);
+            String filter = variable + "=" + value;
+            urPost.add(filter);
+        }
+    }
+
+    public void addPostParameter(String variable, int value)
+    {
+        variable = URLEncoder.encode(variable, StandardCharsets.UTF_8);
+        String filter = variable + "=" + value;
+        urPost.add(filter);
+    }
+
+    public void addPostParameter(String variable, long value)
+    {
+        variable = URLEncoder.encode(variable, StandardCharsets.UTF_8);
+        String filter = variable + "=" + value;
+        urPost.add(filter);
     }
 
 }

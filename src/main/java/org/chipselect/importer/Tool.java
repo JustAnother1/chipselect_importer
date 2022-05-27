@@ -353,18 +353,18 @@ public final class Tool
             // is a Hex number
             if((val.startsWith("0x")) || (val.startsWith("0X")))
             {
-                return Long.parseLong​(val.substring(2), 16);
+                return Long.parseLong(val.substring(2), 16);
             }
             else
             {
-                return Long.parseLong​(val, 16);
+                return Long.parseLong(val, 16);
             }
         }
         else
         {
             // "018" is not an illegal octal number but a stupid human not knowing about the octal prefix
             // nobody uses octal anyway -> this is decimal!
-            return Long.parseLong​(val, 10);
+            return Long.parseLong(val, 10);
         }
     }
 

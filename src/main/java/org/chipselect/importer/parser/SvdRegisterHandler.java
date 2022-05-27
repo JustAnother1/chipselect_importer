@@ -796,6 +796,10 @@ public class SvdRegisterHandler
                 // prepare values for this register
                 // name
                 name = grp.getElementNameFor(groupName, i);
+                if(null != name)
+                {
+                    name = name.trim();
+                }
                 // displayName
                 displayName = grp.getElementNameFor(groupDisplayName, i);
                 // addressOffset

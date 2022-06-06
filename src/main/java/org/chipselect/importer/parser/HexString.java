@@ -252,6 +252,23 @@ public class HexString
         }
     }
 
+    @Override
+    public int hashCode()
+    {
+        if(null == val)
+        {
+            return 42;
+        }
+        else if(0 == val.length())
+        {
+            return 21;
+        }
+        else
+        {
+            return 31 * val.charAt(val.length() -1);
+        }
+    }
+
     public boolean equals(HexString other)
     {
         if((null == val) || (null == other))
@@ -307,7 +324,37 @@ public class HexString
 
     public boolean equals(Object other)
     {
-        return false;
+        if((null == val) || (null == other))
+        {
+            return false;
+        }
+        else
+        {
+            if( other instanceof HexString)
+            {
+                String otherVal = other.toString();
+                return val.equals(otherVal);
+            }
+            if(other instanceof String)
+            {
+                HexString o = new HexString((String)other);
+                String oVal = o.toString();
+                return val.equals(oVal);
+            }
+            if( other instanceof Integer)
+            {
+                long value = ((Integer)other).intValue();
+                String otherVal = longToString(value);
+                return val.equals(otherVal);
+            }
+            if( other instanceof Long)
+            {
+                long value = ((Long)other).longValue();
+                String otherVal = longToString(value);
+                return val.equals(otherVal);
+            }
+            return false;
+        }
     }
 
     private int char2Int(char c)

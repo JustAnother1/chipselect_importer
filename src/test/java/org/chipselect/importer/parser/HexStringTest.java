@@ -2,6 +2,8 @@ package org.chipselect.importer.parser;
 
 import static org.junit.Assert.*;
 
+import java.util.HashMap;
+
 import org.junit.Test;
 
 public class HexStringTest {
@@ -181,6 +183,54 @@ public class HexStringTest {
     }
 
     @Test
+    public void testEqualsHexStringHexString()
+    {
+        HexString cut = new HexString("0xff");
+        HexString other = new HexString("0xff");
+        assertTrue(cut.equals(other));
+    }
+
+    @Test
+    public void testEqualsHexStringHexString_dec()
+    {
+        HexString cut = new HexString("0xff");
+        HexString other = new HexString("255");
+        assertTrue(cut.equals(other));
+    }
+
+    @Test
+    public void testEqualsHexStringHexString_zero()
+    {
+        HexString cut = new HexString("0x0");
+        HexString other = new HexString("0");
+        assertTrue(cut.equals(other));
+    }
+
+    @Test
+    public void testEqualsHexStringHexString_one()
+    {
+        HexString cut = new HexString("0x0");
+        HexString other = new HexString("1");
+        assertFalse(cut.equals(other));
+    }
+
+    @Test
+    public void testEqualsHexStringHexString_null()
+    {
+        HexString cut = new HexString("0x0");
+        HexString other = null;
+        assertFalse(cut.equals(other));
+    }
+
+    @Test
+    public void testEqualsHexStringHexString_null_val()
+    {
+        HexString cut = new HexString(null);
+        HexString other = new HexString("0");
+        assertFalse(cut.equals(other));
+    }
+
+    @Test
     public void testEqualsStringHexStringDecimal()
     {
         HexString cut = new HexString("0xff");
@@ -242,5 +292,26 @@ public class HexStringTest {
         HexString out = cut.add(5);
         HexString should = new HexString("7");
         assertTrue(out.equals(should));
+    }
+
+    @Test
+    public void testHashMap()
+    {
+        HexString zero = new HexString("0x0");
+        HexString one = new HexString("0x1");
+        HexString two = new HexString("2");
+        HexString four = new HexString("4");
+        HashMap<HexString, Integer> map = new HashMap<HexString, Integer>();
+        map.put(zero, 0);
+        map.put(one, 1);
+        map.put(two, 2);
+        map.put(four, 4);
+        HexString three = new HexString("3");
+        assertFalse(map.containsKey(three));
+        assertTrue(map.containsKey(zero));
+        HexString oneMoreThanOne = new HexString("2");
+        assertTrue(oneMoreThanOne.equals(two));
+        assertTrue(map.containsKey(oneMoreThanOne));
+        assertTrue(map.containsKey(four));
     }
 }

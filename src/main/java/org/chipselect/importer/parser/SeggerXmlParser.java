@@ -1,7 +1,10 @@
 package org.chipselect.importer.parser;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Vector;
 
+import org.chipselect.importer.Tool;
 import org.chipselect.importer.server.Request;
 import org.chipselect.importer.server.Response;
 import org.chipselect.importer.server.Server;
@@ -14,6 +17,8 @@ public class SeggerXmlParser
 {
     private final Logger log = LoggerFactory.getLogger(this.getClass().getName());
     private final Server srv;
+    private Vector<SeggerDevice> devices;
+    private HashMap<String, Integer> architectureIds = new HashMap<String, Integer>();
 
     public SeggerXmlParser(Server chipselect)
     {
@@ -39,6 +44,8 @@ public class SeggerXmlParser
             return false;
         }
 
+        devices = new Vector<SeggerDevice>();
+
         List<Element> children = device.getChildren();
         for(Element child : children)
         {
@@ -48,51 +55,387 @@ public class SeggerXmlParser
                 log.error("unexpected XML element {} on top level (VendorInfo) !", name);
                 return false;
             }
-            String vendorName = child.getAttributeValue("Name");
-            log.trace("Found Vendor {}", vendorName);
-            if(true == "Unspecified".equals(vendorName))
+            if(false == handleVendor(child))
             {
-                // the ""Unspecified" Vendor is different
-                if(false == handleUnsepcifiedVendor(child))
+                return false;
+            }
+        }
+        // parsed everything!
+        log.trace("found {} segger devices!", devices.size());
+        int numUseable = 0;
+        for(int i = 0; i < devices.size(); i++)
+        {
+            SeggerDevice dev = devices.get(i);
+            if(true == dev.hasRAM())
+            {
+                // Statistic
+                numUseable++;
+                numUseable += dev.getNumberOfAliases();
+                // Architecture ID
+                int architectureId = 0;
+                String architectureName = dev.getCoreName();
+                architectureId = getArchitectureIdFor(architectureName);
+                if(0 == architectureId)
+                {
+                    log.error("Architecture {} not on the server !", architectureName);
+                    return false;
+                }
+                dev.setArchitectureId(architectureId);
+
+                String Name = dev.getDeviceName();
+                Name = Tool.cleanupString(Name);
+                if(false == addOrUpdateMicrocontroller(dev, Name))
                 {
                     return false;
                 }
+                int numAlias = dev.getNumberOfAliases();
+                if(0 < numAlias)
+                {
+                    for(int a = 0; a < numAlias; a++)
+                    {
+                        String Alias = dev.getAlias(a);
+                        Alias = Tool.cleanupString(Alias);
+                        if(false == addOrUpdateMicrocontroller(dev, Alias))
+                        {
+                            return false;
+                        }
+                    }
+                }
             }
-            else
+            // else no new information attached to this device
+        }
+        log.trace("-> {} useable devices!", numUseable);
+        return true;
+    }
+
+    private boolean addOrUpdateFlashBanks(SeggerDevice dev, int device_id)
+    {
+        int numBanks = dev.getNumberOfFlashBanks();
+        if(0 < numBanks)
+        {
+            // get flash banks from server
+            Request req = new Request("flash_bank", Request.GET);
+            req.addGetParameter("dev_id", device_id);
+            Response res = srv.execute(req);
+            if(false == res.wasSuccessfull())
             {
-                if(false == handleVendor(child))
+                return false;
+            }
+            HashMap<HexString, Integer> banks = new HashMap<HexString, Integer>();
+            HashMap<Integer, HexString> sizes = new HashMap<Integer, HexString>();
+            for(int i = 0; i < res.numResults(); i++)
+            {
+                HexString StartAddress = new HexString(res.getString(i, "start_address"));
+                int id = res.getInt(i, "id");
+                HexString Size = new HexString(res.getString(i, "size"));
+                banks.put(StartAddress, id);
+                sizes.put(id, Size);
+            }
+            for(int i = 0; i < numBanks; i++)
+            {
+                HexString FlashAddress = new HexString(dev.getFlashStartAddress(i));
+                HexString FlashSize = new HexString(dev.getFlashSize(i));
+                log.trace("FlashAddress: {}", FlashAddress);
+                // check if this bank is already on the server
+                if(true == banks.containsKey(FlashAddress))
+                {
+                    int serverId = banks.get(FlashAddress);
+                    HexString ServerSize = sizes.get(serverId);
+                    if(false == FlashSize.equals(ServerSize))
+                    {
+                        log.trace("PUT : size changed from {} to {}", ServerSize, FlashSize);
+                        // update size on server
+                        Request updateReq = new Request("flash_bank", Request.PUT);
+                        updateReq.addGetParameter("id", serverId);
+                        updateReq.addGetParameter("size", FlashSize.toString());
+                        Response updateRes = srv.execute(updateReq);
+                        if(false == updateRes.wasSuccessfull())
+                        {
+                            return false;
+                        }
+                        // else OK
+                    }
+                    // else -> already up to date
+                }
+                else
+                {
+                    // if not than add it to the server
+                    // update size on server
+                    Request addReq = new Request("flash_bank", Request.POST);
+                    addReq.addGetParameter("dev_id", device_id);
+                    addReq.addGetParameter("start_address", FlashAddress.toString());
+                    addReq.addGetParameter("size", FlashSize.toString());
+                    Response addRes = srv.execute(addReq);
+                    if(false == addRes.wasSuccessfull())
+                    {
+                        return false;
+                    }
+                    // else OK
+                }
+            }
+        }
+        // else -> another job well done ;-)
+        return true;
+    }
+
+    private boolean addOrUpdateMicrocontroller(SeggerDevice dev, String Name)
+    {
+        // ask server
+        Request req = new Request("microcontroller", Request.GET);
+        req.addGetParameter("name", Name);
+        Response res = srv.execute(req);
+        if(false == res.wasSuccessfull())
+        {
+            log.error("could not read the microcontroller {} from the server", Name);
+            return false;
+        }
+
+        int segArchitectureId = dev.getArchitectureId();
+        String segRamSize = dev.getRamSize();
+        segRamSize = segRamSize.trim();
+        String segRamAddr = dev.getRamSize();
+        segRamAddr = segRamAddr.trim();
+        int segVendorId = dev.getVendorId();
+        int device_id = 0;
+
+        if(0 < res.numResults())
+        {
+            // Server knows this device
+            boolean hasChanged = false;
+            if(1 != res.numResults())
+            {
+                log.error("something is wrong on the server");
+                return false;
+            }
+
+            // Update ?
+            // Vendor
+            int srvVendorId = res.getInt("vendor_id");
+            if(srvVendorId != segVendorId)
+            {
+                log.info("Vendor ID changed for device {} seg VendorName : {}", Name, dev.getVendorName());
+                log.info("Vendor ID changed ! SEGGER: {}, Server: {}", segVendorId, srvVendorId);
+                if(0 == srvVendorId)
+                {
+                    srvVendorId = segVendorId;
+                    log.trace("PUT: vendor ID changed from 0 to {}", segVendorId);
+                    hasChanged = true;
+                }
+                // else the server has a vendor, and SEGGER probably points to an alternative,...
+            }
+
+            // Architecture
+            int srvArchitectureId = res.getInt("architecture_id");
+            if(srvArchitectureId != segArchitectureId)
+            {
+                log.info("Architecture ID changed ! SEGGER: {}, Server: {}", segArchitectureId, srvArchitectureId);
+                // The id on the server can be more specific than the rather general term used in the SEGGER file.
+                // therefore if the server has a value than that is better than whatever SEGGER has.
+                if(0 == srvArchitectureId)
+                {
+                    srvArchitectureId = segArchitectureId;
+                }
+
+            }
+
+            // RAM Size Bytes
+            // RAM_size_byte
+            String srvRamSize = res.getString("RAM_size_byte");
+            if(false == srvRamSize.equals(segRamSize))
+            {
+                log.trace("PUT: RAM size changed from {} to {}", srvRamSize, segRamSize);
+                hasChanged = true;
+            }
+
+            // Ram Start
+            // RAM_start_address
+            String srvRamAddr = res.getString("RAM_start_address");
+            if(false == srvRamAddr.equals(segRamAddr))
+            {
+                log.trace("PUT: RAM Address changed from {} to {}", srvRamAddr, segRamAddr);
+                hasChanged = true;
+            }
+
+            if(true == hasChanged)
+            {
+                // update
+                device_id = res.getInt("id");
+                Request updateRequest = new Request("microcontroller", Request.PUT);
+                updateRequest.addGetParameter("id", device_id);
+                updateRequest.addGetParameter("architecture_id", srvArchitectureId);
+                updateRequest.addGetParameter("vendor_id", srvVendorId);
+                updateRequest.addGetParameter("RAM_size_byte", segRamSize);
+                updateRequest.addGetParameter("RAM_start_address", segRamAddr);
+                Response update_res = srv.execute(updateRequest);
+                if(false == update_res.wasSuccessfull())
                 {
                     return false;
                 }
             }
         }
-        // parsed everything!
+        else
+        {
+            // Server does not know this device
+            // -> Add it !
+            log.info("The microcontroller {} is not on the server !", Name);
+            Request addRequest = new Request("microcontroller", Request.POST);
+            addRequest.addGetParameter("name", Name);
+            addRequest.addGetParameter("architecture_id", segArchitectureId);
+            addRequest.addGetParameter("vendor_id", segVendorId);
+            addRequest.addGetParameter("RAM_size_byte", segRamSize);
+            addRequest.addGetParameter("RAM_start_address", segRamAddr);
+            Response add_res = srv.execute(addRequest);
+            if(false == add_res.wasSuccessfull())
+            {
+                return false;
+            }
+            device_id = res.getInt("id");
+        }
+        if(0 == device_id)
+        {
+            // we just generated the device -> ask server for the id
+            Request idRequest = new Request("microcontroller", Request.GET);
+            idRequest.addGetParameter("name", Name);
+            Response id_res = srv.execute(idRequest);
+            if(false == id_res.wasSuccessfull())
+            {
+                return false;
+            }
+            device_id = res.getInt("id");
+        }
+
+        // now the server knows about that micrcontroller
+        if(false == addOrUpdateFlashBanks(dev, device_id))
+        {
+            return false;
+        }
         return true;
     }
 
-    private boolean handleVendor(Element vendorElement)
+    private int getArchitectureIdFor(String architectureName)
     {
-        String vendorName = vendorElement.getAttributeValue("Name");
+        int architectureId = 0;
+        architectureName = Tool.cleanupString(architectureName);
+        if(true == architectureIds.containsKey(architectureName))
+        {
+            // use cached value
+            architectureId = architectureIds.get(architectureName);
+        }
+        else
+        {
+            // ask server
+            Request req = new Request("architecture", Request.GET);
+            req.addGetParameter("name", architectureName);
+            Response res = srv.execute(req);
+            if(false == res.wasSuccessfull())
+            {
+                log.error("could not read the architecture from the server");
+                return 0;
+            }
+            if(0 < res.numResults())
+            {
+                if(1 != res.numResults())
+                {
+                    log.error("something is wrong on the server");
+                    return 0;
+                }
+                architectureId = res.getInt("id");
+                architectureIds.put(architectureName, architectureId);
+            }
+            else
+            {
+                log.error("the Architecture {} is not known to the server", architectureName);
+                architectureId = createArchitectureOnServer(architectureName);
+                if(0 != architectureId)
+                {
+                    architectureIds.put(architectureName, architectureId);
+                }
+            }
+        }
+        return architectureId;
+    }
+
+    private int createArchitectureOnServer(String Name)
+    {
+        Request postReq = new Request("architecture", Request.POST);
+        postReq.addGetParameter("name", Name);
+        Response res = srv.execute(postReq);
+
+        if(false == res.wasSuccessfull())
+        {
+            log.error("could not create the new architecture on the server");
+            return 0;
+        }
+        else
+        {
+            int architectureId = res.getInt("id");
+            return architectureId;
+        }
+    }
+
+    private int retrieveVendorId(String vendorName)
+    {
         Request req = new Request("vendor", Request.GET);
         req.addGetParameter("name", vendorName);
         Response res = srv.execute(req);
         if(false == res.wasSuccessfull())
         {
             log.error("could not read the vendor from the server");
-            return false;
-        }
-        else
-        {
-            log.trace("Vendor {} is available on the server", vendorName);
+            return -2;
         }
         int id = res.getInt("alternative");
         if(id == 0)
         {
             id = res.getInt("id");
         }
-        if(id == 0)
+        if(0 == id)
         {
-            log.error("no id for vendor from server");
+            if(true == "Unspecified".equals(vendorName))
+            {
+                // This is not a vendor,...
+                return 0;
+            }
+            else
+            {
+                // this vendor is not on the server
+                log.info("The Vendor {} is not known on the server !", vendorName);
+                return -1;
+                /*
+                Request PostReq = new Request("vendor", Request.POST);
+                PostReq.addGetParameter("name", vendorName);
+                Response post_res = srv.execute(PostReq);
+                if(false == post_res.wasSuccessfull())
+                {
+                    log.error("could not write the vendor to the server");
+                    return false;
+                }
+                int new_id = post_res.getInt("id");
+                if(0 == new_id)
+                {
+                    log.error("Failed to create new vendor!");
+                    return false;
+                }
+                else
+                {
+                    vendor_id = new_id;
+                }
+                */
+            }
+        }
+        else
+        {
+            return id;
+        }
+
+    }
+
+    private boolean handleVendor(Element vendorElement)
+    {
+        String vendorName = vendorElement.getAttributeValue("Name");
+        vendorName = Tool.cleanupString(vendorName);
+        int vendor_id = retrieveVendorId(vendorName);
+        if( 0 > vendor_id)
+        {
             return false;
         }
         // DeviceInfo
@@ -105,121 +448,15 @@ public class SeggerXmlParser
                 log.error("unexpected XML element {} on vendor level (DeviceInfo) !", name);
                 return false;
             }
-            if(false == handleDevice(id, child))
+            SeggerDevice dev = new SeggerDevice(vendorName, vendor_id, child);
+            if(false == dev.isValid())
             {
                 return false;
             }
-        }
-        return true;
-    }
-
-    private int getServerDeviceId(String device_name)
-    {
-        Request req = new Request("microcontroller", Request.GET);
-        req.addGetParameter("name", device_name);
-        Response res = srv.execute(req);
-        if(false == res.wasSuccessfull())
-        {
-            log.error("could not read the device from the server");
-            return 0;
-        }
-        int id = res.getInt("id");
-        return id;
-    }
-
-    private boolean handleDevice(int id, Element deviceElement)
-    {
-        String deviceName = deviceElement.getAttributeValue("Name");
-        String coreName = deviceElement.getAttributeValue("Core");
-        String ramStart = deviceElement.getAttributeValue("WorkRAMStartAddr");
-        String ramSize = deviceElement.getAttributeValue("WorkRAMSize");
-        log.trace("Device {} is a {}", deviceName, coreName);
-        log.trace("RAM is @{} of size {}", ramStart, ramSize);
-        if(0 == getServerDeviceId(deviceName))
-        {
-            log.info("Device is not on the server!");
-        }
-        // TODO
-        List<Element> children = deviceElement.getChildren();
-        for(Element child : children)
-        {
-            String name = child.getName();
-            switch(name)
+            else
             {
-            case "FlashBankInfo":
-                // TODO
-                break;
-
-            case "AliasInfo":
-                String deviceAliasName = child.getAttributeValue("Name");
-                if(0 == getServerDeviceId(deviceAliasName))
-                {
-                    log.info("Device({}) is not on the server!", deviceAliasName);
-                }
-                // TODO
-                break;
-
-            default:
-                log.error("unexpected XML element {} on device level !", name);
-                return false;
+                devices.add(dev);
             }
-        }
-        return true;
-    }
-
-    private boolean handleUnsepcifiedVendor(Element architecturesElement)
-    {
-        // DeviceInfo
-        List<Element> children = architecturesElement.getChildren();
-        for(Element child : children)
-        {
-            String name = child.getName();
-            if(false == "DeviceInfo".equals(name))
-            {
-                log.error("unexpected XML element {} on architecture level (DeviceInfo) !", name);
-                return false;
-            }
-            if(false == handleArchitecture(child))
-            {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    private boolean handleArchitecture(Element architectureElement)
-    {
-        String Name = architectureElement.getAttributeValue("Name"); // "Core" attribute has the same value
-        int ArchitectureId = 0;
-        List<Element> children = architectureElement.getChildren();
-        for(Element child : children)
-        {
-            String name = child.getName();
-            if(false == "AliasInfo".equals(name))
-            {
-                log.error("unexpected XML element {} on architecture level (AliasInfo) !", name);
-                return false;
-            }
-            if(0 == ArchitectureId)
-            {
-                // this is the first Child of this architecture -> get ID from server
-                Request req = new Request("architecture", Request.GET);
-                req.addGetParameter("name", Name);
-                Response res = srv.execute(req);
-                if(false == res.wasSuccessfull())
-                {
-                    log.error("could not read the architecture from the server");
-                    return false;
-                }
-                else
-                {
-                    log.trace("architecture {} is available on the server", Name);
-                    ArchitectureId = res.getInt("id");
-                }
-            }
-            //TODO add Device
-            return false;
         }
         return true;
     }

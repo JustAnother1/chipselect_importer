@@ -68,6 +68,18 @@ public class SeggerXmlParser
             SeggerDevice dev = devices.get(i);
             if(true == dev.hasRAM())
             {
+                String Name = dev.getDeviceName();
+                Name = Tool.cleanupString(Name);
+                if(true == Name.contains(" ("))
+                {
+                    // "(allow opt. bytes)" adds memory to a chip that in reality does not have it.
+                    // -> ignore that
+                    continue;
+                    // remove the specifiers found in the SEGGER data like :  "(allow security)", "(allow ECRP)", "(allow opt. bytes)",...
+                    // Name = Name.substring(0, Name.indexOf('('));
+                    // Name = Name.trim();
+                }
+
                 // Statistic
                 numUseable++;
                 numUseable += dev.getNumberOfAliases();
@@ -82,8 +94,6 @@ public class SeggerXmlParser
                 }
                 dev.setArchitectureId(architectureId);
 
-                String Name = dev.getDeviceName();
-                Name = Tool.cleanupString(Name);
                 if(false == addOrUpdateMicrocontroller(dev, Name))
                 {
                     return false;

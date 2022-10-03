@@ -1,5 +1,7 @@
 = ChipSelect Importer
 
+read more about ChipSelect here: https://chipselect.org/about.php
+
 == License
 
 This program is free software; you can redistribute it and/or

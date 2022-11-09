@@ -23,6 +23,7 @@ public class SystemViewDescription
     private String device_name = null;
     private int device_id = 0;
     private Response device_response = null;
+    private int bitWidth = 0;
 
     public SystemViewDescription(Server chipselect)
     {
@@ -36,6 +37,7 @@ public class SystemViewDescription
         Element vendor = device.getChild("vendor");
         if(null == vendor)
         {
+        	// vendor is not in the file
             if(null == specified_vendor_name)
             {
                 log.error("No vendor name provided! not in SVD, not as parameter!");
@@ -52,6 +54,7 @@ public class SystemViewDescription
             vendorName = vendor.getText();
             log.info("Vendor from SVD : {}", vendorName);
         }
+        // check with server
         Request req = new Request("vendor", Request.GET);
         req.addPostParameter("name", vendorName);
         Response res = srv.execute(req);
@@ -468,6 +471,8 @@ public class SystemViewDescription
         }
         int srvBusWidth= res.getInt("bus_width_bit");
 
+        bitWidth = svdBusWidth; // used as default size
+        
         if(srvBusWidth != svdBusWidth)
         {
             log.info("Bus Width on server : {}, in SVD: {}", srvBusWidth, svdBusWidth);
@@ -522,6 +527,17 @@ public class SystemViewDescription
         log.trace("default_resetValue: {}", default_resetValue);
         log.trace("default_resetMask: {}", default_resetMask);
         log.trace("default_protection: {}", default_protection);
+        
+        if(null == default_size)
+        {
+        	default_size = "" + bitWidth;
+        }
+        else if(1 > Integer.decode(default_size))
+        {
+        	default_size = "" + bitWidth;
+        }
+    	log.trace("default_size: {}", default_size);
+    	
         handler.setDefaultSize(default_size);
         handler.setDefaultAccess(default_access);
         handler.setDefaultResetValue(default_resetValue);

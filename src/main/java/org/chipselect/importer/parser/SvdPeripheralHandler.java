@@ -30,7 +30,13 @@ public class SvdPeripheralHandler
 
     public void setDefaultSize(String default_size)
     {
-        addressBlockHandler.setDefaultSize(default_size);
+    	if(null != default_size)
+    	{
+    		addressBlockHandler.setDefaultSize(default_size);
+    		int size = Integer.decode(default_size);
+    		registerHandler.setDefaultSize(size);
+    	}
+    	// else -> why bother with null?
     }
 
     public void setDefaultAccess(String default_access)

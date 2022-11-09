@@ -14,24 +14,14 @@ public class Request
     public static final int MAX_TYPE_NUM = 5;
 
     private final String resource;
-    private int type;
-    private Vector<String> urlGet = new Vector<String>();
-    private Vector<String> urPost = new Vector<String>();
-
-    public Request(String resource)
-    {
-        this.resource = resource;
-    }
+    private final int type;
+    private Vector<String> urlPost = new Vector<String>();
 
     public Request(String resource, int type)
     {
         this.resource = resource;
         this.type = type;
-    }
-
-    public void setType(int type)
-    {
-        this.type = type;
+        urlPost.add("REQUEST_METHOD=" + getMethodName(type));
     }
 
     public int getType()
@@ -39,45 +29,10 @@ public class Request
         return type;
     }
 
-    public void addGetParameter(String variable, String value)
-    {
-        if((null != variable) && (null != value))
-        {
-            variable = URLEncoder.encode(variable, StandardCharsets.UTF_8);
-            value = URLEncoder.encode(value, StandardCharsets.UTF_8);
-            String filter = variable + "=" + value;
-            urlGet.add(filter);
-        }
-    }
-
-    public void addGetParameter(String variable, int value)
-    {
-        variable = URLEncoder.encode(variable, StandardCharsets.UTF_8);
-        String filter = variable + "=" + value;
-        urlGet.add(filter);
-    }
-
-    public void addGetParameter(String variable, long value)
-    {
-        variable = URLEncoder.encode(variable, StandardCharsets.UTF_8);
-        String filter = variable + "=" + value;
-        urlGet.add(filter);
-    }
-
     public String url()
     {
         StringBuilder sb = new StringBuilder();
         sb.append(resource);
-        if(0 < urlGet.size())
-        {
-            sb.append("?");
-            sb.append(urlGet.elementAt(0));
-            for(int i = 1; i < urlGet.size(); i++)
-            {
-                sb.append("&" + urlGet.elementAt(i));
-            }
-        }
-        // else no GET variables
         return sb.toString();
     }
 
@@ -101,7 +56,7 @@ public class Request
 
     public boolean hasBody()
     {
-        if(0 == urPost.size())
+        if(0 == urlPost.size())
         {
             return false;
         }
@@ -113,13 +68,24 @@ public class Request
 
     public byte[] getBodyDataBytes()
     {
+    	if(0 == urlPost.size())
+    	{
+    		return null;
+    	}
+    	
         StringBuilder sb = new StringBuilder();
-        sb.append("{\\n");
-        for(int i = 0; i < urPost.size(); i++)
-        {
-            sb.append(urPost.elementAt(i) + "\n");
-        }
-        sb.append("}");
+    	if(1 == urlPost.size())
+    	{
+    		sb.append(urlPost.elementAt(0));
+    	}
+    	else
+    	{
+    		sb.append(urlPost.elementAt(0));
+	        for(int i = 1; i < urlPost.size(); i++)
+	        {
+	            sb.append("&" + urlPost.elementAt(i));
+	        }
+    	}
 
         String data = sb.toString();
         byte[] out = data.getBytes(StandardCharsets.UTF_8);
@@ -133,7 +99,7 @@ public class Request
             variable = URLEncoder.encode(variable, StandardCharsets.UTF_8);
             value = URLEncoder.encode(value, StandardCharsets.UTF_8);
             String filter = variable + "=" + value;
-            urPost.add(filter);
+            urlPost.add(filter);
         }
     }
 
@@ -141,14 +107,14 @@ public class Request
     {
         variable = URLEncoder.encode(variable, StandardCharsets.UTF_8);
         String filter = variable + "=" + value;
-        urPost.add(filter);
+        urlPost.add(filter);
     }
 
     public void addPostParameter(String variable, long value)
     {
         variable = URLEncoder.encode(variable, StandardCharsets.UTF_8);
         String filter = variable + "=" + value;
-        urPost.add(filter);
+        urlPost.add(filter);
     }
 
 }

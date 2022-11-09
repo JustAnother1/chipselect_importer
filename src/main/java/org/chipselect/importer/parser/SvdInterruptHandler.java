@@ -28,7 +28,7 @@ public class SvdInterruptHandler
             return false;
         }
         Request req = new Request("interrupt", Request.GET);
-        req.addGetParameter("per_in_id", srvPeripheralInstanceId);
+        req.addPostParameter("per_in_id", srvPeripheralInstanceId);
         Response interruptRes = srv.execute(req);
         if(false == interruptRes.wasSuccessfull())
         {
@@ -57,7 +57,7 @@ public class SvdInterruptHandler
             return false;
         }
         Request req = new Request("interrupt", Request.GET);
-        req.addGetParameter("per_in_id", srvPeripheralInstanceId);
+        req.addPostParameter("per_in_id", srvPeripheralInstanceId);
         Response interruptRes = srv.execute(req);
         if(false == interruptRes.wasSuccessfull())
         {
@@ -159,16 +159,16 @@ public class SvdInterruptHandler
         {
             log.trace("created new interrupt on server: name = {}, description = {}", irqName, description);
             Request req = new Request("interrupt", Request.POST);
-            req.addGetParameter("per_in_id", peripheralInstanceId);
+            req.addPostParameter("per_in_id", peripheralInstanceId);
             if(null != irqName)
             {
-                req.addGetParameter("name", irqName);
+                req.addPostParameter("name", irqName);
             }
             if(null != description)
             {
-                req.addGetParameter("description", description);
+                req.addPostParameter("description", description);
             }
-            req.addGetParameter("number", number);
+            req.addPostParameter("number", number);
             Response postRes = srv.execute(req);
             if(false == postRes.wasSuccessfull())
             {
@@ -189,16 +189,16 @@ public class SvdInterruptHandler
     private boolean updateSrvInterrupt(int id, String irqName, String description, long number)
     {
         Request req = new Request("interrupt", Request.PUT);
-        req.addGetParameter("id", id);
+        req.addPostParameter("id", id);
         if(null != irqName)
         {
-            req.addGetParameter("name", irqName);
+            req.addPostParameter("name", irqName);
         }
         if(null != description)
         {
-            req.addGetParameter("description", description);
+            req.addPostParameter("description", description);
         }
-        req.addGetParameter("number", number);
+        req.addPostParameter("number", number);
         Response res = srv.execute(req);
         if(false == res.wasSuccessfull())
         {

@@ -44,7 +44,7 @@ public class SvdFieldHandler
             return false;
         }
         Request req = new Request("field", Request.GET);
-        req.addGetParameter("reg_id", srvId);
+        req.addPostParameter("reg_id", srvId);
         Response fieldstRes = srv.execute(req);
         if(false == fieldstRes.wasSuccessfull())
         {
@@ -361,28 +361,28 @@ public class SvdFieldHandler
             String read_action )
     {
         Request req = new Request("field", Request.PUT);
-        req.addGetParameter("id", id);
+        req.addPostParameter("id", id);
         if(null != name)
         {
-            req.addGetParameter("name", name);
+            req.addPostParameter("name", name);
         }
         if(null != description)
         {
-            req.addGetParameter("description", description);
+            req.addPostParameter("description", description);
         }
-        req.addGetParameter("bit_offset", bit_offset);
-        req.addGetParameter("size_bit", size_bit);
+        req.addPostParameter("bit_offset", bit_offset);
+        req.addPostParameter("size_bit", size_bit);
         if(null != access)
         {
-            req.addGetParameter("access", access);
+            req.addPostParameter("access", access);
         }
         if(null != modified_write_values)
         {
-            req.addGetParameter("modified_write_values", modified_write_values);
+            req.addPostParameter("modified_write_values", modified_write_values);
         }
         if(null != read_action)
         {
-            req.addGetParameter("read_action", read_action);
+            req.addPostParameter("read_action", read_action);
         }
         Response res = srv.execute(req);
         if(false == res.wasSuccessfull())
@@ -408,26 +408,26 @@ public class SvdFieldHandler
             )
     {
         Request req = new Request("field", Request.POST);
-        req.addGetParameter("name", name);
+        req.addPostParameter("name", name);
         if(null != description)
         {
-            req.addGetParameter("description", description);
+            req.addPostParameter("description", description);
         }
-        req.addGetParameter("bit_offset", bit_offset);
-        req.addGetParameter("size_bit", size_bit);
+        req.addPostParameter("bit_offset", bit_offset);
+        req.addPostParameter("size_bit", size_bit);
         if(null != access)
         {
-            req.addGetParameter("access", access);
+            req.addPostParameter("access", access);
         }
         if(null != modified_write_values)
         {
-            req.addGetParameter("modified_write_values", modified_write_values);
+            req.addPostParameter("modified_write_values", modified_write_values);
         }
         if(null != read_action)
         {
-            req.addGetParameter("read_action", read_action);
+            req.addPostParameter("read_action", read_action);
         }
-        req.addGetParameter("reg_id", reg_id);
+        req.addPostParameter("reg_id", reg_id);
         Response res = srv.execute(req);
         if(false == res.wasSuccessfull())
         {

@@ -53,7 +53,7 @@ public class SystemViewDescription
             log.info("Vendor from SVD : {}", vendorName);
         }
         Request req = new Request("vendor", Request.GET);
-        req.addGetParameter("name", vendorName);
+        req.addPostParameter("name", vendorName);
         Response res = srv.execute(req);
         if(false == res.wasSuccessfull())
         {
@@ -70,7 +70,7 @@ public class SystemViewDescription
             // this vendor is not on the server
             log.info("The Vendor {} is not known on the server !", vendorName);
             Request PostReq = new Request("vendor", Request.POST);
-            PostReq.addGetParameter("name", vendorName);
+            PostReq.addPostParameter("name", vendorName);
             Response post_res = srv.execute(PostReq);
             if(false == post_res.wasSuccessfull())
             {
@@ -115,7 +115,7 @@ public class SystemViewDescription
         device_name = Name.getText();
         log.trace("device name from SVD : {}", device_name);
         Request req = new Request("microcontroller", Request.GET);
-        req.addGetParameter("name", device_name);
+        req.addPostParameter("name", device_name);
         Response res = srv.execute(req);
         if(false == res.wasSuccessfull())
         {
@@ -128,8 +128,8 @@ public class SystemViewDescription
             // this device is not on the server
             log.info("The device {} is not known on the server !", device_name);
             Request PostReq = new Request("microcontroller", Request.POST);
-            PostReq.addGetParameter("name", device_name);
-            PostReq.addGetParameter("vendor_id", vendor_id);
+            PostReq.addPostParameter("name", device_name);
+            PostReq.addPostParameter("vendor_id", vendor_id);
             Response post_res = srv.execute(PostReq);
             if(false == post_res.wasSuccessfull())
             {
@@ -146,7 +146,7 @@ public class SystemViewDescription
             {
                 device_id = new_id;
                 Request GetReq = new Request("microcontroller", Request.GET);
-                GetReq.addGetParameter("name", device_name);
+                GetReq.addPostParameter("name", device_name);
                 res = srv.execute(GetReq);
                 if(false == res.wasSuccessfull())
                 {
@@ -231,7 +231,7 @@ public class SystemViewDescription
         log.trace("Vendor Systick Configuration(int): {}", svdVendorSystickConfigInt);
 
         Request req = new Request("architecture", Request.GET);
-        req.addGetParameter("svd_name", svdName);
+        req.addPostParameter("svd_name", svdName);
         Response res = srv.execute(req);
         if(false == res.wasSuccessfull())
         {
@@ -287,8 +287,8 @@ public class SystemViewDescription
                 {
                     log.trace("Architecture ID mismatch: {} - {}", srvArchitectureId, archId);
                     Request putReq = new Request("microcontroller", Request.PUT);
-                    putReq.addGetParameter("name", device_name);
-                    putReq.addGetParameter("architecture_id", archId);
+                    putReq.addPostParameter("name", device_name);
+                    putReq.addPostParameter("architecture_id", archId);
                     Response put_res = srv.execute(putReq);
                     if(false == put_res.wasSuccessfull())
                     {
@@ -338,20 +338,20 @@ public class SystemViewDescription
             int ARM_Vendor_systick )
     {
         Request postReq = new Request("architecture", Request.POST);
-        postReq.addGetParameter("name", svd_name);
-        postReq.addGetParameter("svd_name", svd_name);
+        postReq.addPostParameter("name", svd_name);
+        postReq.addPostParameter("svd_name", svd_name);
         if(null != revision)
         {
-            postReq.addGetParameter("revision", revision);
+            postReq.addPostParameter("revision", revision);
         }
         if(null != endian)
         {
-            postReq.addGetParameter("endian", endian);
+            postReq.addPostParameter("endian", endian);
         }
-        postReq.addGetParameter("hasMPU", hasMPU);
-        postReq.addGetParameter("hasFPU", hasFPU);
-        postReq.addGetParameter("interrupt_prio_bits", interrupt_prio_bits);
-        postReq.addGetParameter("ARM_Vendor_systick", ARM_Vendor_systick);
+        postReq.addPostParameter("hasMPU", hasMPU);
+        postReq.addPostParameter("hasFPU", hasFPU);
+        postReq.addPostParameter("interrupt_prio_bits", interrupt_prio_bits);
+        postReq.addPostParameter("ARM_Vendor_systick", ARM_Vendor_systick);
         Response res = srv.execute(postReq);
 
         if(false == res.wasSuccessfull())
@@ -366,8 +366,8 @@ public class SystemViewDescription
             if(0 != device_id)
             {
                 Request linkRequest = new Request("microcontroller", Request.PUT);
-                linkRequest.addGetParameter("id", device_id);
-                linkRequest.addGetParameter("architecture_id", architectureId);
+                linkRequest.addPostParameter("id", device_id);
+                linkRequest.addPostParameter("architecture_id", architectureId);
                 Response link_res = srv.execute(linkRequest);
                 return link_res.wasSuccessfull();
             }
@@ -402,8 +402,8 @@ public class SystemViewDescription
         {
             log.info("Description on server : {}, in SVD: {}", srvDescription, svdDescription);
             Request req = new Request("microcontroller", Request.PUT);
-            req.addGetParameter("name", device_name);
-            req.addGetParameter("description", svdDescription);
+            req.addPostParameter("name", device_name);
+            req.addPostParameter("description", svdDescription);
             Response post_res = srv.execute(req);
             if(false == post_res.wasSuccessfull())
             {
@@ -437,8 +437,8 @@ public class SystemViewDescription
         {
             log.info("Address Unit on server : {}, in SVD: {}", srvAddrUnit, svdAddrUnit);
             Request req = new Request("microcontroller", Request.PUT);
-            req.addGetParameter("name", device_name);
-            req.addGetParameter("Addressable_unit_bit", svdAddrUnit);
+            req.addPostParameter("name", device_name);
+            req.addPostParameter("Addressable_unit_bit", svdAddrUnit);
             Response post_res = srv.execute(req);
             if(false == post_res.wasSuccessfull())
             {
@@ -472,8 +472,8 @@ public class SystemViewDescription
         {
             log.info("Bus Width on server : {}, in SVD: {}", srvBusWidth, svdBusWidth);
             Request req = new Request("microcontroller", Request.PUT);
-            req.addGetParameter("name", device_name);
-            req.addGetParameter("bus_width_bit", svdBusWidth);
+            req.addPostParameter("name", device_name);
+            req.addPostParameter("bus_width_bit", svdBusWidth);
             Response put_res = srv.execute(req);
             if(false == put_res.wasSuccessfull())
             {
@@ -716,7 +716,7 @@ public class SystemViewDescription
     private String getVendorNameFromId(int id)
     {
         Request req = new Request("vendor", Request.GET);
-        req.addGetParameter("id", id);
+        req.addPostParameter("id", id);
         Response res = srv.execute(req);
         return res.getString("name");
     }
@@ -747,7 +747,7 @@ public class SystemViewDescription
     private int getAlternativeVendorOf(int id)
     {
         Request req = new Request("vendor", Request.GET);
-        req.addGetParameter("id", id);
+        req.addPostParameter("id", id);
         Response res = srv.execute(req);
         return res.getInt("alternative");
     }

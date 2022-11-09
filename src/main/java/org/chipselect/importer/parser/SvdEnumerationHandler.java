@@ -29,7 +29,7 @@ public class SvdEnumerationHandler
             return false;
         }
         Request req = new Request("enumeration", Request.GET);
-        req.addGetParameter("field_id", fieldId);
+        req.addPostParameter("field_id", fieldId);
         Response enumRes = srv.execute(req);
         if(false == enumRes.wasSuccessfull())
         {
@@ -188,7 +188,7 @@ public class SvdEnumerationHandler
                 return false;
             }
             Request req = new Request("enumeration_element", Request.GET);
-            req.addGetParameter("enum_id", enumId);
+            req.addPostParameter("enum_id", enumId);
             Response enumValRes = srv.execute(req);
             if(false == enumValRes.wasSuccessfull())
             {
@@ -344,26 +344,26 @@ public class SvdEnumerationHandler
             boolean isDefault)
     {
         Request req = new Request("enumeration_element", Request.POST);
-        req.addGetParameter("enum_id", enumId);
+        req.addPostParameter("enum_id", enumId);
         if(null != name)
         {
-            req.addGetParameter("name", name);
+            req.addPostParameter("name", name);
         }
         if(null != description)
         {
-            req.addGetParameter("description", description);
+            req.addPostParameter("description", description);
         }
         if(null != value)
         {
-            req.addGetParameter("value", value);
+            req.addPostParameter("value", value);
         }
         if(true == isDefault)
         {
-            req.addGetParameter("isDefault", 1);
+            req.addPostParameter("isDefault", 1);
         }
         else
         {
-            req.addGetParameter("isDefault", 0);
+            req.addPostParameter("isDefault", 0);
         }
         Response res = srv.execute(req);
         if(false == res.wasSuccessfull())
@@ -385,26 +385,26 @@ public class SvdEnumerationHandler
             boolean isDefault)
     {
         Request req = new Request("enumeration_element", Request.PUT);
-        req.addGetParameter("id", valId);
+        req.addPostParameter("id", valId);
         if(null != name)
         {
-            req.addGetParameter("name", name);
+            req.addPostParameter("name", name);
         }
         if(null != description)
         {
-            req.addGetParameter("description", description);
+            req.addPostParameter("description", description);
         }
         if(null != value)
         {
-            req.addGetParameter("value", value);
+            req.addPostParameter("value", value);
         }
         if(true == isDefault)
         {
-            req.addGetParameter("isDefault", 1);
+            req.addPostParameter("isDefault", 1);
         }
         else
         {
-            req.addGetParameter("isDefault", 0);
+            req.addPostParameter("isDefault", 0);
         }
         Response res = srv.execute(req);
         if(false == res.wasSuccessfull())
@@ -421,14 +421,14 @@ public class SvdEnumerationHandler
     private int createEnumerationOnServer(int fieldId, String name, String usage)
     {
         Request req = new Request("enumeration", Request.POST);
-        req.addGetParameter("field_id", fieldId);
+        req.addPostParameter("field_id", fieldId);
         if(null != name)
         {
-            req.addGetParameter("name", name);
+            req.addPostParameter("name", name);
         }
         if(null != usage)
         {
-            req.addGetParameter("usage_right", usage);
+            req.addPostParameter("usage_right", usage);
         }
         Response res = srv.execute(req);
         if(false == res.wasSuccessfull())
@@ -444,14 +444,14 @@ public class SvdEnumerationHandler
     private boolean updateEnumerationOnServer(int id, String name, String usage)
     {
         Request req = new Request("enumeration", Request.PUT);
-        req.addGetParameter("id", id);
+        req.addPostParameter("id", id);
         if(null != name)
         {
-            req.addGetParameter("name", name);
+            req.addPostParameter("name", name);
         }
         if(null != usage)
         {
-            req.addGetParameter("usage_right", usage);
+            req.addPostParameter("usage_right", usage);
         }
         Response res = srv.execute(req);
         if(false == res.wasSuccessfull())

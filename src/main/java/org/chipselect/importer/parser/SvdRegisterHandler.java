@@ -77,7 +77,7 @@ public class SvdRegisterHandler
         if(null !=  registers)
         {
             Request req = new Request("register", Request.GET);
-            req.addGetParameter("per_id", peripheralId);
+            req.addPostParameter("per_id", peripheralId);
             Response res = srv.execute(req);
             if(false == res.wasSuccessfull())
             {
@@ -133,7 +133,7 @@ public class SvdRegisterHandler
         if(null !=  registers)
         {
             Request req = new Request("register", Request.GET);
-            req.addGetParameter("per_id", peripheralId);
+            req.addPostParameter("per_id", peripheralId);
             Response res = srv.execute(req);
             if(false == res.wasSuccessfull())
             {
@@ -838,55 +838,55 @@ public class SvdRegisterHandler
             String alternate_group)
     {
         Request req = new Request("register", Request.PUT);
-        req.addGetParameter("id", id);
+        req.addPostParameter("id", id);
         if(null != name)
         {
-            req.addGetParameter("name", name);
+            req.addPostParameter("name", name);
         }
         if(null != display_name)
         {
-            req.addGetParameter("display_name", display_name);
+            req.addPostParameter("display_name", display_name);
         }
         if(null != description)
         {
-            req.addGetParameter("description", description);
+            req.addPostParameter("description", description);
         }
         if(null != address_offset)
         {
-            req.addGetParameter("address_offset", address_offset);
+            req.addPostParameter("address_offset", address_offset);
         }
-        req.addGetParameter("size", size);
+        req.addPostParameter("size", size);
         if(null != access)
         {
-            req.addGetParameter("access", access);
+            req.addPostParameter("access", access);
         }
         if(null != reset_value)
         {
-            req.addGetParameter("reset_value", reset_value);
+            req.addPostParameter("reset_value", reset_value);
         }
         if(null != alternative_register)
         {
-            req.addGetParameter("alternate_register", alternative_register);
+            req.addPostParameter("alternate_register", alternative_register);
         }
         if(null != reset_mask)
         {
-            req.addGetParameter("reset_mask", reset_mask);
+            req.addPostParameter("reset_mask", reset_mask);
         }
         if(null != read_action)
         {
-            req.addGetParameter("read_action", read_action);
+            req.addPostParameter("read_action", read_action);
         }
         if(null != modified_write_values)
         {
-            req.addGetParameter("modified_write_values", modified_write_values);
+            req.addPostParameter("modified_write_values", modified_write_values);
         }
         if(null != data_type)
         {
-            req.addGetParameter("data_type", data_type);
+            req.addPostParameter("data_type", data_type);
         }
         if(null != alternate_group)
         {
-            req.addGetParameter("alternate_group", alternate_group);
+            req.addPostParameter("alternate_group", alternate_group);
         }
         Response res = srv.execute(req);
         if(false == res.wasSuccessfull())
@@ -917,53 +917,53 @@ public class SvdRegisterHandler
             int peripheralId)
     {
         Request req = new Request("register", Request.POST);
-        req.addGetParameter("name", name);
+        req.addPostParameter("name", name);
         if(null != display_name)
         {
-            req.addGetParameter("display_name", display_name);
+            req.addPostParameter("display_name", display_name);
         }
         if(null != description)
         {
-            req.addGetParameter("description", description);
+            req.addPostParameter("description", description);
         }
         if(null != address_offset)
         {
-            req.addGetParameter("address_offset", address_offset);
+            req.addPostParameter("address_offset", address_offset);
         }
-        req.addGetParameter("size", size);
+        req.addPostParameter("size", size);
         if(null != access)
         {
-            req.addGetParameter("access", access);
+            req.addPostParameter("access", access);
         }
         if(null != reset_value)
         {
-            req.addGetParameter("reset_value", reset_value);
+            req.addPostParameter("reset_value", reset_value);
         }
         if(null != alternative_register)
         {
-            req.addGetParameter("alternative_register", alternative_register);
+            req.addPostParameter("alternative_register", alternative_register);
         }
         if(null != reset_mask)
         {
-            req.addGetParameter("reset_mask", reset_mask);
+            req.addPostParameter("reset_mask", reset_mask);
         }
         if(null != read_action)
         {
-            req.addGetParameter("read_action", read_action);
+            req.addPostParameter("read_action", read_action);
         }
         if(null != modified_write_values)
         {
-            req.addGetParameter("modified_write_values", modified_write_values);
+            req.addPostParameter("modified_write_values", modified_write_values);
         }
         if(null != data_type)
         {
-            req.addGetParameter("data_type", data_type);
+            req.addPostParameter("data_type", data_type);
         }
         if(null != alternate_group)
         {
-            req.addGetParameter("alternate_group", alternate_group);
+            req.addPostParameter("alternate_group", alternate_group);
         }
-        req.addGetParameter("per_id", peripheralId);
+        req.addPostParameter("per_id", peripheralId);
         Response res = srv.execute(req);
         if(false == res.wasSuccessfull())
         {

@@ -125,7 +125,7 @@ public class SeggerXmlParser
         {
             // get flash banks from server
             Request req = new Request("flash_bank", Request.GET);
-            req.addGetParameter("dev_id", device_id);
+            req.addPostParameter("dev_id", device_id);
             Response res = srv.execute(req);
             if(false == res.wasSuccessfull())
             {
@@ -156,8 +156,8 @@ public class SeggerXmlParser
                         log.trace("PUT : size changed from {} to {}", ServerSize, FlashSize);
                         // update size on server
                         Request updateReq = new Request("flash_bank", Request.PUT);
-                        updateReq.addGetParameter("id", serverId);
-                        updateReq.addGetParameter("size", FlashSize.toString());
+                        updateReq.addPostParameter("id", serverId);
+                        updateReq.addPostParameter("size", FlashSize.toString());
                         Response updateRes = srv.execute(updateReq);
                         if(false == updateRes.wasSuccessfull())
                         {
@@ -172,9 +172,9 @@ public class SeggerXmlParser
                     // if not than add it to the server
                     // update size on server
                     Request addReq = new Request("flash_bank", Request.POST);
-                    addReq.addGetParameter("dev_id", device_id);
-                    addReq.addGetParameter("start_address", FlashAddress.toString());
-                    addReq.addGetParameter("size", FlashSize.toString());
+                    addReq.addPostParameter("dev_id", device_id);
+                    addReq.addPostParameter("start_address", FlashAddress.toString());
+                    addReq.addPostParameter("size", FlashSize.toString());
                     Response addRes = srv.execute(addReq);
                     if(false == addRes.wasSuccessfull())
                     {
@@ -192,7 +192,7 @@ public class SeggerXmlParser
     {
         // ask server
         Request req = new Request("microcontroller", Request.GET);
-        req.addGetParameter("name", Name);
+        req.addPostParameter("name", Name);
         Response res = srv.execute(req);
         if(false == res.wasSuccessfull())
         {
@@ -271,11 +271,11 @@ public class SeggerXmlParser
                 // update
                 device_id = res.getInt("id");
                 Request updateRequest = new Request("microcontroller", Request.PUT);
-                updateRequest.addGetParameter("id", device_id);
-                updateRequest.addGetParameter("architecture_id", srvArchitectureId);
-                updateRequest.addGetParameter("vendor_id", srvVendorId);
-                updateRequest.addGetParameter("RAM_size_byte", segRamSize);
-                updateRequest.addGetParameter("RAM_start_address", segRamAddr);
+                updateRequest.addPostParameter("id", device_id);
+                updateRequest.addPostParameter("architecture_id", srvArchitectureId);
+                updateRequest.addPostParameter("vendor_id", srvVendorId);
+                updateRequest.addPostParameter("RAM_size_byte", segRamSize);
+                updateRequest.addPostParameter("RAM_start_address", segRamAddr);
                 Response update_res = srv.execute(updateRequest);
                 if(false == update_res.wasSuccessfull())
                 {
@@ -289,11 +289,11 @@ public class SeggerXmlParser
             // -> Add it !
             log.info("The microcontroller {} is not on the server !", Name);
             Request addRequest = new Request("microcontroller", Request.POST);
-            addRequest.addGetParameter("name", Name);
-            addRequest.addGetParameter("architecture_id", segArchitectureId);
-            addRequest.addGetParameter("vendor_id", segVendorId);
-            addRequest.addGetParameter("RAM_size_byte", segRamSize);
-            addRequest.addGetParameter("RAM_start_address", segRamAddr);
+            addRequest.addPostParameter("name", Name);
+            addRequest.addPostParameter("architecture_id", segArchitectureId);
+            addRequest.addPostParameter("vendor_id", segVendorId);
+            addRequest.addPostParameter("RAM_size_byte", segRamSize);
+            addRequest.addPostParameter("RAM_start_address", segRamAddr);
             Response add_res = srv.execute(addRequest);
             if(false == add_res.wasSuccessfull())
             {
@@ -305,7 +305,7 @@ public class SeggerXmlParser
         {
             // we just generated the device -> ask server for the id
             Request idRequest = new Request("microcontroller", Request.GET);
-            idRequest.addGetParameter("name", Name);
+            idRequest.addPostParameter("name", Name);
             Response id_res = srv.execute(idRequest);
             if(false == id_res.wasSuccessfull())
             {
@@ -335,7 +335,7 @@ public class SeggerXmlParser
         {
             // ask server
             Request req = new Request("architecture", Request.GET);
-            req.addGetParameter("name", architectureName);
+            req.addPostParameter("name", architectureName);
             Response res = srv.execute(req);
             if(false == res.wasSuccessfull())
             {
@@ -368,7 +368,7 @@ public class SeggerXmlParser
     private int createArchitectureOnServer(String Name)
     {
         Request postReq = new Request("architecture", Request.POST);
-        postReq.addGetParameter("name", Name);
+        postReq.addPostParameter("name", Name);
         Response res = srv.execute(postReq);
 
         if(false == res.wasSuccessfull())
@@ -386,7 +386,7 @@ public class SeggerXmlParser
     private int retrieveVendorId(String vendorName)
     {
         Request req = new Request("vendor", Request.GET);
-        req.addGetParameter("name", vendorName);
+        req.addPostParameter("name", vendorName);
         Response res = srv.execute(req);
         if(false == res.wasSuccessfull())
         {

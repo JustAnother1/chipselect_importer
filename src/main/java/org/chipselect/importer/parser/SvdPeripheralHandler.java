@@ -125,7 +125,7 @@ public class SvdPeripheralHandler
             return false;
         }
         Request req = new Request("peripheral_instance", Request.GET);
-        req.addGetParameter("dev_id", srvDeviceId);
+        req.addPostParameter("dev_id", srvDeviceId);
         Response res = srv.execute(req);
         if(false == res.wasSuccessfull())
         {
@@ -145,7 +145,7 @@ public class SvdPeripheralHandler
             return null;
         }
         Request req = new Request("peripheral", Request.GET);
-        req.addGetParameter("id", peripheralId);
+        req.addPostParameter("id", peripheralId);
         Response res = srv.execute(req);
         if(false == res.wasSuccessfull())
         {
@@ -918,7 +918,7 @@ public class SvdPeripheralHandler
             return 0;
         }
         Request req = new Request("peripheral", Request.POST);
-        req.addGetParameter("group_name", group_name);
+        req.addPostParameter("group_name", group_name);
         Response res = srv.execute(req);
         if(false == res.wasSuccessfull())
         {
@@ -940,22 +940,22 @@ public class SvdPeripheralHandler
         Request req = new Request("peripheral_instance", Request.POST);
         if(null != name)
         {
-            req.addGetParameter("name", name);
+            req.addPostParameter("name", name);
         }
         if(null != description)
         {
-            req.addGetParameter("description", description);
+            req.addPostParameter("description", description);
         }
         if(null != base_address)
         {
-            req.addGetParameter("base_address", base_address);
+            req.addPostParameter("base_address", base_address);
         }
-        req.addGetParameter("peripheral_id", peripheral_id);
+        req.addPostParameter("peripheral_id", peripheral_id);
         if(null != disable_condition)
         {
-            req.addGetParameter("disable_condition", disable_condition);
+            req.addPostParameter("disable_condition", disable_condition);
         }
-        req.addGetParameter("dev_id", srvDeviceId);
+        req.addPostParameter("dev_id", srvDeviceId);
         Response res = srv.execute(req);
         if(false == res.wasSuccessfull())
         {
@@ -976,26 +976,26 @@ public class SvdPeripheralHandler
             String disable_Condition )
     {
         Request req = new Request("peripheral_instance", Request.PUT);
-        req.addGetParameter("id", id);
+        req.addPostParameter("id", id);
         if(null != name)
         {
-            req.addGetParameter("name", name);
+            req.addPostParameter("name", name);
         }
         if(null != description)
         {
-            req.addGetParameter("description", description);
+            req.addPostParameter("description", description);
         }
         if(null != base_address)
         {
-            req.addGetParameter("base_address", base_address);
+            req.addPostParameter("base_address", base_address);
         }
         if(0 != peripheral_id)
         {
-            req.addGetParameter("peripheral_id", peripheral_id);
+            req.addPostParameter("peripheral_id", peripheral_id);
         }
         if(null != disable_Condition)
         {
-            req.addGetParameter("disable_Condition", disable_Condition);
+            req.addPostParameter("disable_Condition", disable_Condition);
         }
         Response res = srv.execute(req);
         if(false == res.wasSuccessfull())

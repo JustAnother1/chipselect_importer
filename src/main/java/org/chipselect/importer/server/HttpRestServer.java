@@ -94,12 +94,14 @@ public class HttpRestServer extends RestServer implements Server
             {
                 connection.setDoOutput(true);
             }
+            connection.setRequestProperty("Accept-Charset", "UTF-8");
             connection.setRequestProperty("accept", "application/json");
             if(true == hasUser)
             {
                 Base64.Encoder enc = Base64.getUrlEncoder();
                 connection.addRequestProperty("Authorization", "Basic " + enc.encodeToString((restUser + ":" + restPassword).getBytes()));
             }
+            connection.setRequestMethod("POST");
             if(true == req.hasBody())
             {
                 OutputStream requestStream = connection.getOutputStream();

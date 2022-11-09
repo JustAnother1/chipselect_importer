@@ -39,7 +39,7 @@ public class SvdAddressBlockHandler
             return false;
         }
         Request req = new Request("address_block", Request.GET);
-        req.addGetParameter("per_id", srvPeripheralId);
+        req.addPostParameter("per_id", srvPeripheralId);
         Response AddrBlockRes = srv.execute(req);
         if(false == AddrBlockRes.wasSuccessfull())
         {
@@ -67,7 +67,7 @@ public class SvdAddressBlockHandler
             return false;
         }
         Request req = new Request("address_block", Request.GET);
-        req.addGetParameter("per_id", srvPeripheralId);
+        req.addPostParameter("per_id", srvPeripheralId);
         Response AddrBlockRes = srv.execute(req);
         if(false == AddrBlockRes.wasSuccessfull())
         {
@@ -227,22 +227,22 @@ public class SvdAddressBlockHandler
             String protection)
     {
         Request req = new Request("address_block", Request.PUT);
-        req.addGetParameter("id", id);
+        req.addPostParameter("id", id);
         if(null != address_offset)
         {
-            req.addGetParameter("address_offset", address_offset);
+            req.addPostParameter("address_offset", address_offset);
         }
         if(null != size)
         {
-            req.addGetParameter("size", size);
+            req.addPostParameter("size", size);
         }
         if(null != mem_usage)
         {
-            req.addGetParameter("mem_usage", mem_usage);
+            req.addPostParameter("mem_usage", mem_usage);
         }
         if(null != protection)
         {
-            req.addGetParameter("protection", protection);
+            req.addPostParameter("protection", protection);
         }
         Response res = srv.execute(req);
         if(false == res.wasSuccessfull())
@@ -266,21 +266,21 @@ public class SvdAddressBlockHandler
         Request req = new Request("address_block", Request.POST);
         if(null != address_offset)
         {
-            req.addGetParameter("address_offset", address_offset);
+            req.addPostParameter("address_offset", address_offset);
         }
         if(null != size)
         {
-            req.addGetParameter("size", size);
+            req.addPostParameter("size", size);
         }
         if(null != mem_usage)
         {
-            req.addGetParameter("mem_usage", mem_usage);
+            req.addPostParameter("mem_usage", mem_usage);
         }
         if(null != protection)
         {
-            req.addGetParameter("protection", protection);
+            req.addPostParameter("protection", protection);
         }
-        req.addGetParameter("per_id", peripheral_id);
+        req.addPostParameter("per_id", peripheral_id);
         Response res = srv.execute(req);
         if(false == res.wasSuccessfull())
         {

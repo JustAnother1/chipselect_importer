@@ -206,16 +206,42 @@ public final class Tool
         }
         return dst.toString();
     }
-
+    
     public static String cleanupString(final String dirty)
     {
         String wet = dirty.trim();
-        wet = wet.replaceAll("\n", " ");
+        // fix
+        wet = wet.replaceAll("&lt", "€lt€");
+        wet = wet.replaceAll("&gt", "€gt€");
+        wet = wet.replaceAll("&apos", "€apos€");
+        wet = wet.replaceAll("&quot", "€quot€");
+        wet = wet.replaceAll("&lt", "€lt€");
+        // protect
+        wet = wet.replaceAll("&lt;", "€lt€");
+        wet = wet.replaceAll("&gt;", "€gt€");
+        wet = wet.replaceAll("&apos;", "€apos€");
+        wet = wet.replaceAll("&quot;", "€quot€");
+        wet = wet.replaceAll("&lt;", "€lt€");
+        wet = wet.replaceAll("\\n", "€n€");
+        // clean
+        wet = wet.replaceAll("\n", "€n€");
         wet = wet.replaceAll("\t", " ");
         wet = wet.replaceAll("\r", " ");
-        wet = wet.replaceAll(";", " ");
-        wet = wet.replaceAll("\"", " ");
-        wet = wet.replaceAll("&", " and ");
+        wet = wet.replaceAll(";", " "); // <- this causes issues with the &lt;,..
+        wet = wet.replaceAll("\"", " ");// <- this causes issues with the \\n
+        wet = wet.replaceAll("&", "&amp;");
+        wet = wet.replaceAll("<", "&lt;");
+        wet = wet.replaceAll(">", "&gt;");
+        wet = wet.replaceAll("'", "&apos;");
+        wet = wet.replaceAll("\"", "&quot;");
+        wet = wet.replaceAll("<", "&lt;");
+        // restore
+        wet = wet.replaceAll("€lt€", "&lt;");
+        wet = wet.replaceAll("€gt€", "&gt;");
+        wet = wet.replaceAll("€apos€", "&apos;");
+        wet = wet.replaceAll("€quot€", "&quot;");
+        wet = wet.replaceAll("€lt€", "&lt;");
+        wet = wet.replaceAll("€n€", "\\\\n");
         while(true == wet.contains("  "))
         {
             wet = wet.replaceAll("  ", " ");

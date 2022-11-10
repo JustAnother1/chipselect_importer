@@ -141,7 +141,7 @@ public class SvdFieldHandler
                     return false;
                 }
                 bitOffset = (int)Tool.decode(parts[1]);
-                sizeBit = (int)Tool.decode(parts[0]) + 1;
+                sizeBit = (int)Tool.decode(parts[0]) + 1 - bitOffset;
                 break;
 
             case "access":

@@ -141,7 +141,7 @@ public class ImporterMain
         System.out.println("-h / --help                : print this message.");
         System.out.println("-v                         : verbose output for even more messages use -v -v");
         System.out.println("-noColour                  : do not highlight the output.");
-        System.out.println("-svd <file name>           : import a svd file.");
+        System.out.println("-svd <file name>           : import a svd file. Use '-' to read data from stdin.");
         System.out.println("-segger <file name>        : import SEGGER J-Link device database file.");
         System.out.println("-vendor <vendor name>      : set chip venor name. This is necessary if the vendor name is not contained in the imported file.");
         System.out.println("-onlyVendor                : Do not import the file, only check if the Vendor information is contained.");
@@ -275,16 +275,15 @@ public class ImporterMain
         // import a svd file?
         if(true == import_svd)
         {
-            // SVD Files are XML
             Document jdomDocument = null;
-            File xf = new File(svd_FileName);
-            if(true == xf.exists())
-            {
+        	if(true == "-".equals(svd_FileName))
+        	{
+        		// read SVD from stdin
                 SAXBuilder jdomBuilder = new SAXBuilder();
                 log.trace("trying to open {}", svd_FileName);
                 try
                 {
-                    jdomDocument = jdomBuilder.build(svd_FileName);
+                    jdomDocument = jdomBuilder.build(System.in);
                     SystemViewDescription parser = new SystemViewDescription(chipselect);
                     if(null != vendor_name)
                     {
@@ -295,13 +294,6 @@ public class ImporterMain
                         return false;
                     }
                     done_something = true;
-                }
-                catch(FileNotFoundException e)
-                {
-                    e.printStackTrace();
-                    log.error("File not found: {}", svd_FileName);
-                    jdomDocument = null;
-                    return false;
                 }
                 catch(JDOMException e)
                 {
@@ -317,12 +309,57 @@ public class ImporterMain
                     jdomDocument = null;
                     return false;
                 }
-            }
-            else
-            {
-                log.error("the file {} does not exist.", svd_FileName);
-                return false;
-            }
+        	}
+        	else
+        	{
+	            // SVD Files are XML
+	            File xf = new File(svd_FileName);
+	            if(true == xf.exists())
+	            {
+	                SAXBuilder jdomBuilder = new SAXBuilder();
+	                log.trace("trying to open {}", svd_FileName);
+	                try
+	                {
+	                    jdomDocument = jdomBuilder.build(svd_FileName);
+	                    SystemViewDescription parser = new SystemViewDescription(chipselect);
+	                    if(null != vendor_name)
+	                    {
+	                        parser.setVendorName(vendor_name);
+	                    }
+	                    if(false == parser.parse(jdomDocument, checkVendorOnly))
+	                    {
+	                        return false;
+	                    }
+	                    done_something = true;
+	                }
+	                catch(FileNotFoundException e)
+	                {
+	                    e.printStackTrace();
+	                    log.error("File not found: {}", svd_FileName);
+	                    jdomDocument = null;
+	                    return false;
+	                }
+	                catch(JDOMException e)
+	                {
+	                    log.error("JDOMException occured !");
+	                    log.error(e.getLocalizedMessage());
+	                    jdomDocument = null;
+	                    return false;
+	                }
+	                catch (IOException e)
+	                {
+	                    log.error("IOException occured !");
+	                    log.error(e.getLocalizedMessage());
+	                    jdomDocument = null;
+	                    return false;
+	                }
+	            }
+	            else
+	            {
+	                log.error("the file {} does not exist.", svd_FileName);
+	                return false;
+	            }
+        	}
         }
         if(true == import_segger)
         {

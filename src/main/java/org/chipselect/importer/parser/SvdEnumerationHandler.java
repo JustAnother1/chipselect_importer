@@ -21,174 +21,22 @@ public class SvdEnumerationHandler
         this.srv = srv;
     }
 
-    public boolean updateEnumeration(Element enumeration, int fieldId)
+    public boolean updateEnumeration(Vector<Element> enum_values, int fieldId)
     {
-        if(0 == fieldId)
+        if(null == enum_values)
         {
-            log.error("Field ID invalid !");
+            log.error("enum_values is null !");
             return false;
         }
-        Request req = new Request("enumeration", Request.GET);
-        req.addPostParameter("field_id", fieldId);
-        Response enumRes = srv.execute(req);
-        if(false == enumRes.wasSuccessfull())
-        {
-            log.error("could not read enumeration from server");
-            return false;
-        }
-        // else -> go on
-
-        if(false == checkEnumeration(enumRes, enumeration, fieldId))
-        {
-            return false;
-        }
-        return true;
-    }
-
-    private boolean checkEnumeration(Response res, Element enumE, int fieldId)
-    {
-        String svdName = null;
-        String svdUsage  = null;
-        Vector<Element> enum_values = new Vector<Element>();
-
-        if(null != enumE.getAttribute("derivedFrom "))
-        {
-            log.error("Derived enumeration not yet supported!");
-            return false;
-        }
-
-        // check for unknown children
-        List<Element> children = enumE.getChildren();
-        for(Element child : children)
-        {
-            String name = child.getName();
-            switch(name)
-            {
-            // all defined child types from SVD standard
-            // compare to: https://arm-software.github.io/CMSIS_5/develop/SVD/html/elem_registers.html#elem_enumeratedValues
-
-            case "name":
-                svdName = Tool.cleanupString(child.getText());
-                break;
-
-            case "usage":
-                svdUsage  = Tool.cleanupString(child.getText());
-                break;
-
-            case "headerEnumName":
-                log.error("enumeration child headerEnumName(={}) not implemented!", child.getText());
-                return false;
-
-            case "enumeratedValue":
-                enum_values.add(child);
-                break;
-
-            default:
-                // undefined child found. This is not a valid SVD file !
-                log.error("Unknown enumeration child tag: {}", name);
-                return false;
-            }
-        }
-
-        int enumId = 0;
-        int numEnumsOnServer = res.numResults();
-        // there are only two _valid_ cases here:
-        // 0 elements means this enum is new and we need to create it, or
-        // 1 elements means we already have this enum and only want to update it.
-        // everything else is just a big mistake!
-        if(0 == numEnumsOnServer)
-        {
-            // create new enumeration for this field
-            enumId = createEnumerationOnServer(fieldId, svdName, svdUsage);
-            if(0 == enumId)
-            {
-                log.error("could not create a enumeration !");
-                log.error(Tool.getXMLRepresentationFor(enumE));
-                return false;
-            }
-            // else  OK
-        }
-        else if(1 == numEnumsOnServer)
-        {
-            enumId = res.getInt("id");
-            String srvName = res.getString("name");
-            String srvUsage = res.getString("usage_right");
-            boolean changed = false;
-
-            if(null != srvName)
-            {
-                if(null != svdName)
-                {
-                    if(false == srvName.equals(svdName))
-                    {
-                        // this server enumeration has a name and it is different to the name in the SVD
-                        log.trace("name changed from {} to {}", srvName, svdName);
-                        changed = true;
-                    }
-                }
-                // updated to NULL -> ignore
-            }
-            else
-            {
-                if(null != svdName)
-                {
-                    // this server enum has no name, but the svd one has a name
-                    log.trace("name changed from {} to {}", srvName, svdName);
-                    changed = true;
-                }
-            }
-
-            if(null != srvUsage)
-            {
-                // server does have a usage
-                if(null != svdUsage)
-                {
-                    if(false == svdUsage.equals(srvUsage))
-                    {
-                        log.trace("usage changed from {} to {}", srvUsage, svdUsage);
-                        changed = true;
-                    }
-                }
-            }
-            else
-            {
-                // server has no usage
-                if(null == svdUsage)
-                {
-                    // not changed
-                }
-                else
-                {
-                    log.trace("usage changed from {} to {}", srvUsage, svdUsage);
-                    changed = true;
-                }
-            }
-            if(true == changed)
-            {
-                // update the enumeration
-                if(false == updateEnumerationOnServer(enumId, svdName, svdUsage))
-                {
-                    log.error("Could not update the enumeration on the server!");
-                    return false;
-                }
-            }
-        }
-        else
-        {
-            // -> more than one enum? -> Server has invalid data!
-            log.error("server has more than one enumeration for a single field !");
-            return false;
-        }
-
         if(false == enum_values.isEmpty())
         {
-            if(0 == enumId)
+            if(0 == fieldId)
             {
-                log.error("enumeration ID invalid !");
+                log.error("field ID invalid !");
                 return false;
             }
             Request req = new Request("enumeration_element", Request.GET);
-            req.addPostParameter("enum_id", enumId);
+            req.addPostParameter("field_id", fieldId);
             Response enumValRes = srv.execute(req);
             if(false == enumValRes.wasSuccessfull())
             {
@@ -198,7 +46,7 @@ public class SvdEnumerationHandler
             for(int i = 0; i < enum_values.size(); i++)
             {
                 Element value = enum_values.get(i);
-                if(false == checkEnumValues(enumValRes, value, enumId))
+                if(false == checkEnumValues(enumValRes, value, fieldId))
                 {
                     log.error("Failed to check enumeration element !");
                     return false;
@@ -208,7 +56,7 @@ public class SvdEnumerationHandler
         return true;
     }
 
-    private boolean checkEnumValues(Response res, Element enumE, int enumId)
+    private boolean checkEnumValues(Response res, Element enumE, int fieldId)
     {
         String svdName = null;
         String svdDescription = null;
@@ -325,7 +173,7 @@ public class SvdEnumerationHandler
         if(false == found)
         {
             // create new enumeration for this field
-            int valId = createEnumerationValueOnServer(enumId, svdName, svdDescription, svdValue, svdIsDefault);
+            int valId = createEnumerationValueOnServer(fieldId, svdName, svdDescription, svdValue, svdIsDefault);
             if(0 == valId)
             {
                 log.error("could not create a enumeration value !");
@@ -337,14 +185,14 @@ public class SvdEnumerationHandler
     }
 
     private int createEnumerationValueOnServer(
-            int enumId,
+            int fieldId,
             String name,
             String description,
             String value,
             boolean isDefault)
     {
         Request req = new Request("enumeration_element", Request.POST);
-        req.addPostParameter("enum_id", enumId);
+        req.addPostParameter("field_id", fieldId);
         if(null != name)
         {
             req.addPostParameter("name", name);
@@ -410,53 +258,6 @@ public class SvdEnumerationHandler
         if(false == res.wasSuccessfull())
         {
             log.error("could not update the enumeration volue on the server");
-            return false;
-        }
-        else
-        {
-            return true;
-        }
-    }
-
-    private int createEnumerationOnServer(int fieldId, String name, String usage)
-    {
-        Request req = new Request("enumeration", Request.POST);
-        req.addPostParameter("field_id", fieldId);
-        if(null != name)
-        {
-            req.addPostParameter("name", name);
-        }
-        if(null != usage)
-        {
-            req.addPostParameter("usage_right", usage);
-        }
-        Response res = srv.execute(req);
-        if(false == res.wasSuccessfull())
-        {
-            return 0;
-        }
-        else
-        {
-            return res.getInt("id");
-        }
-    }
-
-    private boolean updateEnumerationOnServer(int id, String name, String usage)
-    {
-        Request req = new Request("enumeration", Request.PUT);
-        req.addPostParameter("id", id);
-        if(null != name)
-        {
-            req.addPostParameter("name", name);
-        }
-        if(null != usage)
-        {
-            req.addPostParameter("usage_right", usage);
-        }
-        Response res = srv.execute(req);
-        if(false == res.wasSuccessfull())
-        {
-            log.error("could not update the enumeration on the server");
             return false;
         }
         else

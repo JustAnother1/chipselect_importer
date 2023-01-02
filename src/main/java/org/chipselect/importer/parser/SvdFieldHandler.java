@@ -25,10 +25,13 @@ public class SvdFieldHandler
     private String access = null;
     private String modifiedWriteValues = null;
     private String readAction = null;
-    private Vector<Element> enumerations = new Vector<Element>();
     private int dim = 0;
     private int dim_increment = 0;
     private String dim_index = null;
+    private boolean isEnum = false;
+    private String enumName = null;
+    private String enumUsageRight = null;
+    private Vector<Element> enum_values = new Vector<Element>();
 
     public SvdFieldHandler(Server srv)
     {
@@ -36,15 +39,15 @@ public class SvdFieldHandler
         enumHandler = new SvdEnumerationHandler(srv);
     }
 
-    public boolean updateField(Element fields, int srvId)
+    public boolean updateField(Element fields, int srvRegId)
     {
-        if(0 == srvId)
+        if(0 == srvRegId)
         {
             log.error("Register ID invalid !");
             return false;
         }
         Request req = new Request("field", Request.GET);
-        req.addPostParameter("reg_id", srvId);
+        req.addPostParameter("reg_id", srvRegId);
         Response fieldstRes = srv.execute(req);
         if(false == fieldstRes.wasSuccessfull())
         {
@@ -55,7 +58,7 @@ public class SvdFieldHandler
         List<Element> fieldList = fields.getChildren();
         for(Element field : fieldList)
         {
-            if(false == checkField(fieldstRes, field, srvId))
+            if(false == checkField(fieldstRes, field, srvRegId))
             {
                 return false;
             }
@@ -72,10 +75,12 @@ public class SvdFieldHandler
         access = null;
         modifiedWriteValues = null;
         readAction = null;
-        enumerations = new Vector<Element>();
         dim = 0;
         dim_increment = 0;
         dim_index = null;
+        isEnum = false;
+        enumName = null;
+        enumUsageRight = null;
     }
 
     private boolean checkForUnknownChildren(Element field)
@@ -162,7 +167,11 @@ public class SvdFieldHandler
                 break;
 
             case "enumeratedValues":
-                enumerations.add(child);
+                isEnum = true;
+                if(false == parseEnumeratedValuesElement(child))
+                {
+                    return false;
+                }
                 break;
 
             case "dim":
@@ -190,6 +199,50 @@ public class SvdFieldHandler
         return true;
     }
 
+    private boolean parseEnumeratedValuesElement(Element enumE)
+    {
+        if(null != enumE.getAttribute("derivedFrom "))
+        {
+            log.error("Derived enumeration not yet supported!");
+            return false;
+        }
+
+        // check for unknown children
+        List<Element> children = enumE.getChildren();
+        for(Element child : children)
+        {
+            String name = child.getName();
+            switch(name)
+            {
+            // all defined child types from SVD standard
+            // compare to: https://arm-software.github.io/CMSIS_5/develop/SVD/html/elem_registers.html#elem_enumeratedValues
+
+            case "name":
+                enumName = Tool.cleanupString(child.getText());
+                break;
+
+            case "usage":
+                enumUsageRight  = Tool.cleanupString(child.getText());
+                break;
+
+            case "headerEnumName":
+                log.error("enumeration child headerEnumName(={}) not implemented!", child.getText());
+                return false;
+
+            case "enumeratedValue":
+                enum_values.add(child);
+                break;
+
+            default:
+                // undefined child found. This is not a valid SVD file !
+                log.error("Unknown enumeration child tag: {}", name);
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     private boolean checkIfUpdateOrNewField(Response res,  int reg_id)
     {
         log.trace("checking field {}", svdName);
@@ -212,6 +265,9 @@ public class SvdFieldHandler
                 String srvAccess = res.getString(i, "access");
                 String srvModifiedWriteValues = res.getString(i, "modified_write_values");
                 String srvReadAction = res.getString(i, "read_action");
+                String srvIsEnum = res.getString(i, "is_Enum");
+                String srvEnumName = res.getString(i, "enum_name");
+                String srvEnumUsageRight = res.getString(i, "enum_usage_right");
                 // check for Change
                 boolean changed = false;
                 if((null != description) && (false == "".equals(description)) && (false == description.equals(srvDescription)))
@@ -250,6 +306,30 @@ public class SvdFieldHandler
                     changed = true;
                 }
                 // else no change
+                if((true == isEnum) && (false == "1".equals(srvIsEnum)) )
+                {
+                    log.trace("is_Enum changed from :{}: to :1:", srvIsEnum, readAction);
+                    changed = true;
+                }
+                // else no change
+                if((false == isEnum) && (false == "0".equals(srvIsEnum)) )
+                {
+                    log.trace("is_Enum changed from :{}: to :0:", srvIsEnum, readAction);
+                    changed = true;
+                }
+                // else no change
+                if((null != enumName) && (false == "".equals(enumName)) && (false == enumName.equals(srvEnumName)))
+                {
+                    log.trace("read action changed from :{}: to :{}:", srvEnumName, enumName);
+                    changed = true;
+                }
+                // else no change
+                if((null != enumUsageRight) && (false == "".equals(enumUsageRight)) && (false == enumUsageRight.equals(srvEnumUsageRight)))
+                {
+                    log.trace("read action changed from :{}: to :{}:", srvEnumUsageRight, enumUsageRight);
+                    changed = true;
+                }
+                // else no change
 
                 if(true == changed)
                 {
@@ -260,7 +340,10 @@ public class SvdFieldHandler
                             sizeBit,
                             access,
                             modifiedWriteValues,
-                            readAction ))
+                            readAction,
+                            isEnum,
+                            enumName,
+                            enumUsageRight ))
                     {
                         log.error("failed to update field on server!");
                         return false;
@@ -272,7 +355,6 @@ public class SvdFieldHandler
         }
         if(false == found)
         {
-            // this field is missing on the server -> add it
             srvId = createNewFieldOnServer(
                     svdName,
                     description,
@@ -281,6 +363,9 @@ public class SvdFieldHandler
                     access,
                     modifiedWriteValues,
                     readAction,
+                    isEnum,
+                    enumName,
+                    enumUsageRight,
                     reg_id );
             if(0 == srvId)
             {
@@ -288,18 +373,16 @@ public class SvdFieldHandler
                 return false;
             }
         }
-        // field handeled, -> enums?
-        if(false == enumerations.isEmpty())
+        // field handled, -> enumeration values?
+        if((true == isEnum) && (0 < enum_values.size() ) )
         {
-            for(int i = 0; i< enumerations.size(); i++)
+            if(false == enumHandler.updateEnumeration(enum_values, srvId))
             {
-                Element curE = enumerations.get(i);
-                if(false == enumHandler.updateEnumeration(curE, srvId))
-                {
-                    return false;
-                }
+                return false;
             }
+            // else -> OK
         }
+        // no enumeration values -> nothing to do
         return true;
     }
 
@@ -358,7 +441,10 @@ public class SvdFieldHandler
             int size_bit,
             String access,
             String modified_write_values,
-            String read_action )
+            String read_action,
+            boolean isEnum,
+            String enumName,
+            String enumUsageRight)
     {
         Request req = new Request("field", Request.PUT);
         req.addPostParameter("id", id);
@@ -384,6 +470,22 @@ public class SvdFieldHandler
         {
             req.addPostParameter("read_action", read_action);
         }
+        if(false == isEnum)
+        {
+            req.addPostParameter("is_Enum", 0);
+        }
+        else
+        {
+            req.addPostParameter("is_Enum", 1);
+        }
+        if(null != enumName)
+        {
+            req.addPostParameter("enum_name", enumName);
+        }
+        if(null != enumUsageRight)
+        {
+            req.addPostParameter("enum_usage_right", enumUsageRight);
+        }
         Response res = srv.execute(req);
         if(false == res.wasSuccessfull())
         {
@@ -404,6 +506,9 @@ public class SvdFieldHandler
             String access,
             String modified_write_values,
             String read_action,
+            boolean isEnum,
+            String enumName,
+            String enumUsageRight,
             int reg_id
             )
     {
@@ -426,6 +531,22 @@ public class SvdFieldHandler
         if(null != read_action)
         {
             req.addPostParameter("read_action", read_action);
+        }
+        if(false == isEnum)
+        {
+            req.addPostParameter("is_Enum", 0);
+        }
+        else
+        {
+            req.addPostParameter("is_Enum", 1);
+        }
+        if(null != enumName)
+        {
+            req.addPostParameter("enum_name", enumName);
+        }
+        if(null != enumUsageRight)
+        {
+            req.addPostParameter("enum_usage_right", enumUsageRight);
         }
         req.addPostParameter("reg_id", reg_id);
         Response res = srv.execute(req);

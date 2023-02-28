@@ -24,6 +24,7 @@ public class HttpRestServer extends RestServer implements Server
     private final long[] RequestsTimes = new long[Request.MAX_TYPE_NUM + 1];
     private final long[] RequestsTimeMin = new long[Request.MAX_TYPE_NUM + 1];
     private final long[] RequestsTimeMax = new long[Request.MAX_TYPE_NUM + 1];
+    private boolean dryRunMode = false;
 
     public HttpRestServer(String restUrl, String restUser, String restPassword)
     {
@@ -83,6 +84,14 @@ public class HttpRestServer extends RestServer implements Server
         HttpURLConnection connection = null;
         numRequests[reqType] ++;
         // Create a neat value object to hold the URL
+        if(true == dryRunMode)
+        {
+            // in dry run we do only GET requests
+            if(Request.GET != reqType)
+            {
+                return res;
+            }
+        }
         try
         {
             URL url = new URL(restUrl + req.url());
@@ -163,6 +172,12 @@ public class HttpRestServer extends RestServer implements Server
             RequestsTimeMin[reqType] = timeElapsed;
         }
         return res;
+    }
+
+    @Override
+    public void enableDryRunMode()
+    {
+        dryRunMode = true;
     }
 
 }

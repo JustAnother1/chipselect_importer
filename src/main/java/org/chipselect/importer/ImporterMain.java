@@ -42,6 +42,7 @@ public class ImporterMain
     private boolean import_svd = false;
     private boolean import_segger = false;
     private boolean checkVendorOnly = false;
+    private boolean dryRun = false;
     private String svd_FileName = null;
     private String segger_FileName = null;
     private String vendor_name = null;
@@ -148,6 +149,7 @@ public class ImporterMain
         System.out.println("-REST_URL <URL>            : URL of REST server with chip database.");
         System.out.println("-user <name>               : user name for REST server.");
         System.out.println("-password <password>       : password for REST server.");
+        System.out.println("-dry-run                   : do not change data on the server.");
     }
 
     public boolean parseCommandLineParameters(String[] args)
@@ -243,6 +245,10 @@ public class ImporterMain
                     }
                     restPassword = args[i];
                 }
+                else if(true == "-dry-run".equals(args[i]))
+                {
+                    dryRun = true;
+                }
                 else
                 {
                     System.err.println("Invalid parameter : " + args[i]);
@@ -260,6 +266,12 @@ public class ImporterMain
 
     public boolean execute()
     {
+        if(true == dryRun)
+        {
+            log.info("!!! DRY RUN !!!");
+            log.info("There wil be no information saved to the server !");
+            log.info("!!! DRY RUN !!!");
+        }
         Server chipselect = null;
         if(null != restUrl)
         {
@@ -271,6 +283,12 @@ public class ImporterMain
             printHelp();
             return false;
         }
+
+        if(true == dryRun)
+        {
+            chipselect.enableDryRunMode();
+        }
+
         boolean done_something = false;
         // import a svd file?
         if(true == import_svd)

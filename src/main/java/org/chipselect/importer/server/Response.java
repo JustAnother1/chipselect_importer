@@ -215,8 +215,13 @@ public class Response
             }
             try
             {
-                String res = obj.getString(key);
+                String res = JSONObject.valueToString(obj.get(key));
                 res = res.trim();
+                if(true == res.matches("\".*\""))
+                {
+                    res = res.substring(1, res.length() -1);
+                }
+                // String res = obj.getString(key); // this does not work on int values !
                 return res;
             }
             catch(JSONException e)

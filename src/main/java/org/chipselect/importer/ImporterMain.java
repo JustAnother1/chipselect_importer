@@ -451,6 +451,7 @@ public class ImporterMain
             {
                 // OK
                 System.exit(0);
+                System.out.println("Done!");
             }
             else
             {

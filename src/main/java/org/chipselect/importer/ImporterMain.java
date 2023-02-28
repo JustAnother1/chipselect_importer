@@ -438,6 +438,7 @@ public class ImporterMain
         // import something else ?
 
         log.info(chipselect.getStatus());
+        chipselect.close();
         return done_something;
     }
 

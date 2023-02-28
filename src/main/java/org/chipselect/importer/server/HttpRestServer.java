@@ -1,5 +1,7 @@
 package org.chipselect.importer.server;
 
+import java.io.ByteArrayInputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -7,6 +9,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
 import org.json.JSONException;
@@ -25,6 +28,7 @@ public class HttpRestServer extends RestServer implements Server
     private final long[] RequestsTimeMin = new long[Request.MAX_TYPE_NUM + 1];
     private final long[] RequestsTimeMax = new long[Request.MAX_TYPE_NUM + 1];
     private boolean dryRunMode = false;
+    private FileWriter fw = null;
 
     public HttpRestServer(String restUrl, String restUser, String restPassword)
     {
@@ -65,6 +69,13 @@ public class HttpRestServer extends RestServer implements Server
     {
         StringBuilder sb = new StringBuilder();
         sb.append("Type : (min / avareage / max)\n");
+        if(true == dryRunMode)
+        {
+            RequestsTimeMin[Request.DELETE] = 0;
+            RequestsTimeMin[Request.PATCH] = 0;
+            RequestsTimeMin[Request.POST] = 0;
+            RequestsTimeMin[Request.PUT] = 0;
+        }
         for(int i = 1; i <= Request.MAX_TYPE_NUM; i++)
         {
             if(0 < numRequests[i])
@@ -89,6 +100,18 @@ public class HttpRestServer extends RestServer implements Server
             // in dry run we do only GET requests
             if(Request.GET != reqType)
             {
+                try
+                {
+                    // log that request
+                    fw.write(req.toString() + "\n");
+                    // if we tried to create a new entry we read back the new id
+                    InputStream stream = new ByteArrayInputStream("[{id : 1}]".getBytes(StandardCharsets.UTF_8));
+                    res.readFrom(stream);
+                }
+                catch (IOException e)
+                {
+                    e.printStackTrace();
+                }
                 return res;
             }
         }
@@ -178,6 +201,32 @@ public class HttpRestServer extends RestServer implements Server
     public void enableDryRunMode()
     {
         dryRunMode = true;
+        try
+        {
+            fw = new FileWriter("dryModelog.txt");
+        }
+        catch (IOException e)
+        {
+            fw = null;
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void close()
+    {
+        if(null != fw)
+        {
+            try
+            {
+                fw.flush();
+                fw.close();
+            }
+            catch (IOException e)
+            {
+                e.printStackTrace();
+            }
+        }
     }
 
 }

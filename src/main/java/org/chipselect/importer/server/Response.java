@@ -63,7 +63,8 @@ public class Response
     {
         JsonString = new String(responseStream.readAllBytes(), StandardCharsets.UTF_8);
         dataArr = new JSONArray(JsonString);
-        log.trace("{}", dataArr.toString());
+        log.trace("{}", JsonString);
+        // log.trace("{}", dataArr.toString());
     }
 
     public int getInt(String key)

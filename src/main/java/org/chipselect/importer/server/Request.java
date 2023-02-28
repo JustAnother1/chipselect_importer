@@ -24,6 +24,34 @@ public class Request
         urlPost.add("REQUEST_METHOD=" + getMethodName(type));
     }
 
+    @Override
+    public String toString()
+    {
+        StringBuffer sb = new StringBuffer();
+        sb.append("Request to ");
+        sb.append(resource);
+        sb.append(" type = ");
+        switch(type)
+        {
+        case GET: sb.append("GET");break;
+        case POST: sb.append("POST");break;
+        case PUT: sb.append("PUT");break;
+        case PATCH: sb.append("PATCH");break;
+        case DELETE: sb.append("DELETE");break;
+        default: sb.append(type);break;
+        }
+        if(0 != urlPost.size())
+        {
+            sb.append(" Parameters: ");
+            sb.append(urlPost.elementAt(0));
+            for(int i = 1; i < urlPost.size(); i++)
+            {
+                sb.append(" " + urlPost.elementAt(i));
+            }
+        }
+        return sb.toString();
+    }
+
     public int getType()
     {
         return type;
@@ -72,7 +100,7 @@ public class Request
     	{
     		return null;
     	}
-    	
+
         StringBuilder sb = new StringBuilder();
     	if(1 == urlPost.size())
     	{

@@ -206,16 +206,20 @@ public final class Tool
         }
         return dst.toString();
     }
-    
+
     public static String cleanupString(final String dirty)
     {
         String wet = dirty.trim();
+        // unicode
+        wet = wet.replaceAll("\\\\u2013", "–");
+
         // fix
         wet = wet.replaceAll("&lt", "€lt€");
         wet = wet.replaceAll("&gt", "€gt€");
         wet = wet.replaceAll("&apos", "€apos€");
         wet = wet.replaceAll("&quot", "€quot€");
         wet = wet.replaceAll("&lt", "€lt€");
+        wet = wet.replaceAll("&amp", "€amp€");
         // protect
         wet = wet.replaceAll("&lt;", "€lt€");
         wet = wet.replaceAll("&gt;", "€gt€");
@@ -241,6 +245,7 @@ public final class Tool
         wet = wet.replaceAll("€apos€", "&apos;");
         wet = wet.replaceAll("€quot€", "&quot;");
         wet = wet.replaceAll("€lt€", "&lt;");
+        wet = wet.replaceAll("€amp€", "&amp;");
         wet = wet.replaceAll("€n€", "\\\\n");
         while(true == wet.contains("  "))
         {
@@ -248,6 +253,51 @@ public final class Tool
         }
         String clean = wet.trim();
         return clean;
+    }
+
+    public static String reportDifferences(String one, String two)
+    {
+        StringBuffer sb = new StringBuffer();
+        if((one == null) || (two == null))
+        {
+            if(null == one)
+            {
+                sb.append("first String is NULL !\n");
+            }
+            if(null == two)
+            {
+                sb.append("second String is NULL !\n");
+            }
+        }
+        else
+        {
+            // one and two are not NULL
+            if(one.length() != two.length())
+            {
+                sb.append("Strings have diffeent lengths ! (" + one.length() + ", " + two.length() + " )\n");
+            }
+            int minLength = one.length();
+            if(two.length()< minLength)
+            {
+                minLength = two.length();
+            }
+            int numDifferences = 0;
+            for(int i = 0; i < minLength; i++)
+            {
+                char oc = one.charAt(i);
+                char tc = two.charAt(i);
+                if(oc != tc)
+                {
+                    sb.append("difference at index " + i + " first string has '" + oc + "' second string has '" + tc + "'\n" );
+                    numDifferences++;
+                    if(numDifferences > 10)
+                    {
+                        break;
+                    }
+                }
+            }
+        }
+        return sb.toString();
     }
 
     public static String getStacTrace()

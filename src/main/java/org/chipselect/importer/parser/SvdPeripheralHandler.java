@@ -301,10 +301,11 @@ public class SvdPeripheralHandler
         {
             svdDescriptionValue = Tool.cleanupString(svdDescriptionValue);
             String srvValue = srvAllPeripherals.getString(idx, "description");
+            srvValue = Tool.cleanupString(srvValue);
             if(false == svdDescriptionValue.equals(srvValue))
             {
-                log.debug("update needed for {} from :{}: to :{}:!", "description", srvValue, svdDescriptionValue);
-
+                log.warn("update needed for {} from :{}: to :{}:!", "description", srvValue, svdDescriptionValue);
+                log.warn(Tool.reportDifferences( srvValue, svdDescriptionValue));
                 int id = srvAllPeripherals.getInt(idx, "id");
                 if(0 == id)
                 {

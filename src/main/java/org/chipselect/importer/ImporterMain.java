@@ -73,11 +73,12 @@ public class ImporterMain
         }
 
         // configure Logging
+        // Levels are ERROR - WARN - INFO - DEBUG - TRACE
         switch(numOfV)
         {
         case 0: setLogLevel("warn", colour); break;
-        case 1: setLogLevel("debug", colour);break;
-        case 2:
+        case 1: setLogLevel("info", colour);break;
+        case 2: setLogLevel("debug", colour);break;
         default:
             setLogLevel("trace", colour);
             System.err.println("Build from " + Tool.getCommitID());
@@ -101,7 +102,7 @@ public class ImporterMain
                   "<appender name='STDERR' class='ch.qos.logback.core.ConsoleAppender'>" +
                   "<target>System.err</target>" +
                     "<encoder>" +
-                       "<pattern>%highlight(%-5level) [%logger{36}] %msg%n</pattern>" +
+                       "<pattern>%date{HH:mm:ss.SSS} %highlight(%-5level) [%36.36logger] %msg%n</pattern>" +
                     "</encoder>" +
                   "</appender>" +
                   "<root level='" + LogLevel + "'>" +
@@ -140,7 +141,7 @@ public class ImporterMain
         System.out.println("Importer [Parameters]");
         System.out.println("Parameters:");
         System.out.println("-h / --help                : print this message.");
-        System.out.println("-v                         : verbose output for even more messages use -v -v");
+        System.out.println("-v                         : verbose output for even more messages use -v -v or even -v -v -v");
         System.out.println("-noColour                  : do not highlight the output.");
         System.out.println("-svd <file name>           : import a svd file. Use '-' to read data from stdin.");
         System.out.println("-segger <file name>        : import SEGGER J-Link device database file.");

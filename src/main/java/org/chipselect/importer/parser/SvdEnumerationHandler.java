@@ -43,6 +43,8 @@ public class SvdEnumerationHandler
                 log.error("could not read enumeration from server");
                 return false;
             }
+            log.info("found " + enum_values.size() + " enums in SVD.");
+            log.info("found " + enumValRes.numResults() + " enums on the server.");
             for(int i = 0; i < enum_values.size(); i++)
             {
                 Element value = enum_values.get(i);

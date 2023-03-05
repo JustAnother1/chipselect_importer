@@ -52,7 +52,7 @@ public class SystemViewDescription
         else
         {
             vendorName = vendor.getText();
-            log.info("Vendor from SVD : {}", vendorName);
+            log.debug("Vendor from SVD : {}", vendorName);
         }
         // check with server
         Request req = new Request("vendor", Request.GET);
@@ -71,7 +71,7 @@ public class SystemViewDescription
         if(0 == id)
         {
             // this vendor is not on the server
-            log.info("The Vendor {} is not known on the server !", vendorName);
+            log.debug("The Vendor {} is not known on the server !", vendorName);
             Request PostReq = new Request("vendor", Request.POST);
             PostReq.addPostParameter("name", vendorName);
             Response post_res = srv.execute(PostReq);
@@ -129,7 +129,7 @@ public class SystemViewDescription
         if(0 == id)
         {
             // this device is not on the server
-            log.info("The device {} is not known on the server !", device_name);
+            log.debug("The device {} is not known on the server !", device_name);
             Request PostReq = new Request("microcontroller", Request.POST);
             PostReq.addPostParameter("name", device_name);
             PostReq.addPostParameter("vendor_id", vendor_id);
@@ -306,7 +306,7 @@ public class SystemViewDescription
                 }
             }
             // architecture not in database -> create new architecture in database
-            log.info("architecture not found -> create new architecture");
+            log.debug("architecture not found -> create new architecture");
             return createArchitectureOnServer(
                     svdName,
                     svdRevision,
@@ -319,7 +319,7 @@ public class SystemViewDescription
         else
         {
             // architecture not in database -> create new architecture in database
-            log.info("no architectures found -> create new architecture");
+            log.debug("no architectures found -> create new architecture");
             return createArchitectureOnServer(
                     svdName,
                     svdRevision,
@@ -403,7 +403,7 @@ public class SystemViewDescription
         }
         if(false == svdDescription.equals(srvDescription))
         {
-            log.info("Description on server : {}, in SVD: {}", srvDescription, svdDescription);
+            log.debug("Description on server : {}, in SVD: {}", srvDescription, svdDescription);
             Request req = new Request("microcontroller", Request.PUT);
             req.addPostParameter("name", device_name);
             req.addPostParameter("description", svdDescription);
@@ -438,7 +438,7 @@ public class SystemViewDescription
 
         if(srvAddrUnit != svdAddrUnit)
         {
-            log.info("Address Unit on server : {}, in SVD: {}", srvAddrUnit, svdAddrUnit);
+            log.debug("Address Unit on server : {}, in SVD: {}", srvAddrUnit, svdAddrUnit);
             Request req = new Request("microcontroller", Request.PUT);
             req.addPostParameter("name", device_name);
             req.addPostParameter("Addressable_unit_bit", svdAddrUnit);
@@ -472,10 +472,10 @@ public class SystemViewDescription
         int srvBusWidth= res.getInt("bus_width_bit");
 
         bitWidth = svdBusWidth; // used as default size
-        
+
         if(srvBusWidth != svdBusWidth)
         {
-            log.info("Bus Width on server : {}, in SVD: {}", srvBusWidth, svdBusWidth);
+            log.debug("Bus Width on server : {}, in SVD: {}", srvBusWidth, svdBusWidth);
             Request req = new Request("microcontroller", Request.PUT);
             req.addPostParameter("name", device_name);
             req.addPostParameter("bus_width_bit", svdBusWidth);
@@ -527,7 +527,7 @@ public class SystemViewDescription
         log.trace("default_resetValue: {}", default_resetValue);
         log.trace("default_resetMask: {}", default_resetMask);
         log.trace("default_protection: {}", default_protection);
-        
+
         if(null == default_size)
         {
         	default_size = "" + bitWidth;
@@ -537,7 +537,7 @@ public class SystemViewDescription
         	default_size = "" + bitWidth;
         }
     	log.trace("default_size: {}", default_size);
-    	
+
         handler.setDefaultSize(default_size);
         handler.setDefaultAccess(default_access);
         handler.setDefaultResetValue(default_resetValue);
@@ -567,6 +567,7 @@ public class SystemViewDescription
             else
             {
                 // not a derived peripheral
+                log.info("now handling peripheral {}", name);
                 if(false == handler.handle(peripheral))
                 {
                     return false;
@@ -578,7 +579,9 @@ public class SystemViewDescription
             log.trace("now handling derived peripherals....");
             for(Element peripheral : derivedPeripherals)
             {
+                String name = peripheral.getChildText("name");
                 String derived = peripheral.getAttributeValue("derivedFrom");
+                log.info("now handling peripheral {}", name);
                 if(false == handler.handleDerived(peripheral, namedPeripherals.get(derived)))
                 {
                     return false;
@@ -665,7 +668,7 @@ public class SystemViewDescription
         }
         if(true == checkVendorOnly)
         {
-            log.info("Vendor information OK!");
+            log.debug("Vendor information OK!");
             return true;
         }
         if(false == handleName(device))

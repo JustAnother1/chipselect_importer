@@ -81,6 +81,7 @@ public class SvdFieldHandler
         isEnum = false;
         enumName = null;
         enumUsageRight = null;
+        enum_values.clear();
     }
 
     private boolean checkForUnknownChildren(Element field)
@@ -245,8 +246,7 @@ public class SvdFieldHandler
 
     private boolean checkIfUpdateOrNewField(Response res,  int reg_id)
     {
-        log.trace("checking field {}", svdName);
-
+        log.info("checking field {}", svdName);
         int srvId = -1;
         boolean found = false;
         int numFieldsServer = res.numResults();

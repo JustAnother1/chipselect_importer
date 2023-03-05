@@ -223,8 +223,8 @@ public class SeggerXmlParser
             int srvVendorId = res.getInt("vendor_id");
             if(srvVendorId != segVendorId)
             {
-                log.info("Vendor ID changed for device {} seg VendorName : {}", Name, dev.getVendorName());
-                log.info("Vendor ID changed ! SEGGER: {}, Server: {}", segVendorId, srvVendorId);
+                log.debug("Vendor ID changed for device {} seg VendorName : {}", Name, dev.getVendorName());
+                log.debug("Vendor ID changed ! SEGGER: {}, Server: {}", segVendorId, srvVendorId);
                 if(0 == srvVendorId)
                 {
                     srvVendorId = segVendorId;
@@ -238,7 +238,7 @@ public class SeggerXmlParser
             int srvArchitectureId = res.getInt("architecture_id");
             if(srvArchitectureId != segArchitectureId)
             {
-                log.info("Architecture ID changed ! SEGGER: {}, Server: {}", segArchitectureId, srvArchitectureId);
+                log.debug("Architecture ID changed ! SEGGER: {}, Server: {}", segArchitectureId, srvArchitectureId);
                 // The id on the server can be more specific than the rather general term used in the SEGGER file.
                 // therefore if the server has a value than that is better than whatever SEGGER has.
                 if(0 == srvArchitectureId)
@@ -287,7 +287,7 @@ public class SeggerXmlParser
         {
             // Server does not know this device
             // -> Add it !
-            log.info("The microcontroller {} is not on the server !", Name);
+            log.debug("The microcontroller {} is not on the server !", Name);
             Request addRequest = new Request("microcontroller", Request.POST);
             addRequest.addPostParameter("name", Name);
             addRequest.addPostParameter("architecture_id", segArchitectureId);
@@ -408,7 +408,7 @@ public class SeggerXmlParser
             else
             {
                 // this vendor is not on the server
-                log.info("The Vendor {} is not known on the server !", vendorName);
+                log.debug("The Vendor {} is not known on the server !", vendorName);
                 return -1;
                 /*
                 Request PostReq = new Request("vendor", Request.POST);

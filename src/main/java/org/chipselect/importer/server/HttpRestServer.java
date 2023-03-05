@@ -118,7 +118,7 @@ public class HttpRestServer extends RestServer implements Server
         try
         {
             URL url = new URL(restUrl + req.url());
-            log.info("{} : {}",req.getMethod(), url.toString());
+            log.trace("{} : {}",req.getMethod(), url.toString());
 
             connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod(req.getMethod());
@@ -169,7 +169,8 @@ public class HttpRestServer extends RestServer implements Server
         catch (IOException e)
         {
             log.error("{} Request failed! IOException!", req.getMethod());
-            log.error("url : {}", req.url());
+            log.error("request : {}", req.toString());
+            // log.error("url : {}", req.url());
             log.error(e.toString());
             String val = connection.getHeaderField(0);
             log.error("status line: " + val);

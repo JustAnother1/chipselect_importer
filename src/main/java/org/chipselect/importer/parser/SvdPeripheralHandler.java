@@ -541,6 +541,7 @@ public class SvdPeripheralHandler
         {
             svdDescriptionValue = Tool.cleanupString(svdDescriptionValue);
             String srvValue = srvAllPeripherals.getString(srvIdx, "description");
+            srvValue = Tool.cleanupString(srvValue);
             if(false == svdDescriptionValue.equals(srvValue))
             {
                 log.debug("update needed for {} from :{}: to :{}:!", "description", srvValue, svdDescriptionValue);

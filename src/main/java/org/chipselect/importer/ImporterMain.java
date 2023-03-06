@@ -117,7 +117,7 @@ public class ImporterMain
                   "<appender name='STDERR' class='ch.qos.logback.core.ConsoleAppender'>" +
                   "<target>System.err</target>" +
                     "<encoder>" +
-                      "<pattern>%-5level [%logger{36}] %msg%n</pattern>" +
+                      "<pattern>%date{HH:mm:ss.SSS} %-5level [%36.36logger] %msg%n</pattern>" +
                     "</encoder>" +
                   "</appender>" +
                   "<root level='" + LogLevel + "'>" +

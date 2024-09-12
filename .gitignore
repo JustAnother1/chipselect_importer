@@ -1,9 +1,9 @@
-/bin/
+bin/
 prototypes/
-/lib/
-/target/
-/dependency-reduced-pom.xml
-/*.svd
-/*.sh
-/*.py
-/*.txt
+lib/
+target/
+dependency-reduced-pom.xml
+*.svd
+*.sh
+*.py
+*.txt

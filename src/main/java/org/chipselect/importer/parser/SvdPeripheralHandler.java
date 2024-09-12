@@ -372,8 +372,24 @@ public class SvdPeripheralHandler
             if(null != strBaseAddress.toString())
             {
                 log.debug("update needed for {} from :{}: to :{}:!", "baseAddress", strSrvBaseAddress, strBaseAddress);
-                log.error("update baseAddress not implemented!");
-                return false;
+                int id = srvAllPeripherals.getInt(idx, "id");
+                if(0 == id)
+                {
+                    log.error("Peripheral ID on server is invalid !");
+                    return false;
+                }
+
+                if(false == updateServerPeripheralInstance(
+                        id,
+                        null,
+                        null,
+                        strBaseAddress.toString(),
+                        0,
+                        null ))
+                {
+                    log.error("update disableCondition failed!");
+                    return false;
+                }
             }
         }
 
@@ -617,8 +633,24 @@ public class SvdPeripheralHandler
             if(null != strBaseAddress.toString())
             {
                 log.debug("update needed for {} from :{}: to :{}:!", "baseAddress", strSrvBaseAddress, strBaseAddress);
-                log.error("update baseAddress not implemented!");
-                return false;
+                int id = srvAllPeripherals.getInt(srvIdx, "id");
+                if(0 == id)
+                {
+                    log.error("Peripheral ID on server is invalid !");
+                    return false;
+                }
+
+                if(false == updateServerPeripheralInstance(
+                        id,
+                        null,
+                        null,
+                        strBaseAddress.toString(),
+                        0,
+                        null ))
+                {
+                    log.error("update disableCondition failed!");
+                    return false;
+                }
             }
         }
 

@@ -93,6 +93,197 @@ public class HexString
             }
         }
     }
+    
+
+    @Override
+    public int hashCode()
+    {
+        if(null == val)
+        {
+            return 42;
+        }
+        else if(0 == val.length())
+        {
+            return 21;
+        }
+        else
+        {
+            return 31 * val.charAt(val.length() -1);
+        }
+    }
+
+    public boolean equals(HexString other)
+    {
+        if((null == val) || (null == other))
+        {
+            return false;
+        }
+        else
+        {
+            String otherVal = other.toString();
+            return val.equals(otherVal);
+        }
+    }
+
+    public boolean equals(String other)
+    {
+        if(null == val)
+        {
+            return false;
+        }
+        else
+        {
+            HexString o = new HexString(other);
+            String oVal = o.toString();
+            return val.equals(oVal);
+        }
+    }
+
+    public boolean equals(int other)
+    {
+        if(null == val)
+        {
+            return false;
+        }
+        else
+        {
+            String otherVal = longToString(other);
+            return val.equals(otherVal);
+        }
+    }
+
+    public boolean equals(long other)
+    {
+        if(null == val)
+        {
+            return false;
+        }
+        else
+        {
+            String otherVal = longToString(other);
+            return val.equals(otherVal);
+        }
+    }
+
+    public boolean equals(Object other)
+    {
+        if((null == val) || (null == other))
+        {
+            return false;
+        }
+        else
+        {
+            if( other instanceof HexString)
+            {
+                String otherVal = other.toString();
+                return val.equals(otherVal);
+            }
+            if(other instanceof String)
+            {
+                HexString o = new HexString((String)other);
+                String oVal = o.toString();
+                return val.equals(oVal);
+            }
+            if( other instanceof Integer)
+            {
+                long value = ((Integer)other).intValue();
+                String otherVal = longToString(value);
+                return val.equals(otherVal);
+            }
+            if( other instanceof Long)
+            {
+                long value = ((Long)other).longValue();
+                String otherVal = longToString(value);
+                return val.equals(otherVal);
+            }
+            return false;
+        }
+    }
+    
+    public HexString add(int value)
+    {
+        return this.add((long)value);
+    }
+
+    public HexString add(long value)
+    {
+        if(null == val)
+        {
+            return new HexString(value);
+        }
+        // val must now be like "0x1234"
+        int posval = val.length() -1;
+        int carry = 0;
+        StringBuilder sb = new StringBuilder();
+        while((value > 0) || (1 < posval))
+        {
+            int i = (int)(value%16); // i can not be larger than 15, so cast is not an issue
+            value = value - i;
+            value = value /16;
+            char old;
+            if(1 < posval)
+            {
+                old = val.charAt(posval);
+                posval--;
+            }
+            else
+            {
+                // value has more positions than val has -> add leading zeros.
+                old = '0';
+            }
+            int oi = char2Int(old);
+            int cur = i + oi + carry;
+            if(15 < cur)
+            {
+                carry = cur -16;
+                sb.append(intToChar(carry));
+                carry = 1;
+            }
+            else
+            {
+                sb.append(intToChar(cur));
+            }
+        }
+
+        if(0 != carry)
+        {
+            sb.append(intToChar(carry));
+        }
+        sb.reverse();
+        return new HexString("0x" + sb.toString());
+    }
+
+    @Override
+    public String toString()
+    {
+        return val;
+    }
+    
+    public long toLong()
+    {
+    	if(null == val)
+    	{
+    		return 0;
+    	}
+    	else
+    	{
+    		if(   ('0' != val.charAt(0))
+    		   || ('x' != val.charAt(1)) )
+    		{
+    			return 0;
+    		}
+    		else
+    		{
+    			long res = 0;
+    			for(int i = 2; i < val.length(); i++)
+    			{
+    				res = res * 16;
+    				res = res + char2Int(val.charAt(i));
+    			}
+    			return res;
+    		}
+    	}
+    }
 
     private String hexToString(boolean hasPrefix, String value)
     {
@@ -252,111 +443,6 @@ public class HexString
         }
     }
 
-    @Override
-    public int hashCode()
-    {
-        if(null == val)
-        {
-            return 42;
-        }
-        else if(0 == val.length())
-        {
-            return 21;
-        }
-        else
-        {
-            return 31 * val.charAt(val.length() -1);
-        }
-    }
-
-    public boolean equals(HexString other)
-    {
-        if((null == val) || (null == other))
-        {
-            return false;
-        }
-        else
-        {
-            String otherVal = other.toString();
-            return val.equals(otherVal);
-        }
-    }
-
-    public boolean equals(String other)
-    {
-        if(null == val)
-        {
-            return false;
-        }
-        else
-        {
-            HexString o = new HexString(other);
-            String oVal = o.toString();
-            return val.equals(oVal);
-        }
-    }
-
-    public boolean equals(int other)
-    {
-        if(null == val)
-        {
-            return false;
-        }
-        else
-        {
-            String otherVal = longToString(other);
-            return val.equals(otherVal);
-        }
-    }
-
-    public boolean equals(long other)
-    {
-        if(null == val)
-        {
-            return false;
-        }
-        else
-        {
-            String otherVal = longToString(other);
-            return val.equals(otherVal);
-        }
-    }
-
-    public boolean equals(Object other)
-    {
-        if((null == val) || (null == other))
-        {
-            return false;
-        }
-        else
-        {
-            if( other instanceof HexString)
-            {
-                String otherVal = other.toString();
-                return val.equals(otherVal);
-            }
-            if(other instanceof String)
-            {
-                HexString o = new HexString((String)other);
-                String oVal = o.toString();
-                return val.equals(oVal);
-            }
-            if( other instanceof Integer)
-            {
-                long value = ((Integer)other).intValue();
-                String otherVal = longToString(value);
-                return val.equals(otherVal);
-            }
-            if( other instanceof Long)
-            {
-                long value = ((Long)other).longValue();
-                String otherVal = longToString(value);
-                return val.equals(otherVal);
-            }
-            return false;
-        }
-    }
-
     private int char2Int(char c)
     {
         switch(c)
@@ -386,66 +472,6 @@ public class HexString
         default:
             return 0;
         }
-    }
-
-    public HexString add(int value)
-    {
-        return this.add((long)value);
-    }
-
-    public HexString add(long value)
-    {
-        if(null == val)
-        {
-            return new HexString(value);
-        }
-        // val must now be like "0x1234"
-        int posval = val.length() -1;
-        int carry = 0;
-        StringBuilder sb = new StringBuilder();
-        while((value > 0) || (1 < posval))
-        {
-            int i = (int)(value%16); // i can not be larger than 15, so cast is not an issue
-            value = value - i;
-            value = value /16;
-            char old;
-            if(1 < posval)
-            {
-                old = val.charAt(posval);
-                posval--;
-            }
-            else
-            {
-                // value has more positions than val has -> add leading zeros.
-                old = '0';
-            }
-            int oi = char2Int(old);
-            int cur = i + oi + carry;
-            if(15 < cur)
-            {
-                carry = cur -16;
-                sb.append(intToChar(carry));
-                carry = 1;
-            }
-            else
-            {
-                sb.append(intToChar(cur));
-            }
-        }
-
-        if(0 != carry)
-        {
-            sb.append(intToChar(carry));
-        }
-        sb.reverse();
-        return new HexString("0x" + sb.toString());
-    }
-
-
-    @Override
-    public String toString()
-    {
-        return val;
     }
 
 }

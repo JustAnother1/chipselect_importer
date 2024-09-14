@@ -369,7 +369,7 @@ public class SvdPeripheralHandler
         HexString strSrvBaseAddress = new HexString(srvAllPeripherals.getString(idx, "base_address"));
         if(false == strBaseAddress.equals(strSrvBaseAddress))
         {
-            if(null != strBaseAddress.toString())
+            if(0 != strBaseAddress.toLong())
             {
                 log.debug("update needed for {} from :{}: to :{}:!", "baseAddress", strSrvBaseAddress, strBaseAddress);
                 int id = srvAllPeripherals.getInt(idx, "id");

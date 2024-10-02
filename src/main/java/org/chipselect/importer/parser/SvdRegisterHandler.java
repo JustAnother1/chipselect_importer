@@ -703,7 +703,7 @@ public class SvdRegisterHandler
             log.error("Register does not have a name !");
             return false;
         }
-        log.info("checking register {}", name);
+        log.trace("checking register {}", name);
 
         boolean found = false;
         int numRegisterServer = res.numResults();

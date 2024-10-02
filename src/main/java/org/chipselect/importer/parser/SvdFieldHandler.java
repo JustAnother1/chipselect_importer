@@ -246,7 +246,7 @@ public class SvdFieldHandler
 
     private boolean checkIfUpdateOrNewField(Response res,  int reg_id)
     {
-        log.info("checking field {}", svdName);
+        log.trace("checking field {}", svdName);
         int srvId = -1;
         boolean found = false;
         int numFieldsServer = res.numResults();

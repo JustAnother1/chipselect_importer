@@ -37,7 +37,7 @@ public class SystemViewDescription
         Element vendor = device.getChild("vendor");
         if(null == vendor)
         {
-        	// vendor is not in the file
+            // vendor is not in the file
             if(null == specified_vendor_name)
             {
                 log.error("No vendor name provided! not in SVD, not as parameter!");
@@ -169,18 +169,25 @@ public class SystemViewDescription
 
     private int decodeBoolString(String val)
     {
-        val = val.toLowerCase();
-        if("true".equals(val))
+        if(null == val)
         {
-            return 1;
-        }
-        else if("false".equals(val))
-        {
-            return 0;
+            return -1;
         }
         else
         {
-            return Integer.valueOf(val);
+            val = val.toLowerCase();
+            if("true".equals(val))
+            {
+                return 1;
+            }
+            else if("false".equals(val))
+            {
+                return 0;
+            }
+            else
+            {
+                return Integer.valueOf(val);
+            }
         }
     }
 
@@ -530,13 +537,13 @@ public class SystemViewDescription
 
         if(null == default_size)
         {
-        	default_size = "" + bitWidth;
+            default_size = "" + bitWidth;
         }
         else if(1 > Integer.decode(default_size))
         {
-        	default_size = "" + bitWidth;
+            default_size = "" + bitWidth;
         }
-    	log.trace("default_size: {}", default_size);
+        log.trace("default_size: {}", default_size);
 
         handler.setDefaultSize(default_size);
         handler.setDefaultAccess(default_access);

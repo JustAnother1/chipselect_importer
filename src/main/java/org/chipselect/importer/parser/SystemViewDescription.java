@@ -220,16 +220,67 @@ public class SystemViewDescription
         // deviceNumInterrupts
         // sauNumRegions
         // sauRegionsConfig
-        if((null == svdName) || (null == svdRevision) || (null == svdEndian) || (null == svdNvicPrioBits) || (null == svdVendorSystickConfig))
+        if(null == svdName)
+        {
+            log.error("CPU element invalid - svdName = NULL");
+            return false;
+        }
+
+        if(null == svdRevision)
+        {
+            log.error("CPU element invalid - svdRevision = NULL");
+            return false;
+        }
+
+        if(null == svdEndian)
+        {
+            log.error("CPU element invalid - svdEndian = NULL");
+            return false;
+        }
+
+        if(null == svdNvicPrioBits)
+        {
+            log.error("CPU element invalid - svdNvicPrioBits = NULL");
+            return false;
+        }
+
+        if(null == svdVendorSystickConfig)
+        {
+            log.error("CPU element invalid - svdVendorSystickConfig = NULL !");
+            return false;
+        }
+
+        if(1 > svdName.length())
+        {
+            log.error("CPU element invalid - svdName empty");
+            return false;
+        }
+
+        if(1 > svdRevision.length())
+        {
+            log.error("CPU element invalid - svdRevision empty");
+            return false;
+        }
+
+        if(1 > svdEndian.length())
+        {
+            log.error("CPU element invalid - svdEndian empty");
+            return false;
+        }
+
+        if(1 > svdNvicPrioBits.length())
+        {
+            log.error("CPU element invalid - svdNvicPrioBits empty");
+            return false;
+        }
+
+        if(1 > svdVendorSystickConfig.length())
         {
             log.error("CPU element invalid");
             return false;
         }
-        if((1 > svdName.length()) || (1 > svdRevision.length()) || (1 > svdEndian.length()) || (1 > svdNvicPrioBits.length()) || (1 > svdVendorSystickConfig.length()))
-        {
-            log.error("CPU element invalid");
-            return false;
-        }
+
+
         log.trace("Name: {}", svdName);
         log.trace("Revision: {}", svdRevision);
         log.trace("Endian: {}", svdEndian);

@@ -204,7 +204,7 @@ public class HttpRestServer extends RestServer implements Server
         dryRunMode = true;
         try
         {
-            fw = new FileWriter("dryModelog.txt");
+            fw = new FileWriter("log_dry_mode.txt");
         }
         catch (IOException e)
         {

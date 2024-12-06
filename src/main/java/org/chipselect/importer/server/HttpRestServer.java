@@ -8,6 +8,8 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
@@ -117,7 +119,8 @@ public class HttpRestServer extends RestServer implements Server
         }
         try
         {
-            URL url = new URL(restUrl + req.url());
+            URI uri = new URI(restUrl + req.url());
+            URL url = uri.toURL();
             log.trace("{} : {}",req.getMethod(), url.toString());
 
             connection = (HttpURLConnection) url.openConnection();
@@ -150,6 +153,13 @@ public class HttpRestServer extends RestServer implements Server
             log.error("url : {}", req.url());
             log.error(e.toString());
             log.error("Failure Description : {}", res.getFailureDescription());
+            res.setError(e.toString());
+        }
+        catch (URISyntaxException e)
+        {
+            log.error("{} Request failed! URISyntaxException!", req.getMethod());
+            log.error("url : {}", req.url());
+            log.error(e.toString());
             res.setError(e.toString());
         }
         catch (MalformedURLException e)

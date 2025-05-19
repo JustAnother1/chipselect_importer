@@ -27,7 +27,7 @@ public class Request
     @Override
     public String toString()
     {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         sb.append("Request to ");
         sb.append(resource);
         sb.append(" type = ");
@@ -96,24 +96,24 @@ public class Request
 
     public byte[] getBodyDataBytes()
     {
-    	if(0 == urlPost.size())
-    	{
-    		return null;
-    	}
+        if(0 == urlPost.size())
+        {
+            return null;
+        }
 
         StringBuilder sb = new StringBuilder();
-    	if(1 == urlPost.size())
-    	{
-    		sb.append(urlPost.elementAt(0));
-    	}
-    	else
-    	{
-    		sb.append(urlPost.elementAt(0));
-	        for(int i = 1; i < urlPost.size(); i++)
-	        {
-	            sb.append("&" + urlPost.elementAt(i));
-	        }
-    	}
+        if(1 == urlPost.size())
+        {
+            sb.append(urlPost.elementAt(0));
+        }
+        else
+        {
+            sb.append(urlPost.elementAt(0));
+            for(int i = 1; i < urlPost.size(); i++)
+            {
+                sb.append("&" + urlPost.elementAt(i));
+            }
+        }
 
         String data = sb.toString();
         byte[] out = data.getBytes(StandardCharsets.UTF_8);

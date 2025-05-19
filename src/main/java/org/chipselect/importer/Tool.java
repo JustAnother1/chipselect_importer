@@ -128,7 +128,7 @@ public final class Tool
         {
             return "[]";
         }
-        final StringBuffer sb = new StringBuffer();
+        final StringBuilder sb = new StringBuilder();
         for(int i = 0; i < length; i++)
         {
             sb.append(String.format("%02X", (0xff & buf[i + offset])));
@@ -143,7 +143,7 @@ public final class Tool
         {
             return "[]";
         }
-        final StringBuffer sb = new StringBuffer();
+        final StringBuilder sb = new StringBuilder();
         for(int i = 0; i < length; i++)
         {
             sb.append(String.format("%02X", buf[i + offset]));
@@ -167,7 +167,7 @@ public final class Tool
         {
             return "[]";
         }
-        final StringBuffer sb = new StringBuffer();
+        final StringBuilder sb = new StringBuilder();
         for(int i = 0; i < length; i++)
         {
             sb.append((char)buf[i + offset]);
@@ -195,7 +195,7 @@ public final class Tool
 
     public static String onlyAllowedChars(final String src)
     {
-        final StringBuffer dst = new StringBuffer();
+        final StringBuilder dst = new StringBuilder();
         for(int i = 0; i < src.length(); i++)
         {
             final char cur = src.charAt(i);
@@ -257,7 +257,7 @@ public final class Tool
 
     public static String reportDifferences(String one, String two)
     {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         if((one == null) || (two == null))
         {
             if(null == one)
@@ -310,7 +310,7 @@ public final class Tool
         }
         else
         {
-            final StringBuffer res = new StringBuffer();
+            final StringBuilder res = new StringBuilder();
             for(int i = 0; i < trace.length; i++)
             {
                 res.append(trace[i].toString());

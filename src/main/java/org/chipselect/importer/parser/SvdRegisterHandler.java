@@ -514,9 +514,9 @@ public class SvdRegisterHandler
             case "dimName" :
             case "dimArrayIndex" :
             case "writeConstraint" :
-                log.error("Register child {} (={}) not implemented!", tagName, child.getText());
-                log.error("\n" + Tool.getXMLRepresentationFor(svdRegister));
-                return false;
+                log.warn("Register child {} (={}) not implemented!", tagName, Tool.getXMLRepresentationFor(child));
+                log.warn("\n" + Tool.getXMLRepresentationFor(svdRegister));
+                break;
 
             default:
                 // undefined child found. This is not a valid SVD file !

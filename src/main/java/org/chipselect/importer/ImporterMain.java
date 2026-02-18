@@ -102,7 +102,7 @@ public class ImporterMain
                   "<appender name='STDERR' class='ch.qos.logback.core.ConsoleAppender'>" +
                   "<target>System.err</target>" +
                     "<encoder>" +
-                       "<pattern>%date{HH:mm:ss.SSS} %highlight(%-5level) [%36.36logger] %msg%n</pattern>" +
+                       "<pattern>%date{HH:mm:ss.SSS} %highlight(%-5level) [%36.36logger]%line %msg%n</pattern>" +
                     "</encoder>" +
                   "</appender>" +
                   "<root level='" + LogLevel + "'>" +
@@ -117,7 +117,7 @@ public class ImporterMain
                   "<appender name='STDERR' class='ch.qos.logback.core.ConsoleAppender'>" +
                   "<target>System.err</target>" +
                     "<encoder>" +
-                      "<pattern>%date{HH:mm:ss.SSS} %-5level [%36.36logger] %msg%n</pattern>" +
+                      "<pattern>%date{HH:mm:ss.SSS} %-5level [%36.36logger]%line %msg%n</pattern>" +
                     "</encoder>" +
                   "</appender>" +
                   "<root level='" + LogLevel + "'>" +
@@ -295,9 +295,9 @@ public class ImporterMain
         if(true == import_svd)
         {
             Document jdomDocument = null;
-        	if(true == "-".equals(svd_FileName))
-        	{
-        		// read SVD from stdin
+            if(true == "-".equals(svd_FileName))
+            {
+                // read SVD from stdin
                 SAXBuilder jdomBuilder = new SAXBuilder();
                 log.trace("trying to open {}", svd_FileName);
                 try
@@ -328,57 +328,57 @@ public class ImporterMain
                     jdomDocument = null;
                     return false;
                 }
-        	}
-        	else
-        	{
-	            // SVD Files are XML
-	            File xf = new File(svd_FileName);
-	            if(true == xf.exists())
-	            {
-	                SAXBuilder jdomBuilder = new SAXBuilder();
-	                log.trace("trying to open {}", svd_FileName);
-	                try
-	                {
-	                    jdomDocument = jdomBuilder.build(svd_FileName);
-	                    SystemViewDescription parser = new SystemViewDescription(chipselect);
-	                    if(null != vendor_name)
-	                    {
-	                        parser.setVendorName(vendor_name);
-	                    }
-	                    if(false == parser.parse(jdomDocument, checkVendorOnly))
-	                    {
-	                        return false;
-	                    }
-	                    done_something = true;
-	                }
-	                catch(FileNotFoundException e)
-	                {
-	                    e.printStackTrace();
-	                    log.error("File not found: {}", svd_FileName);
-	                    jdomDocument = null;
-	                    return false;
-	                }
-	                catch(JDOMException e)
-	                {
-	                    log.error("JDOMException occured !");
-	                    log.error(e.getLocalizedMessage());
-	                    jdomDocument = null;
-	                    return false;
-	                }
-	                catch (IOException e)
-	                {
-	                    log.error("IOException occured !");
-	                    log.error(e.getLocalizedMessage());
-	                    jdomDocument = null;
-	                    return false;
-	                }
-	            }
-	            else
-	            {
-	                log.error("the file {} does not exist.", svd_FileName);
-	                return false;
-	            }
-        	}
+            }
+            else
+            {
+                // SVD Files are XML
+                File xf = new File(svd_FileName);
+                if(true == xf.exists())
+                {
+                    SAXBuilder jdomBuilder = new SAXBuilder();
+                    log.trace("trying to open {}", svd_FileName);
+                    try
+                    {
+                        jdomDocument = jdomBuilder.build(svd_FileName);
+                        SystemViewDescription parser = new SystemViewDescription(chipselect);
+                        if(null != vendor_name)
+                        {
+                            parser.setVendorName(vendor_name);
+                        }
+                        if(false == parser.parse(jdomDocument, checkVendorOnly))
+                        {
+                            return false;
+                        }
+                        done_something = true;
+                    }
+                    catch(FileNotFoundException e)
+                    {
+                        e.printStackTrace();
+                        log.error("File not found: {}", svd_FileName);
+                        jdomDocument = null;
+                        return false;
+                    }
+                    catch(JDOMException e)
+                    {
+                        log.error("JDOMException occured !");
+                        log.error(e.getLocalizedMessage());
+                        jdomDocument = null;
+                        return false;
+                    }
+                    catch (IOException e)
+                    {
+                        log.error("IOException occured !");
+                        log.error(e.getLocalizedMessage());
+                        jdomDocument = null;
+                        return false;
+                    }
+                }
+                else
+                {
+                    log.error("the file {} does not exist.", svd_FileName);
+                    return false;
+                }
+            }
         }
         if(true == import_segger)
         {
